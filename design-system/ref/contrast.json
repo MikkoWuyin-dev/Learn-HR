@@ -1,0 +1,1738 @@
+{
+  "source": "tokens/tokens.json",
+  "standard": "WCAG 2.1 relative luminance",
+  "approved": [
+    {
+      "name": "foreground on background",
+      "fg": "#043629",
+      "bg": "#fff8e6",
+      "ratio": 12.67,
+      "grade": "AAA",
+      "aaLarge": true,
+      "aa": true,
+      "aaa": true
+    },
+    {
+      "name": "--wk-primary-foreground on --wk-primary",
+      "fg": "#043629",
+      "bg": "#68be00",
+      "ratio": 5.72,
+      "grade": "AA",
+      "aaLarge": true,
+      "aa": true,
+      "aaa": false
+    },
+    {
+      "name": "--wk-secondary-foreground on --wk-secondary",
+      "fg": "#043629",
+      "bg": "#f66f8e",
+      "ratio": 4.85,
+      "grade": "AA",
+      "aaLarge": true,
+      "aa": true,
+      "aaa": false
+    },
+    {
+      "name": "--wk-accent-foreground on --wk-accent",
+      "fg": "#fff8e6",
+      "bg": "#8a38f5",
+      "ratio": 5,
+      "grade": "AA",
+      "aaLarge": true,
+      "aa": true,
+      "aaa": false
+    },
+    {
+      "name": "--wk-muted-foreground on --wk-muted",
+      "fg": "#3f5c52",
+      "bg": "#f3ead3",
+      "ratio": 6.12,
+      "grade": "AA",
+      "aaLarge": true,
+      "aa": true,
+      "aaa": false
+    },
+    {
+      "name": "--wk-surface-foreground on --wk-surface",
+      "fg": "#043629",
+      "bg": "#ffffff",
+      "ratio": 13.42,
+      "grade": "AAA",
+      "aaLarge": true,
+      "aa": true,
+      "aaa": true
+    },
+    {
+      "name": "paper on ink (inverse surfaces)",
+      "fg": "#fff8e6",
+      "bg": "#043629",
+      "ratio": 12.67,
+      "grade": "AAA",
+      "aaLarge": true,
+      "aa": true,
+      "aaa": true
+    },
+    {
+      "name": "paper/80 on ink (body copy on ink)",
+      "fg": "rgba(255,248,230,.8)",
+      "bg": "#043629",
+      "ratio": 8.62,
+      "grade": "AAA",
+      "aaLarge": true,
+      "aa": true,
+      "aaa": true
+    },
+    {
+      "name": "ink on yellow sticker",
+      "fg": "#043629",
+      "bg": "#ffc629",
+      "ratio": 8.54,
+      "grade": "AAA",
+      "aaLarge": true,
+      "aa": true,
+      "aaa": true
+    },
+    {
+      "name": "ink/70 eyebrow on paper",
+      "fg": "rgba(4,54,41,.7)",
+      "bg": "#fff8e6",
+      "ratio": 5.17,
+      "grade": "AA",
+      "aaLarge": true,
+      "aa": true,
+      "aaa": false
+    },
+    {
+      "name": "ink/60 on paper",
+      "fg": "rgba(4,54,41,.6)",
+      "bg": "#fff8e6",
+      "ratio": 3.87,
+      "grade": "AA-large",
+      "aaLarge": true,
+      "aa": false,
+      "aaa": false
+    },
+    {
+      "name": "white/50 on ink (dark panel meta)",
+      "fg": "rgba(255,255,255,.5)",
+      "bg": "#043629",
+      "ratio": 4.49,
+      "grade": "AA-large",
+      "aaLarge": true,
+      "aa": false,
+      "aaa": false
+    },
+    {
+      "name": "purple link on paper",
+      "fg": "#8a38f5",
+      "bg": "#fff8e6",
+      "ratio": 5,
+      "grade": "AA",
+      "aaLarge": true,
+      "aa": true,
+      "aaa": false
+    },
+    {
+      "name": "ember text on paper",
+      "fg": "#ff6b3e",
+      "bg": "#fff8e6",
+      "ratio": 2.67,
+      "grade": "fail",
+      "aaLarge": false,
+      "aa": false,
+      "aaa": false
+    },
+    {
+      "name": "lime-deep text on paper",
+      "fg": "#498500",
+      "bg": "#fff8e6",
+      "ratio": 4.27,
+      "grade": "AA-large",
+      "aaLarge": true,
+      "aa": false,
+      "aaa": false
+    },
+    {
+      "name": "red destructive on paper",
+      "fg": "#e5484d",
+      "bg": "#fff8e6",
+      "ratio": 3.69,
+      "grade": "AA-large",
+      "aaLarge": true,
+      "aa": false,
+      "aaa": false
+    },
+    {
+      "name": "red destructive on white",
+      "fg": "#e5484d",
+      "bg": "#ffffff",
+      "ratio": 3.91,
+      "grade": "AA-large",
+      "aaLarge": true,
+      "aa": false,
+      "aaa": false
+    }
+  ],
+  "fullMatrix": [
+    {
+      "surface": "paper",
+      "ink": "ink",
+      "ratio": 12.67,
+      "grade": "AAA",
+      "fg": "#043629",
+      "bg": "#fff8e6"
+    },
+    {
+      "surface": "paper",
+      "ink": "ink/85",
+      "ratio": 8.18,
+      "grade": "AAA",
+      "fg": "rgba(4,54,41,.85)",
+      "bg": "#fff8e6"
+    },
+    {
+      "surface": "paper",
+      "ink": "ink/70",
+      "ratio": 5.17,
+      "grade": "AA",
+      "fg": "rgba(4,54,41,.7)",
+      "bg": "#fff8e6"
+    },
+    {
+      "surface": "paper",
+      "ink": "ink/60",
+      "ratio": 3.87,
+      "grade": "AA-large",
+      "fg": "rgba(4,54,41,.6)",
+      "bg": "#fff8e6"
+    },
+    {
+      "surface": "paper",
+      "ink": "paper",
+      "ratio": 1,
+      "grade": "fail",
+      "fg": "#fff8e6",
+      "bg": "#fff8e6"
+    },
+    {
+      "surface": "paper",
+      "ink": "paper/80",
+      "ratio": 1,
+      "grade": "fail",
+      "fg": "rgba(255,248,230,.8)",
+      "bg": "#fff8e6"
+    },
+    {
+      "surface": "paper",
+      "ink": "white",
+      "ratio": 1.06,
+      "grade": "fail",
+      "fg": "#ffffff",
+      "bg": "#fff8e6"
+    },
+    {
+      "surface": "paper",
+      "ink": "muted-foreground",
+      "ratio": 6.92,
+      "grade": "AA",
+      "fg": "#3f5c52",
+      "bg": "#fff8e6"
+    },
+    {
+      "surface": "paper",
+      "ink": "ink-morning",
+      "ratio": 10.7,
+      "grade": "AAA",
+      "fg": "#5c2e0e",
+      "bg": "#fff8e6"
+    },
+    {
+      "surface": "paper",
+      "ink": "purple",
+      "ratio": 5,
+      "grade": "AA",
+      "fg": "#8a38f5",
+      "bg": "#fff8e6"
+    },
+    {
+      "surface": "paper",
+      "ink": "lime-deep",
+      "ratio": 4.27,
+      "grade": "AA-large",
+      "fg": "#498500",
+      "bg": "#fff8e6"
+    },
+    {
+      "surface": "paper",
+      "ink": "ember-deep",
+      "ratio": 4.66,
+      "grade": "AA",
+      "fg": "#c7431d",
+      "bg": "#fff8e6"
+    },
+    {
+      "surface": "paper",
+      "ink": "red",
+      "ratio": 3.69,
+      "grade": "AA-large",
+      "fg": "#e5484d",
+      "bg": "#fff8e6"
+    },
+    {
+      "surface": "surface",
+      "ink": "ink",
+      "ratio": 13.42,
+      "grade": "AAA",
+      "fg": "#043629",
+      "bg": "#ffffff"
+    },
+    {
+      "surface": "surface",
+      "ink": "ink/85",
+      "ratio": 8.51,
+      "grade": "AAA",
+      "fg": "rgba(4,54,41,.85)",
+      "bg": "#ffffff"
+    },
+    {
+      "surface": "surface",
+      "ink": "ink/70",
+      "ratio": 5.3,
+      "grade": "AA",
+      "fg": "rgba(4,54,41,.7)",
+      "bg": "#ffffff"
+    },
+    {
+      "surface": "surface",
+      "ink": "ink/60",
+      "ratio": 3.94,
+      "grade": "AA-large",
+      "fg": "rgba(4,54,41,.6)",
+      "bg": "#ffffff"
+    },
+    {
+      "surface": "surface",
+      "ink": "paper",
+      "ratio": 1.06,
+      "grade": "fail",
+      "fg": "#fff8e6",
+      "bg": "#ffffff"
+    },
+    {
+      "surface": "surface",
+      "ink": "paper/80",
+      "ratio": 1.05,
+      "grade": "fail",
+      "fg": "rgba(255,248,230,.8)",
+      "bg": "#ffffff"
+    },
+    {
+      "surface": "surface",
+      "ink": "white",
+      "ratio": 1,
+      "grade": "fail",
+      "fg": "#ffffff",
+      "bg": "#ffffff"
+    },
+    {
+      "surface": "surface",
+      "ink": "muted-foreground",
+      "ratio": 7.33,
+      "grade": "AAA",
+      "fg": "#3f5c52",
+      "bg": "#ffffff"
+    },
+    {
+      "surface": "surface",
+      "ink": "ink-morning",
+      "ratio": 11.34,
+      "grade": "AAA",
+      "fg": "#5c2e0e",
+      "bg": "#ffffff"
+    },
+    {
+      "surface": "surface",
+      "ink": "purple",
+      "ratio": 5.3,
+      "grade": "AA",
+      "fg": "#8a38f5",
+      "bg": "#ffffff"
+    },
+    {
+      "surface": "surface",
+      "ink": "lime-deep",
+      "ratio": 4.53,
+      "grade": "AA",
+      "fg": "#498500",
+      "bg": "#ffffff"
+    },
+    {
+      "surface": "surface",
+      "ink": "ember-deep",
+      "ratio": 4.94,
+      "grade": "AA",
+      "fg": "#c7431d",
+      "bg": "#ffffff"
+    },
+    {
+      "surface": "surface",
+      "ink": "red",
+      "ratio": 3.91,
+      "grade": "AA-large",
+      "fg": "#e5484d",
+      "bg": "#ffffff"
+    },
+    {
+      "surface": "muted",
+      "ink": "ink",
+      "ratio": 11.2,
+      "grade": "AAA",
+      "fg": "#043629",
+      "bg": "#f3ead3"
+    },
+    {
+      "surface": "muted",
+      "ink": "ink/85",
+      "ratio": 7.47,
+      "grade": "AAA",
+      "fg": "rgba(4,54,41,.85)",
+      "bg": "#f3ead3"
+    },
+    {
+      "surface": "muted",
+      "ink": "ink/70",
+      "ratio": 4.86,
+      "grade": "AA",
+      "fg": "rgba(4,54,41,.7)",
+      "bg": "#f3ead3"
+    },
+    {
+      "surface": "muted",
+      "ink": "ink/60",
+      "ratio": 3.69,
+      "grade": "AA-large",
+      "fg": "rgba(4,54,41,.6)",
+      "bg": "#f3ead3"
+    },
+    {
+      "surface": "muted",
+      "ink": "paper",
+      "ratio": 1.13,
+      "grade": "fail",
+      "fg": "#fff8e6",
+      "bg": "#f3ead3"
+    },
+    {
+      "surface": "muted",
+      "ink": "paper/80",
+      "ratio": 1.1,
+      "grade": "fail",
+      "fg": "rgba(255,248,230,.8)",
+      "bg": "#f3ead3"
+    },
+    {
+      "surface": "muted",
+      "ink": "white",
+      "ratio": 1.2,
+      "grade": "fail",
+      "fg": "#ffffff",
+      "bg": "#f3ead3"
+    },
+    {
+      "surface": "muted",
+      "ink": "muted-foreground",
+      "ratio": 6.12,
+      "grade": "AA",
+      "fg": "#3f5c52",
+      "bg": "#f3ead3"
+    },
+    {
+      "surface": "muted",
+      "ink": "ink-morning",
+      "ratio": 9.46,
+      "grade": "AAA",
+      "fg": "#5c2e0e",
+      "bg": "#f3ead3"
+    },
+    {
+      "surface": "muted",
+      "ink": "purple",
+      "ratio": 4.42,
+      "grade": "AA-large",
+      "fg": "#8a38f5",
+      "bg": "#f3ead3"
+    },
+    {
+      "surface": "muted",
+      "ink": "lime-deep",
+      "ratio": 3.78,
+      "grade": "AA-large",
+      "fg": "#498500",
+      "bg": "#f3ead3"
+    },
+    {
+      "surface": "muted",
+      "ink": "ember-deep",
+      "ratio": 4.12,
+      "grade": "AA-large",
+      "fg": "#c7431d",
+      "bg": "#f3ead3"
+    },
+    {
+      "surface": "muted",
+      "ink": "red",
+      "ratio": 3.27,
+      "grade": "AA-large",
+      "fg": "#e5484d",
+      "bg": "#f3ead3"
+    },
+    {
+      "surface": "lime",
+      "ink": "ink",
+      "ratio": 5.72,
+      "grade": "AA",
+      "fg": "#043629",
+      "bg": "#68be00"
+    },
+    {
+      "surface": "lime",
+      "ink": "ink/85",
+      "ratio": 4.38,
+      "grade": "AA-large",
+      "fg": "rgba(4,54,41,.85)",
+      "bg": "#68be00"
+    },
+    {
+      "surface": "lime",
+      "ink": "ink/70",
+      "ratio": 3.3,
+      "grade": "AA-large",
+      "fg": "rgba(4,54,41,.7)",
+      "bg": "#68be00"
+    },
+    {
+      "surface": "lime",
+      "ink": "ink/60",
+      "ratio": 2.73,
+      "grade": "fail",
+      "fg": "rgba(4,54,41,.6)",
+      "bg": "#68be00"
+    },
+    {
+      "surface": "lime",
+      "ink": "paper",
+      "ratio": 2.21,
+      "grade": "fail",
+      "fg": "#fff8e6",
+      "bg": "#68be00"
+    },
+    {
+      "surface": "lime",
+      "ink": "paper/80",
+      "ratio": 1.89,
+      "grade": "fail",
+      "fg": "rgba(255,248,230,.8)",
+      "bg": "#68be00"
+    },
+    {
+      "surface": "lime",
+      "ink": "white",
+      "ratio": 2.35,
+      "grade": "fail",
+      "fg": "#ffffff",
+      "bg": "#68be00"
+    },
+    {
+      "surface": "lime",
+      "ink": "muted-foreground",
+      "ratio": 3.13,
+      "grade": "AA-large",
+      "fg": "#3f5c52",
+      "bg": "#68be00"
+    },
+    {
+      "surface": "lime",
+      "ink": "ink-morning",
+      "ratio": 4.83,
+      "grade": "AA",
+      "fg": "#5c2e0e",
+      "bg": "#68be00"
+    },
+    {
+      "surface": "lime",
+      "ink": "purple",
+      "ratio": 2.26,
+      "grade": "fail",
+      "fg": "#8a38f5",
+      "bg": "#68be00"
+    },
+    {
+      "surface": "lime",
+      "ink": "lime-deep",
+      "ratio": 1.93,
+      "grade": "fail",
+      "fg": "#498500",
+      "bg": "#68be00"
+    },
+    {
+      "surface": "lime",
+      "ink": "ember-deep",
+      "ratio": 2.11,
+      "grade": "fail",
+      "fg": "#c7431d",
+      "bg": "#68be00"
+    },
+    {
+      "surface": "lime",
+      "ink": "red",
+      "ratio": 1.67,
+      "grade": "fail",
+      "fg": "#e5484d",
+      "bg": "#68be00"
+    },
+    {
+      "surface": "pink",
+      "ink": "ink",
+      "ratio": 4.85,
+      "grade": "AA",
+      "fg": "#043629",
+      "bg": "#f66f8e"
+    },
+    {
+      "surface": "pink",
+      "ink": "ink/85",
+      "ratio": 4.1,
+      "grade": "AA-large",
+      "fg": "rgba(4,54,41,.85)",
+      "bg": "#f66f8e"
+    },
+    {
+      "surface": "pink",
+      "ink": "ink/70",
+      "ratio": 3.29,
+      "grade": "AA-large",
+      "fg": "rgba(4,54,41,.7)",
+      "bg": "#f66f8e"
+    },
+    {
+      "surface": "pink",
+      "ink": "ink/60",
+      "ratio": 2.78,
+      "grade": "fail",
+      "fg": "rgba(4,54,41,.6)",
+      "bg": "#f66f8e"
+    },
+    {
+      "surface": "pink",
+      "ink": "paper",
+      "ratio": 2.61,
+      "grade": "fail",
+      "fg": "#fff8e6",
+      "bg": "#f66f8e"
+    },
+    {
+      "surface": "pink",
+      "ink": "paper/80",
+      "ratio": 2.17,
+      "grade": "fail",
+      "fg": "rgba(255,248,230,.8)",
+      "bg": "#f66f8e"
+    },
+    {
+      "surface": "pink",
+      "ink": "white",
+      "ratio": 2.77,
+      "grade": "fail",
+      "fg": "#ffffff",
+      "bg": "#f66f8e"
+    },
+    {
+      "surface": "pink",
+      "ink": "muted-foreground",
+      "ratio": 2.65,
+      "grade": "fail",
+      "fg": "#3f5c52",
+      "bg": "#f66f8e"
+    },
+    {
+      "surface": "pink",
+      "ink": "ink-morning",
+      "ratio": 4.09,
+      "grade": "AA-large",
+      "fg": "#5c2e0e",
+      "bg": "#f66f8e"
+    },
+    {
+      "surface": "pink",
+      "ink": "purple",
+      "ratio": 1.91,
+      "grade": "fail",
+      "fg": "#8a38f5",
+      "bg": "#f66f8e"
+    },
+    {
+      "surface": "pink",
+      "ink": "lime-deep",
+      "ratio": 1.63,
+      "grade": "fail",
+      "fg": "#498500",
+      "bg": "#f66f8e"
+    },
+    {
+      "surface": "pink",
+      "ink": "ember-deep",
+      "ratio": 1.78,
+      "grade": "fail",
+      "fg": "#c7431d",
+      "bg": "#f66f8e"
+    },
+    {
+      "surface": "pink",
+      "ink": "red",
+      "ratio": 1.41,
+      "grade": "fail",
+      "fg": "#e5484d",
+      "bg": "#f66f8e"
+    },
+    {
+      "surface": "yellow",
+      "ink": "ink",
+      "ratio": 8.54,
+      "grade": "AAA",
+      "fg": "#043629",
+      "bg": "#ffc629"
+    },
+    {
+      "surface": "yellow",
+      "ink": "ink/85",
+      "ratio": 6.21,
+      "grade": "AA",
+      "fg": "rgba(4,54,41,.85)",
+      "bg": "#ffc629"
+    },
+    {
+      "surface": "yellow",
+      "ink": "ink/70",
+      "ratio": 4.33,
+      "grade": "AA-large",
+      "fg": "rgba(4,54,41,.7)",
+      "bg": "#ffc629"
+    },
+    {
+      "surface": "yellow",
+      "ink": "ink/60",
+      "ratio": 3.4,
+      "grade": "AA-large",
+      "fg": "rgba(4,54,41,.6)",
+      "bg": "#ffc629"
+    },
+    {
+      "surface": "yellow",
+      "ink": "paper",
+      "ratio": 1.48,
+      "grade": "fail",
+      "fg": "#fff8e6",
+      "bg": "#ffc629"
+    },
+    {
+      "surface": "yellow",
+      "ink": "paper/80",
+      "ratio": 1.37,
+      "grade": "fail",
+      "fg": "rgba(255,248,230,.8)",
+      "bg": "#ffc629"
+    },
+    {
+      "surface": "yellow",
+      "ink": "white",
+      "ratio": 1.57,
+      "grade": "fail",
+      "fg": "#ffffff",
+      "bg": "#ffc629"
+    },
+    {
+      "surface": "yellow",
+      "ink": "muted-foreground",
+      "ratio": 4.67,
+      "grade": "AA",
+      "fg": "#3f5c52",
+      "bg": "#ffc629"
+    },
+    {
+      "surface": "yellow",
+      "ink": "ink-morning",
+      "ratio": 7.21,
+      "grade": "AAA",
+      "fg": "#5c2e0e",
+      "bg": "#ffc629"
+    },
+    {
+      "surface": "yellow",
+      "ink": "purple",
+      "ratio": 3.37,
+      "grade": "AA-large",
+      "fg": "#8a38f5",
+      "bg": "#ffc629"
+    },
+    {
+      "surface": "yellow",
+      "ink": "lime-deep",
+      "ratio": 2.88,
+      "grade": "fail",
+      "fg": "#498500",
+      "bg": "#ffc629"
+    },
+    {
+      "surface": "yellow",
+      "ink": "ember-deep",
+      "ratio": 3.14,
+      "grade": "AA-large",
+      "fg": "#c7431d",
+      "bg": "#ffc629"
+    },
+    {
+      "surface": "yellow",
+      "ink": "red",
+      "ratio": 2.49,
+      "grade": "fail",
+      "fg": "#e5484d",
+      "bg": "#ffc629"
+    },
+    {
+      "surface": "cyan",
+      "ink": "ink",
+      "ratio": 5.51,
+      "grade": "AA",
+      "fg": "#043629",
+      "bg": "#00b6d2"
+    },
+    {
+      "surface": "cyan",
+      "ink": "ink/85",
+      "ratio": 4.22,
+      "grade": "AA-large",
+      "fg": "rgba(4,54,41,.85)",
+      "bg": "#00b6d2"
+    },
+    {
+      "surface": "cyan",
+      "ink": "ink/70",
+      "ratio": 3.19,
+      "grade": "AA-large",
+      "fg": "rgba(4,54,41,.7)",
+      "bg": "#00b6d2"
+    },
+    {
+      "surface": "cyan",
+      "ink": "ink/60",
+      "ratio": 2.65,
+      "grade": "fail",
+      "fg": "rgba(4,54,41,.6)",
+      "bg": "#00b6d2"
+    },
+    {
+      "surface": "cyan",
+      "ink": "paper",
+      "ratio": 2.3,
+      "grade": "fail",
+      "fg": "#fff8e6",
+      "bg": "#00b6d2"
+    },
+    {
+      "surface": "cyan",
+      "ink": "paper/80",
+      "ratio": 1.92,
+      "grade": "fail",
+      "fg": "rgba(255,248,230,.8)",
+      "bg": "#00b6d2"
+    },
+    {
+      "surface": "cyan",
+      "ink": "white",
+      "ratio": 2.44,
+      "grade": "fail",
+      "fg": "#ffffff",
+      "bg": "#00b6d2"
+    },
+    {
+      "surface": "cyan",
+      "ink": "muted-foreground",
+      "ratio": 3.01,
+      "grade": "AA-large",
+      "fg": "#3f5c52",
+      "bg": "#00b6d2"
+    },
+    {
+      "surface": "cyan",
+      "ink": "ink-morning",
+      "ratio": 4.65,
+      "grade": "AA",
+      "fg": "#5c2e0e",
+      "bg": "#00b6d2"
+    },
+    {
+      "surface": "cyan",
+      "ink": "purple",
+      "ratio": 2.17,
+      "grade": "fail",
+      "fg": "#8a38f5",
+      "bg": "#00b6d2"
+    },
+    {
+      "surface": "cyan",
+      "ink": "lime-deep",
+      "ratio": 1.86,
+      "grade": "fail",
+      "fg": "#498500",
+      "bg": "#00b6d2"
+    },
+    {
+      "surface": "cyan",
+      "ink": "ember-deep",
+      "ratio": 2.03,
+      "grade": "fail",
+      "fg": "#c7431d",
+      "bg": "#00b6d2"
+    },
+    {
+      "surface": "cyan",
+      "ink": "red",
+      "ratio": 1.61,
+      "grade": "fail",
+      "fg": "#e5484d",
+      "bg": "#00b6d2"
+    },
+    {
+      "surface": "orange",
+      "ink": "ink",
+      "ratio": 5.43,
+      "grade": "AA",
+      "fg": "#043629",
+      "bg": "#ff8300"
+    },
+    {
+      "surface": "orange",
+      "ink": "ink/85",
+      "ratio": 4.5,
+      "grade": "AA",
+      "fg": "rgba(4,54,41,.85)",
+      "bg": "#ff8300"
+    },
+    {
+      "surface": "orange",
+      "ink": "ink/70",
+      "ratio": 3.52,
+      "grade": "AA-large",
+      "fg": "rgba(4,54,41,.7)",
+      "bg": "#ff8300"
+    },
+    {
+      "surface": "orange",
+      "ink": "ink/60",
+      "ratio": 2.93,
+      "grade": "fail",
+      "fg": "rgba(4,54,41,.6)",
+      "bg": "#ff8300"
+    },
+    {
+      "surface": "orange",
+      "ink": "paper",
+      "ratio": 2.33,
+      "grade": "fail",
+      "fg": "#fff8e6",
+      "bg": "#ff8300"
+    },
+    {
+      "surface": "orange",
+      "ink": "paper/80",
+      "ratio": 1.96,
+      "grade": "fail",
+      "fg": "rgba(255,248,230,.8)",
+      "bg": "#ff8300"
+    },
+    {
+      "surface": "orange",
+      "ink": "white",
+      "ratio": 2.47,
+      "grade": "fail",
+      "fg": "#ffffff",
+      "bg": "#ff8300"
+    },
+    {
+      "surface": "orange",
+      "ink": "muted-foreground",
+      "ratio": 2.97,
+      "grade": "fail",
+      "fg": "#3f5c52",
+      "bg": "#ff8300"
+    },
+    {
+      "surface": "orange",
+      "ink": "ink-morning",
+      "ratio": 4.59,
+      "grade": "AA",
+      "fg": "#5c2e0e",
+      "bg": "#ff8300"
+    },
+    {
+      "surface": "orange",
+      "ink": "purple",
+      "ratio": 2.14,
+      "grade": "fail",
+      "fg": "#8a38f5",
+      "bg": "#ff8300"
+    },
+    {
+      "surface": "orange",
+      "ink": "lime-deep",
+      "ratio": 1.83,
+      "grade": "fail",
+      "fg": "#498500",
+      "bg": "#ff8300"
+    },
+    {
+      "surface": "orange",
+      "ink": "ember-deep",
+      "ratio": 2,
+      "grade": "fail",
+      "fg": "#c7431d",
+      "bg": "#ff8300"
+    },
+    {
+      "surface": "orange",
+      "ink": "red",
+      "ratio": 1.58,
+      "grade": "fail",
+      "fg": "#e5484d",
+      "bg": "#ff8300"
+    },
+    {
+      "surface": "ember",
+      "ink": "ink",
+      "ratio": 4.74,
+      "grade": "AA",
+      "fg": "#043629",
+      "bg": "#ff6b3e"
+    },
+    {
+      "surface": "ember",
+      "ink": "ink/85",
+      "ratio": 4.08,
+      "grade": "AA-large",
+      "fg": "rgba(4,54,41,.85)",
+      "bg": "#ff6b3e"
+    },
+    {
+      "surface": "ember",
+      "ink": "ink/70",
+      "ratio": 3.3,
+      "grade": "AA-large",
+      "fg": "rgba(4,54,41,.7)",
+      "bg": "#ff6b3e"
+    },
+    {
+      "surface": "ember",
+      "ink": "ink/60",
+      "ratio": 2.8,
+      "grade": "fail",
+      "fg": "rgba(4,54,41,.6)",
+      "bg": "#ff6b3e"
+    },
+    {
+      "surface": "ember",
+      "ink": "paper",
+      "ratio": 2.67,
+      "grade": "fail",
+      "fg": "#fff8e6",
+      "bg": "#ff6b3e"
+    },
+    {
+      "surface": "ember",
+      "ink": "paper/80",
+      "ratio": 2.19,
+      "grade": "fail",
+      "fg": "rgba(255,248,230,.8)",
+      "bg": "#ff6b3e"
+    },
+    {
+      "surface": "ember",
+      "ink": "white",
+      "ratio": 2.83,
+      "grade": "fail",
+      "fg": "#ffffff",
+      "bg": "#ff6b3e"
+    },
+    {
+      "surface": "ember",
+      "ink": "muted-foreground",
+      "ratio": 2.59,
+      "grade": "fail",
+      "fg": "#3f5c52",
+      "bg": "#ff6b3e"
+    },
+    {
+      "surface": "ember",
+      "ink": "ink-morning",
+      "ratio": 4.01,
+      "grade": "AA-large",
+      "fg": "#5c2e0e",
+      "bg": "#ff6b3e"
+    },
+    {
+      "surface": "ember",
+      "ink": "purple",
+      "ratio": 1.87,
+      "grade": "fail",
+      "fg": "#8a38f5",
+      "bg": "#ff6b3e"
+    },
+    {
+      "surface": "ember",
+      "ink": "lime-deep",
+      "ratio": 1.6,
+      "grade": "fail",
+      "fg": "#498500",
+      "bg": "#ff6b3e"
+    },
+    {
+      "surface": "ember",
+      "ink": "ember-deep",
+      "ratio": 1.75,
+      "grade": "fail",
+      "fg": "#c7431d",
+      "bg": "#ff6b3e"
+    },
+    {
+      "surface": "ember",
+      "ink": "red",
+      "ratio": 1.38,
+      "grade": "fail",
+      "fg": "#e5484d",
+      "bg": "#ff6b3e"
+    },
+    {
+      "surface": "purple",
+      "ink": "ink",
+      "ratio": 2.53,
+      "grade": "fail",
+      "fg": "#043629",
+      "bg": "#8a38f5"
+    },
+    {
+      "surface": "purple",
+      "ink": "ink/85",
+      "ratio": 2.38,
+      "grade": "fail",
+      "fg": "rgba(4,54,41,.85)",
+      "bg": "#8a38f5"
+    },
+    {
+      "surface": "purple",
+      "ink": "ink/70",
+      "ratio": 2.16,
+      "grade": "fail",
+      "fg": "rgba(4,54,41,.7)",
+      "bg": "#8a38f5"
+    },
+    {
+      "surface": "purple",
+      "ink": "ink/60",
+      "ratio": 1.98,
+      "grade": "fail",
+      "fg": "rgba(4,54,41,.6)",
+      "bg": "#8a38f5"
+    },
+    {
+      "surface": "purple",
+      "ink": "paper",
+      "ratio": 5,
+      "grade": "AA",
+      "fg": "#fff8e6",
+      "bg": "#8a38f5"
+    },
+    {
+      "surface": "purple",
+      "ink": "paper/80",
+      "ratio": 3.73,
+      "grade": "AA-large",
+      "fg": "rgba(255,248,230,.8)",
+      "bg": "#8a38f5"
+    },
+    {
+      "surface": "purple",
+      "ink": "white",
+      "ratio": 5.3,
+      "grade": "AA",
+      "fg": "#ffffff",
+      "bg": "#8a38f5"
+    },
+    {
+      "surface": "purple",
+      "ink": "muted-foreground",
+      "ratio": 1.38,
+      "grade": "fail",
+      "fg": "#3f5c52",
+      "bg": "#8a38f5"
+    },
+    {
+      "surface": "purple",
+      "ink": "ink-morning",
+      "ratio": 2.14,
+      "grade": "fail",
+      "fg": "#5c2e0e",
+      "bg": "#8a38f5"
+    },
+    {
+      "surface": "purple",
+      "ink": "purple",
+      "ratio": 1,
+      "grade": "fail",
+      "fg": "#8a38f5",
+      "bg": "#8a38f5"
+    },
+    {
+      "surface": "purple",
+      "ink": "lime-deep",
+      "ratio": 1.17,
+      "grade": "fail",
+      "fg": "#498500",
+      "bg": "#8a38f5"
+    },
+    {
+      "surface": "purple",
+      "ink": "ember-deep",
+      "ratio": 1.07,
+      "grade": "fail",
+      "fg": "#c7431d",
+      "bg": "#8a38f5"
+    },
+    {
+      "surface": "purple",
+      "ink": "red",
+      "ratio": 1.35,
+      "grade": "fail",
+      "fg": "#e5484d",
+      "bg": "#8a38f5"
+    },
+    {
+      "surface": "ink",
+      "ink": "ink",
+      "ratio": 1,
+      "grade": "fail",
+      "fg": "#043629",
+      "bg": "#043629"
+    },
+    {
+      "surface": "ink",
+      "ink": "ink/85",
+      "ratio": 1,
+      "grade": "fail",
+      "fg": "rgba(4,54,41,.85)",
+      "bg": "#043629"
+    },
+    {
+      "surface": "ink",
+      "ink": "ink/70",
+      "ratio": 1,
+      "grade": "fail",
+      "fg": "rgba(4,54,41,.7)",
+      "bg": "#043629"
+    },
+    {
+      "surface": "ink",
+      "ink": "ink/60",
+      "ratio": 1,
+      "grade": "fail",
+      "fg": "rgba(4,54,41,.6)",
+      "bg": "#043629"
+    },
+    {
+      "surface": "ink",
+      "ink": "paper",
+      "ratio": 12.67,
+      "grade": "AAA",
+      "fg": "#fff8e6",
+      "bg": "#043629"
+    },
+    {
+      "surface": "ink",
+      "ink": "paper/80",
+      "ratio": 8.62,
+      "grade": "AAA",
+      "fg": "rgba(255,248,230,.8)",
+      "bg": "#043629"
+    },
+    {
+      "surface": "ink",
+      "ink": "white",
+      "ratio": 13.42,
+      "grade": "AAA",
+      "fg": "#ffffff",
+      "bg": "#043629"
+    },
+    {
+      "surface": "ink",
+      "ink": "muted-foreground",
+      "ratio": 1.83,
+      "grade": "fail",
+      "fg": "#3f5c52",
+      "bg": "#043629"
+    },
+    {
+      "surface": "ink",
+      "ink": "ink-morning",
+      "ratio": 1.18,
+      "grade": "fail",
+      "fg": "#5c2e0e",
+      "bg": "#043629"
+    },
+    {
+      "surface": "ink",
+      "ink": "purple",
+      "ratio": 2.53,
+      "grade": "fail",
+      "fg": "#8a38f5",
+      "bg": "#043629"
+    },
+    {
+      "surface": "ink",
+      "ink": "lime-deep",
+      "ratio": 2.96,
+      "grade": "fail",
+      "fg": "#498500",
+      "bg": "#043629"
+    },
+    {
+      "surface": "ink",
+      "ink": "ember-deep",
+      "ratio": 2.72,
+      "grade": "fail",
+      "fg": "#c7431d",
+      "bg": "#043629"
+    },
+    {
+      "surface": "ink",
+      "ink": "red",
+      "ratio": 3.43,
+      "grade": "AA-large",
+      "fg": "#e5484d",
+      "bg": "#043629"
+    },
+    {
+      "surface": "stage",
+      "ink": "ink",
+      "ratio": 1.24,
+      "grade": "fail",
+      "fg": "#043629",
+      "bg": "#04231a"
+    },
+    {
+      "surface": "stage",
+      "ink": "ink/85",
+      "ratio": 1.2,
+      "grade": "fail",
+      "fg": "rgba(4,54,41,.85)",
+      "bg": "#04231a"
+    },
+    {
+      "surface": "stage",
+      "ink": "ink/70",
+      "ratio": 1.16,
+      "grade": "fail",
+      "fg": "rgba(4,54,41,.7)",
+      "bg": "#04231a"
+    },
+    {
+      "surface": "stage",
+      "ink": "ink/60",
+      "ratio": 1.13,
+      "grade": "fail",
+      "fg": "rgba(4,54,41,.6)",
+      "bg": "#04231a"
+    },
+    {
+      "surface": "stage",
+      "ink": "paper",
+      "ratio": 15.73,
+      "grade": "AAA",
+      "fg": "#fff8e6",
+      "bg": "#04231a"
+    },
+    {
+      "surface": "stage",
+      "ink": "paper/80",
+      "ratio": 10.39,
+      "grade": "AAA",
+      "fg": "rgba(255,248,230,.8)",
+      "bg": "#04231a"
+    },
+    {
+      "surface": "stage",
+      "ink": "white",
+      "ratio": 16.66,
+      "grade": "AAA",
+      "fg": "#ffffff",
+      "bg": "#04231a"
+    },
+    {
+      "surface": "stage",
+      "ink": "muted-foreground",
+      "ratio": 2.27,
+      "grade": "fail",
+      "fg": "#3f5c52",
+      "bg": "#04231a"
+    },
+    {
+      "surface": "stage",
+      "ink": "ink-morning",
+      "ratio": 1.47,
+      "grade": "fail",
+      "fg": "#5c2e0e",
+      "bg": "#04231a"
+    },
+    {
+      "surface": "stage",
+      "ink": "purple",
+      "ratio": 3.15,
+      "grade": "AA-large",
+      "fg": "#8a38f5",
+      "bg": "#04231a"
+    },
+    {
+      "surface": "stage",
+      "ink": "lime-deep",
+      "ratio": 3.68,
+      "grade": "AA-large",
+      "fg": "#498500",
+      "bg": "#04231a"
+    },
+    {
+      "surface": "stage",
+      "ink": "ember-deep",
+      "ratio": 3.37,
+      "grade": "AA-large",
+      "fg": "#c7431d",
+      "bg": "#04231a"
+    },
+    {
+      "surface": "stage",
+      "ink": "red",
+      "ratio": 4.26,
+      "grade": "AA-large",
+      "fg": "#e5484d",
+      "bg": "#04231a"
+    },
+    {
+      "surface": "dusk",
+      "ink": "ink",
+      "ratio": 1.12,
+      "grade": "fail",
+      "fg": "#043629",
+      "bg": "#331c45"
+    },
+    {
+      "surface": "dusk",
+      "ink": "ink/85",
+      "ratio": 1.08,
+      "grade": "fail",
+      "fg": "rgba(4,54,41,.85)",
+      "bg": "#331c45"
+    },
+    {
+      "surface": "dusk",
+      "ink": "ink/70",
+      "ratio": 1.05,
+      "grade": "fail",
+      "fg": "rgba(4,54,41,.7)",
+      "bg": "#331c45"
+    },
+    {
+      "surface": "dusk",
+      "ink": "ink/60",
+      "ratio": 1.03,
+      "grade": "fail",
+      "fg": "rgba(4,54,41,.6)",
+      "bg": "#331c45"
+    },
+    {
+      "surface": "dusk",
+      "ink": "paper",
+      "ratio": 14.23,
+      "grade": "AAA",
+      "fg": "#fff8e6",
+      "bg": "#331c45"
+    },
+    {
+      "surface": "dusk",
+      "ink": "paper/80",
+      "ratio": 9.56,
+      "grade": "AAA",
+      "fg": "rgba(255,248,230,.8)",
+      "bg": "#331c45"
+    },
+    {
+      "surface": "dusk",
+      "ink": "white",
+      "ratio": 15.08,
+      "grade": "AAA",
+      "fg": "#ffffff",
+      "bg": "#331c45"
+    },
+    {
+      "surface": "dusk",
+      "ink": "muted-foreground",
+      "ratio": 2.06,
+      "grade": "fail",
+      "fg": "#3f5c52",
+      "bg": "#331c45"
+    },
+    {
+      "surface": "dusk",
+      "ink": "ink-morning",
+      "ratio": 1.33,
+      "grade": "fail",
+      "fg": "#5c2e0e",
+      "bg": "#331c45"
+    },
+    {
+      "surface": "dusk",
+      "ink": "purple",
+      "ratio": 2.85,
+      "grade": "fail",
+      "fg": "#8a38f5",
+      "bg": "#331c45"
+    },
+    {
+      "surface": "dusk",
+      "ink": "lime-deep",
+      "ratio": 3.33,
+      "grade": "AA-large",
+      "fg": "#498500",
+      "bg": "#331c45"
+    },
+    {
+      "surface": "dusk",
+      "ink": "ember-deep",
+      "ratio": 3.05,
+      "grade": "AA-large",
+      "fg": "#c7431d",
+      "bg": "#331c45"
+    },
+    {
+      "surface": "dusk",
+      "ink": "red",
+      "ratio": 3.85,
+      "grade": "AA-large",
+      "fg": "#e5484d",
+      "bg": "#331c45"
+    },
+    {
+      "surface": "sunrise",
+      "ink": "ink",
+      "ratio": 11.26,
+      "grade": "AAA",
+      "fg": "#043629",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "sunrise",
+      "ink": "ink/85",
+      "ratio": 7.53,
+      "grade": "AAA",
+      "fg": "rgba(4,54,41,.85)",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "sunrise",
+      "ink": "ink/70",
+      "ratio": 4.9,
+      "grade": "AA",
+      "fg": "rgba(4,54,41,.7)",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "sunrise",
+      "ink": "ink/60",
+      "ratio": 3.72,
+      "grade": "AA-large",
+      "fg": "rgba(4,54,41,.6)",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "sunrise",
+      "ink": "paper",
+      "ratio": 1.13,
+      "grade": "fail",
+      "fg": "#fff8e6",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "sunrise",
+      "ink": "paper/80",
+      "ratio": 1.1,
+      "grade": "fail",
+      "fg": "rgba(255,248,230,.8)",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "sunrise",
+      "ink": "white",
+      "ratio": 1.19,
+      "grade": "fail",
+      "fg": "#ffffff",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "sunrise",
+      "ink": "muted-foreground",
+      "ratio": 6.15,
+      "grade": "AA",
+      "fg": "#3f5c52",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "sunrise",
+      "ink": "ink-morning",
+      "ratio": 9.51,
+      "grade": "AAA",
+      "fg": "#5c2e0e",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "sunrise",
+      "ink": "purple",
+      "ratio": 4.44,
+      "grade": "AA-large",
+      "fg": "#8a38f5",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "sunrise",
+      "ink": "lime-deep",
+      "ratio": 3.8,
+      "grade": "AA-large",
+      "fg": "#498500",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "sunrise",
+      "ink": "ember-deep",
+      "ratio": 4.15,
+      "grade": "AA-large",
+      "fg": "#c7431d",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "sunrise",
+      "ink": "red",
+      "ratio": 3.28,
+      "grade": "AA-large",
+      "fg": "#e5484d",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "orange-soft",
+      "ink": "ink",
+      "ratio": 11.26,
+      "grade": "AAA",
+      "fg": "#043629",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "orange-soft",
+      "ink": "ink/85",
+      "ratio": 7.53,
+      "grade": "AAA",
+      "fg": "rgba(4,54,41,.85)",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "orange-soft",
+      "ink": "ink/70",
+      "ratio": 4.9,
+      "grade": "AA",
+      "fg": "rgba(4,54,41,.7)",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "orange-soft",
+      "ink": "ink/60",
+      "ratio": 3.72,
+      "grade": "AA-large",
+      "fg": "rgba(4,54,41,.6)",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "orange-soft",
+      "ink": "paper",
+      "ratio": 1.13,
+      "grade": "fail",
+      "fg": "#fff8e6",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "orange-soft",
+      "ink": "paper/80",
+      "ratio": 1.1,
+      "grade": "fail",
+      "fg": "rgba(255,248,230,.8)",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "orange-soft",
+      "ink": "white",
+      "ratio": 1.19,
+      "grade": "fail",
+      "fg": "#ffffff",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "orange-soft",
+      "ink": "muted-foreground",
+      "ratio": 6.15,
+      "grade": "AA",
+      "fg": "#3f5c52",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "orange-soft",
+      "ink": "ink-morning",
+      "ratio": 9.51,
+      "grade": "AAA",
+      "fg": "#5c2e0e",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "orange-soft",
+      "ink": "purple",
+      "ratio": 4.44,
+      "grade": "AA-large",
+      "fg": "#8a38f5",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "orange-soft",
+      "ink": "lime-deep",
+      "ratio": 3.8,
+      "grade": "AA-large",
+      "fg": "#498500",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "orange-soft",
+      "ink": "ember-deep",
+      "ratio": 4.15,
+      "grade": "AA-large",
+      "fg": "#c7431d",
+      "bg": "#ffe7d2"
+    },
+    {
+      "surface": "orange-soft",
+      "ink": "red",
+      "ratio": 3.28,
+      "grade": "AA-large",
+      "fg": "#e5484d",
+      "bg": "#ffe7d2"
+    }
+  ]
+}

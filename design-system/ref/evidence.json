@@ -1,0 +1,3121 @@
+{
+  "source": {
+    "cssBytes": 79106,
+    "htmlPages": 15,
+    "classAttributeCount": 27931
+  },
+  "customProps": {
+    "--font-sans": {
+      "value": "ui-sans-serif,system-ui,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\",\"Segoe UI Symbol\",\"Noto Color Emoji\"",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--font-mono": {
+      "value": "ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,\"Liberation Mono\",\"Courier New\",monospace",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-black": {
+      "value": "#000",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-white": {
+      "value": "#fff",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--spacing": {
+      "value": ".25rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--container-xs": {
+      "value": "20rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--container-sm": {
+      "value": "24rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--container-md": {
+      "value": "28rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--container-lg": {
+      "value": "32rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--container-xl": {
+      "value": "36rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--container-2xl": {
+      "value": "42rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--container-3xl": {
+      "value": "48rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--container-4xl": {
+      "value": "56rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--container-5xl": {
+      "value": "64rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--container-6xl": {
+      "value": "72rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--container-7xl": {
+      "value": "80rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-xs": {
+      "value": ".75rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-xs--line-height": {
+      "value": "calc(1/.75)",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-sm": {
+      "value": ".875rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-sm--line-height": {
+      "value": "calc(1.25/.875)",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-base": {
+      "value": "1rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-base--line-height": {
+      "value": "calc(1.5/1)",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-lg": {
+      "value": "1.125rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-lg--line-height": {
+      "value": "calc(1.75/1.125)",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-xl": {
+      "value": "1.25rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-xl--line-height": {
+      "value": "calc(1.75/1.25)",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-2xl": {
+      "value": "1.5rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-2xl--line-height": {
+      "value": "calc(2/1.5)",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-3xl": {
+      "value": "1.875rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-3xl--line-height": {
+      "value": "calc(2.25/1.875)",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-4xl": {
+      "value": "2.25rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-4xl--line-height": {
+      "value": "calc(2.5/2.25)",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-5xl": {
+      "value": "3rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-5xl--line-height": {
+      "value": "1",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-6xl": {
+      "value": "3.75rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-6xl--line-height": {
+      "value": "1",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-7xl": {
+      "value": "4.5rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-7xl--line-height": {
+      "value": "1",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-8xl": {
+      "value": "6rem",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--text-8xl--line-height": {
+      "value": "1",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--font-weight-normal": {
+      "value": "400",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--font-weight-medium": {
+      "value": "500",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--font-weight-semibold": {
+      "value": "600",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--font-weight-bold": {
+      "value": "700",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--font-weight-extrabold": {
+      "value": "800",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--font-weight-black": {
+      "value": "900",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--tracking-tight": {
+      "value": "-.025em",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--tracking-wide": {
+      "value": ".025em",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--tracking-wider": {
+      "value": ".05em",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--tracking-widest": {
+      "value": ".1em",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--leading-tight": {
+      "value": "1.25",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--leading-snug": {
+      "value": "1.375",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--leading-relaxed": {
+      "value": "1.625",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--ease-out": {
+      "value": "cubic-bezier(0,0,.2,1)",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--blur-sm": {
+      "value": "8px",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--blur-2xl": {
+      "value": "40px",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--aspect-video": {
+      "value": "16/9",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--default-transition-duration": {
+      "value": ".15s",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--default-transition-timing-function": {
+      "value": "cubic-bezier(.4,0,.2,1)",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--default-font-family": {
+      "value": "var(--font-sans)",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--default-mono-font-family": {
+      "value": "var(--font-mono)",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--font-display": {
+      "value": "var(--font-display)",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--font-body": {
+      "value": "var(--font-body)",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-muted-foreground": {
+      "value": "var(--muted-foreground)",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-ink": {
+      "value": "#043629",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-ink-deep": {
+      "value": "#00261c",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-stage": {
+      "value": "#04231a",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-paper": {
+      "value": "#fff8e6",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-cream": {
+      "value": "#fff8e6",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-lime": {
+      "value": "#68be00",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-lime-deep": {
+      "value": "#498500",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-pink": {
+      "value": "#f66f8e",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-purple": {
+      "value": "#8a38f5",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-orange": {
+      "value": "#ff8300",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-orange-soft": {
+      "value": "#ffe7d2",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-cyan": {
+      "value": "#00b6d2",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-cyan-deep": {
+      "value": "#0e8ca6",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-sky": {
+      "value": "#84d2f6",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-yellow": {
+      "value": "#ffc629",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-sun": {
+      "value": "#ffc300",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-ember": {
+      "value": "#ff6b3e",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-ember-deep": {
+      "value": "#c7431d",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-sunrise": {
+      "value": "#ffe7d2",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-ink-morning": {
+      "value": "#5c2e0e",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-dusk": {
+      "value": "#331c45",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-plum": {
+      "value": "#592043",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--color-red": {
+      "value": "#e5484d",
+      "selectors": [
+        ":root,:host"
+      ]
+    },
+    "--radius": {
+      "value": "1.25rem",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--background": {
+      "value": "#fff8e6",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--foreground": {
+      "value": "#043629",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--card": {
+      "value": "#fff",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--card-foreground": {
+      "value": "#043629",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--popover": {
+      "value": "#fff",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--popover-foreground": {
+      "value": "#043629",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--primary": {
+      "value": "#68be00",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--primary-foreground": {
+      "value": "#043629",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--secondary": {
+      "value": "#f66f8e",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--secondary-foreground": {
+      "value": "#043629",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--muted": {
+      "value": "#f3ead3",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--muted-foreground": {
+      "value": "#3f5c52",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--accent": {
+      "value": "#8a38f5",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--accent-foreground": {
+      "value": "#fff8e6",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--destructive": {
+      "value": "#e5484d",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--border": {
+      "value": "#043629",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--input": {
+      "value": "#043629",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--ring": {
+      "value": "#8a38f5",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--chart-1": {
+      "value": "#68be00",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--chart-2": {
+      "value": "#f66f8e",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--chart-3": {
+      "value": "#8a38f5",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--chart-4": {
+      "value": "#ff8300",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--chart-5": {
+      "value": "#00b6d2",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--sidebar": {
+      "value": "#fff8e6",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--sidebar-foreground": {
+      "value": "#043629",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--sidebar-primary": {
+      "value": "#68be00",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--sidebar-primary-foreground": {
+      "value": "#043629",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--sidebar-accent": {
+      "value": "#f66f8e",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--sidebar-accent-foreground": {
+      "value": "#043629",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--sidebar-border": {
+      "value": "#043629",
+      "selectors": [
+        ":root"
+      ]
+    },
+    "--sidebar-ring": {
+      "value": "#8a38f5",
+      "selectors": [
+        ":root"
+      ]
+    }
+  },
+  "fontFaces": [
+    {
+      "family": "Fredoka",
+      "style": "normal",
+      "weight": "400",
+      "stretch": "100%",
+      "display": "swap",
+      "unicodeRange": "U+307-308,U+590-5FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F"
+    },
+    {
+      "family": "Fredoka",
+      "style": "normal",
+      "weight": "400",
+      "stretch": "100%",
+      "display": "swap",
+      "unicodeRange": "U+100-2BA,U+2BD-2C5,U+2C7-2CC,U+2CE-2D7,U+2DD-2FF,U+304,U+308,U+329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF"
+    },
+    {
+      "family": "Fredoka",
+      "style": "normal",
+      "weight": "400",
+      "stretch": "100%",
+      "display": "swap",
+      "unicodeRange": "U+??,U+131,U+152-153,U+2BB-2BC,U+2C6,U+2DA,U+2DC,U+304,U+308,U+329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+    },
+    {
+      "family": "Fredoka",
+      "style": "normal",
+      "weight": "500",
+      "stretch": "100%",
+      "display": "swap",
+      "unicodeRange": "U+307-308,U+590-5FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F"
+    },
+    {
+      "family": "Fredoka",
+      "style": "normal",
+      "weight": "500",
+      "stretch": "100%",
+      "display": "swap",
+      "unicodeRange": "U+100-2BA,U+2BD-2C5,U+2C7-2CC,U+2CE-2D7,U+2DD-2FF,U+304,U+308,U+329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF"
+    },
+    {
+      "family": "Fredoka",
+      "style": "normal",
+      "weight": "500",
+      "stretch": "100%",
+      "display": "swap",
+      "unicodeRange": "U+??,U+131,U+152-153,U+2BB-2BC,U+2C6,U+2DA,U+2DC,U+304,U+308,U+329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+    },
+    {
+      "family": "Fredoka",
+      "style": "normal",
+      "weight": "600",
+      "stretch": "100%",
+      "display": "swap",
+      "unicodeRange": "U+307-308,U+590-5FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F"
+    },
+    {
+      "family": "Fredoka",
+      "style": "normal",
+      "weight": "600",
+      "stretch": "100%",
+      "display": "swap",
+      "unicodeRange": "U+100-2BA,U+2BD-2C5,U+2C7-2CC,U+2CE-2D7,U+2DD-2FF,U+304,U+308,U+329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF"
+    },
+    {
+      "family": "Fredoka",
+      "style": "normal",
+      "weight": "600",
+      "stretch": "100%",
+      "display": "swap",
+      "unicodeRange": "U+??,U+131,U+152-153,U+2BB-2BC,U+2C6,U+2DA,U+2DC,U+304,U+308,U+329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+    },
+    {
+      "family": "Fredoka",
+      "style": "normal",
+      "weight": "700",
+      "stretch": "100%",
+      "display": "swap",
+      "unicodeRange": "U+307-308,U+590-5FF,U+200C-2010,U+20AA,U+25CC,U+FB1D-FB4F"
+    },
+    {
+      "family": "Fredoka",
+      "style": "normal",
+      "weight": "700",
+      "stretch": "100%",
+      "display": "swap",
+      "unicodeRange": "U+100-2BA,U+2BD-2C5,U+2C7-2CC,U+2CE-2D7,U+2DD-2FF,U+304,U+308,U+329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF"
+    },
+    {
+      "family": "Fredoka",
+      "style": "normal",
+      "weight": "700",
+      "stretch": "100%",
+      "display": "swap",
+      "unicodeRange": "U+??,U+131,U+152-153,U+2BB-2BC,U+2C6,U+2DA,U+2DC,U+304,U+308,U+329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+    },
+    {
+      "family": "Fredoka Fallback",
+      "style": "",
+      "weight": "",
+      "stretch": "",
+      "display": "",
+      "unicodeRange": ""
+    },
+    {
+      "family": "Space Grotesk",
+      "style": "normal",
+      "weight": "300 700",
+      "stretch": "",
+      "display": "swap",
+      "unicodeRange": "U+102-103,U+110-111,U+128-129,U+168-169,U+1A0-1A1,U+1AF-1B0,U+300-301,U+303-304,U+308-309,U+323,U+329,U+1EA0-1EF9,U+20AB"
+    },
+    {
+      "family": "Space Grotesk",
+      "style": "normal",
+      "weight": "300 700",
+      "stretch": "",
+      "display": "swap",
+      "unicodeRange": "U+100-2BA,U+2BD-2C5,U+2C7-2CC,U+2CE-2D7,U+2DD-2FF,U+304,U+308,U+329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF"
+    },
+    {
+      "family": "Space Grotesk",
+      "style": "normal",
+      "weight": "300 700",
+      "stretch": "",
+      "display": "swap",
+      "unicodeRange": "U+??,U+131,U+152-153,U+2BB-2BC,U+2C6,U+2DA,U+2DC,U+304,U+308,U+329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+    },
+    {
+      "family": "Space Grotesk Fallback",
+      "style": "",
+      "weight": "",
+      "stretch": "",
+      "display": "",
+      "unicodeRange": ""
+    }
+  ],
+  "keyframes": {
+    "wiggle": "0%,to{transform:rotate(-3deg)}50%{transform:rotate(3deg)}",
+    "wobble": "0%,to{transform:translateY(0)rotate(0)}25%{transform:translateY(-6px)rotate(-2deg)}75%{transform:translateY(-2px)rotate(2deg)}",
+    "spin-slow": "to{transform:rotate(360deg)}",
+    "float": "0%,to{transform:translateY(0)}50%{transform:translateY(-10px)}",
+    "notif-pop": "0%,70%,to{transform:rotate(-1deg)scale(1)}4%{transform:rotate(-3deg)scale(.94)}10%{transform:rotate(2deg)scale(1.08)}16%{transform:rotate(-1deg)scale(1)}",
+    "shape-burst": "0%,75%,to{opacity:0;transform:scale(0)translate(0)}8%{opacity:0;transform:scale(.2)translate(0)}14%{transform:scale(1.25)translate(calc(var(--burst-x,0px)*.5),calc(var(--burst-y,0px)*.5));opacity:1}40%{transform:scale(1)translate(var(--burst-x,0px),var(--burst-y,0px))rotate(var(--burst-rot,0deg));opacity:.95}65%{transform:scale(.55)translate(calc(var(--burst-x,0px)*1.5),calc(var(--burst-y,0px)*1.5))rotate(calc(var(--burst-rot,0deg)*1.5));opacity:0}"
+  },
+  "cssColorValues": [
+    [
+      "color-mix(in lab, red, red)",
+      60
+    ],
+    [
+      "#0000",
+      21
+    ],
+    [
+      "color-mix(in oklab,var(--color-ink)",
+      18
+    ],
+    [
+      "color-mix(in oklab,var(--color-white)",
+      16
+    ],
+    [
+      "#043629",
+      14
+    ],
+    [
+      "color-mix(in oklab,var(--color-paper)",
+      7
+    ],
+    [
+      "color-mix(in oklab,var(--color-black)",
+      6
+    ],
+    [
+      "color-mix(in oklab,var(--color-stage)",
+      6
+    ],
+    [
+      "#fff",
+      5
+    ],
+    [
+      "#fff8e6",
+      5
+    ],
+    [
+      "#8a38f5",
+      5
+    ],
+    [
+      "#0000001a",
+      5
+    ],
+    [
+      "#68be00",
+      4
+    ],
+    [
+      "#f66f8e",
+      4
+    ],
+    [
+      "#3a1c05",
+      4
+    ],
+    [
+      "#ffe7d2",
+      3
+    ],
+    [
+      "color-mix(in oklab,var(--color-lime)",
+      3
+    ],
+    [
+      "#ff8300",
+      2
+    ],
+    [
+      "#00b6d2",
+      2
+    ],
+    [
+      "#331c45",
+      2
+    ],
+    [
+      "#e5484d",
+      2
+    ],
+    [
+      "#04362933",
+      2
+    ],
+    [
+      "#0436294d",
+      2
+    ],
+    [
+      "#04362966",
+      2
+    ],
+    [
+      "#ffffff0d",
+      2
+    ],
+    [
+      "#ffffff1a",
+      2
+    ],
+    [
+      "#fff3",
+      2
+    ],
+    [
+      "#0f0f0f",
+      2
+    ],
+    [
+      "#1a1a1a",
+      2
+    ],
+    [
+      "#2a2a2a",
+      2
+    ],
+    [
+      "#28c840",
+      2
+    ],
+    [
+      "#111",
+      2
+    ],
+    [
+      "#febc2e",
+      2
+    ],
+    [
+      "#ff5f57",
+      2
+    ],
+    [
+      "#0009",
+      2
+    ],
+    [
+      "#000c",
+      2
+    ],
+    [
+      "#7aa7ff",
+      2
+    ],
+    [
+      "#8a3a00",
+      2
+    ],
+    [
+      "#0000000f",
+      2
+    ],
+    [
+      "#04362914",
+      2
+    ],
+    [
+      "color-mix(in oklab,var(--color-pink)",
+      2
+    ],
+    [
+      "#000",
+      1
+    ],
+    [
+      "#00261c",
+      1
+    ],
+    [
+      "#04231a",
+      1
+    ],
+    [
+      "#498500",
+      1
+    ],
+    [
+      "#0e8ca6",
+      1
+    ],
+    [
+      "#84d2f6",
+      1
+    ],
+    [
+      "#ffc629",
+      1
+    ],
+    [
+      "#ffc300",
+      1
+    ],
+    [
+      "#ff6b3e",
+      1
+    ],
+    [
+      "#c7431d",
+      1
+    ],
+    [
+      "#5c2e0e",
+      1
+    ],
+    [
+      "#592043",
+      1
+    ],
+    [
+      "#0436291a",
+      1
+    ],
+    [
+      "#04362926",
+      1
+    ],
+    [
+      "#04362980",
+      1
+    ],
+    [
+      "#fff8e633",
+      1
+    ],
+    [
+      "#fff8e699",
+      1
+    ],
+    [
+      "#0003",
+      1
+    ],
+    [
+      "#68be0026",
+      1
+    ]
+  ],
+  "declarations": {
+    "borderRadius": [
+      [
+        "0",
+        2
+      ],
+      [
+        ".25rem",
+        1
+      ],
+      [
+        "2.25rem",
+        1
+      ],
+      [
+        "3rem",
+        1
+      ],
+      [
+        "1px",
+        1
+      ],
+      [
+        "2.5rem",
+        1
+      ],
+      [
+        "2rem",
+        1
+      ],
+      [
+        "3px",
+        1
+      ],
+      [
+        "21%/17%",
+        1
+      ],
+      [
+        "26%/21%",
+        1
+      ],
+      [
+        "40px",
+        1
+      ],
+      [
+        "3.40282e38px",
+        1
+      ],
+      [
+        "1.25rem",
+        1
+      ],
+      [
+        ".5rem",
+        1
+      ],
+      [
+        "1.75rem",
+        1
+      ]
+    ],
+    "boxShadow": [
+      [
+        "var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)",
+        3
+      ],
+      [
+        "none",
+        1
+      ],
+      [
+        "6px 6px 0 0 var(--color-ink)",
+        1
+      ],
+      [
+        "3px 3px 0 0 var(--color-ink)",
+        1
+      ],
+      [
+        "10px 10px 0 0 var(--color-ink)",
+        1
+      ],
+      [
+        "6px 6px 0 0 var(--color-pink)",
+        1
+      ],
+      [
+        "6px 6px 0 0 var(--color-purple)",
+        1
+      ],
+      [
+        "6px 6px 0 0 var(--color-lime)",
+        1
+      ]
+    ],
+    "borderWidth": [
+      [
+        "2px",
+        2
+      ],
+      [
+        "0",
+        1
+      ],
+      [
+        "1px",
+        1
+      ],
+      [
+        "2.5px",
+        1
+      ],
+      [
+        "3px",
+        1
+      ],
+      [
+        "4px",
+        1
+      ],
+      [
+        "5px",
+        1
+      ]
+    ],
+    "border": [
+      [
+        "0 solid",
+        2
+      ]
+    ],
+    "letterSpacing": [
+      [
+        "inherit",
+        2
+      ],
+      [
+        "-.02em",
+        2
+      ],
+      [
+        ".2em",
+        1
+      ],
+      [
+        ".3em",
+        1
+      ],
+      [
+        ".18em",
+        1
+      ],
+      [
+        ".25em",
+        1
+      ],
+      [
+        ".35em",
+        1
+      ],
+      [
+        "var(--tracking-tight)",
+        1
+      ],
+      [
+        "var(--tracking-wide)",
+        1
+      ],
+      [
+        "var(--tracking-wider)",
+        1
+      ],
+      [
+        "var(--tracking-widest)",
+        1
+      ],
+      [
+        "-.01em",
+        1
+      ]
+    ],
+    "lineHeight": [
+      [
+        "var(--tw-leading,var(--text-6xl--line-height))",
+        4
+      ],
+      [
+        "1",
+        3
+      ],
+      [
+        "var(--tw-leading,var(--text-2xl--line-height))",
+        3
+      ],
+      [
+        "var(--tw-leading,var(--text-5xl--line-height))",
+        3
+      ],
+      [
+        "var(--tw-leading,var(--text-7xl--line-height))",
+        3
+      ],
+      [
+        "var(--tw-leading,var(--text-base--line-height))",
+        3
+      ],
+      [
+        "var(--tw-leading,var(--text-sm--line-height))",
+        3
+      ],
+      [
+        "var(--tw-leading,var(--text-xl--line-height))",
+        3
+      ],
+      [
+        "1.5",
+        2
+      ],
+      [
+        "var(--tw-leading,var(--text-3xl--line-height))",
+        2
+      ],
+      [
+        "var(--tw-leading,var(--text-4xl--line-height))",
+        2
+      ],
+      [
+        "var(--tw-leading,var(--text-lg--line-height))",
+        2
+      ],
+      [
+        "var(--tw-leading,var(--text-xs--line-height))",
+        2
+      ],
+      [
+        "0",
+        1
+      ],
+      [
+        ".95",
+        1
+      ],
+      [
+        "1.1",
+        1
+      ],
+      [
+        "1.05",
+        1
+      ],
+      [
+        "1.6",
+        1
+      ],
+      [
+        "1.55",
+        1
+      ],
+      [
+        "1.65",
+        1
+      ],
+      [
+        "var(--leading-relaxed)",
+        1
+      ],
+      [
+        "var(--leading-snug)",
+        1
+      ],
+      [
+        "var(--leading-tight)",
+        1
+      ],
+      [
+        "var(--tw-leading,var(--text-8xl--line-height))",
+        1
+      ]
+    ],
+    "fontWeight": [
+      [
+        "700",
+        6
+      ],
+      [
+        "500",
+        4
+      ],
+      [
+        "400",
+        3
+      ],
+      [
+        "600",
+        3
+      ],
+      [
+        "300 700",
+        3
+      ],
+      [
+        "bolder",
+        2
+      ],
+      [
+        "inherit",
+        1
+      ],
+      [
+        "var(--font-weight-black)",
+        1
+      ],
+      [
+        "var(--font-weight-bold)",
+        1
+      ],
+      [
+        "var(--font-weight-extrabold)",
+        1
+      ],
+      [
+        "var(--font-weight-medium)",
+        1
+      ],
+      [
+        "var(--font-weight-normal)",
+        1
+      ],
+      [
+        "var(--font-weight-semibold)",
+        1
+      ]
+    ],
+    "textTransform": [
+      [
+        "lowercase",
+        1
+      ],
+      [
+        "uppercase",
+        1
+      ]
+    ],
+    "transitionDuration": [
+      [
+        "var(--tw-duration,var(--default-transition-duration))",
+        6
+      ],
+      [
+        ".15s",
+        1
+      ],
+      [
+        ".3s",
+        1
+      ]
+    ],
+    "animation": [
+      [
+        "12s linear infinite spin-slow",
+        2
+      ],
+      [
+        ".9s ease-in-out infinite wiggle",
+        2
+      ],
+      [
+        "5s ease-in-out infinite float",
+        1
+      ],
+      [
+        "5s ease-in-out infinite notif-pop",
+        1
+      ],
+      [
+        "5s ease-in-out infinite shape-burst",
+        1
+      ],
+      [
+        "3s ease-in-out infinite wobble",
+        1
+      ]
+    ],
+    "transform": [
+      [
+        "rotate(-1deg)scale(1)",
+        2
+      ],
+      [
+        "var(--tw-rotate-x,)var(--tw-rotate-y,)var(--tw-rotate-z,)var(--tw-skew-x,)var(--tw-skew-y,)",
+        1
+      ],
+      [
+        "rotate(-3deg)",
+        1
+      ],
+      [
+        "rotate(3deg)",
+        1
+      ],
+      [
+        "translateY(0)rotate(0)",
+        1
+      ],
+      [
+        "translateY(-6px)rotate(-2deg)",
+        1
+      ],
+      [
+        "translateY(-2px)rotate(2deg)",
+        1
+      ],
+      [
+        "rotate(360deg)",
+        1
+      ],
+      [
+        "translateY(0)",
+        1
+      ],
+      [
+        "translateY(-10px)",
+        1
+      ],
+      [
+        "rotate(-3deg)scale(.94)",
+        1
+      ],
+      [
+        "rotate(2deg)scale(1.08)",
+        1
+      ],
+      [
+        "scale(0)translate(0)",
+        1
+      ],
+      [
+        "scale(.2)translate(0)",
+        1
+      ],
+      [
+        "scale(1.25)translate(calc(var(--burst-x,0px)*.5),calc(var(--burst-y,0px)*.5))",
+        1
+      ],
+      [
+        "scale(1)translate(var(--burst-x,0px),var(--burst-y,0px))rotate(var(--burst-rot,0deg))",
+        1
+      ],
+      [
+        "scale(.55)translate(calc(var(--burst-x,0px)*1.5),calc(var(--burst-y,0px)*1.5))rotate(calc(var(--burst-rot,0deg)*1.5))",
+        1
+      ]
+    ],
+    "insetShadow": [
+      [
+        "var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)",
+        3
+      ]
+    ]
+  },
+  "usage": {
+    "font": [
+      [
+        "font-display",
+        773
+      ],
+      [
+        "font-bold",
+        512
+      ],
+      [
+        "font-medium",
+        491
+      ],
+      [
+        "text-[var(--color-ink)]",
+        327
+      ],
+      [
+        "font-semibold",
+        183
+      ],
+      [
+        "text-[10px]",
+        142
+      ],
+      [
+        "text-[var(--color-paper)]",
+        136
+      ],
+      [
+        "text-[var(--color-muted-foreground)]",
+        132
+      ],
+      [
+        "text-[var(--color-ink)]/70",
+        108
+      ],
+      [
+        "text-[11px]",
+        95
+      ],
+      [
+        "text-[var(--color-ink)]/80",
+        90
+      ],
+      [
+        "text-[var(--color-ink)]/85",
+        87
+      ],
+      [
+        "text-[var(--color-paper)]/80",
+        59
+      ],
+      [
+        "text-[var(--color-ink)]/75",
+        54
+      ],
+      [
+        "text-[var(--color-purple)]",
+        44
+      ],
+      [
+        "text-[var(--color-ink)]/60",
+        42
+      ],
+      [
+        "text-[var(--color-ember)]",
+        29
+      ],
+      [
+        "text-[var(--color-lime)]",
+        27
+      ],
+      [
+        "font-normal",
+        22
+      ],
+      [
+        "text-[12px]",
+        22
+      ],
+      [
+        "text-[var(--color-pink)]",
+        20
+      ],
+      [
+        "text-[var(--color-lime-deep)]",
+        18
+      ],
+      [
+        "font-body",
+        15
+      ],
+      [
+        "font-app-ui",
+        14
+      ],
+      [
+        "text-[9px]",
+        14
+      ],
+      [
+        "text-[var(--color-yellow)]",
+        13
+      ],
+      [
+        "text-[var(--color-cyan)]",
+        12
+      ],
+      [
+        "font-black",
+        11
+      ],
+      [
+        "text-[8px]",
+        5
+      ],
+      [
+        "text-[#3a1c05]",
+        4
+      ],
+      [
+        "text-[var(--color-ink)]/40",
+        3
+      ],
+      [
+        "font-mono",
+        3
+      ],
+      [
+        "text-[var(--color-paper)]/75",
+        2
+      ],
+      [
+        "text-[var(--color-ink)]/55",
+        2
+      ],
+      [
+        "font-extrabold",
+        2
+      ],
+      [
+        "text-[5rem]",
+        2
+      ],
+      [
+        "text-[var(--color-ember-deep)]",
+        2
+      ],
+      [
+        "text-[#8a3a00]",
+        2
+      ],
+      [
+        "text-[4.25rem]",
+        2
+      ],
+      [
+        "text-[var(--color-ink-morning)]",
+        2
+      ],
+      [
+        "text-[var(--color-orange)]",
+        1
+      ],
+      [
+        "text-[#7aa7ff]",
+        1
+      ],
+      [
+        "text-[var(--color-ink)]/65",
+        1
+      ],
+      [
+        "text-[var(--color-ink)]/20",
+        1
+      ]
+    ],
+    "text": [
+      [
+        "text-sm",
+        693
+      ],
+      [
+        "text-lg",
+        279
+      ],
+      [
+        "text-xs",
+        225
+      ],
+      [
+        "text-base",
+        176
+      ],
+      [
+        "text-xl",
+        171
+      ],
+      [
+        "text-4xl",
+        100
+      ],
+      [
+        "text-2xl",
+        99
+      ],
+      [
+        "text-5xl",
+        29
+      ],
+      [
+        "text-3xl",
+        19
+      ],
+      [
+        "text-6xl",
+        4
+      ]
+    ],
+    "bg": [
+      [
+        "bg-[var(--color-paper)]",
+        232
+      ],
+      [
+        "bg-[var(--color-ink)]",
+        115
+      ],
+      [
+        "bg-[var(--color-lime)]",
+        106
+      ],
+      [
+        "bg-[var(--color-pink)]",
+        69
+      ],
+      [
+        "bg-black",
+        65
+      ],
+      [
+        "bg-[var(--color-stage)]",
+        63
+      ],
+      [
+        "bg-gradient-to-t",
+        53
+      ],
+      [
+        "bg-white/10",
+        37
+      ],
+      [
+        "bg-white/5",
+        25
+      ],
+      [
+        "bg-[var(--color-yellow)]",
+        22
+      ],
+      [
+        "bg-[var(--color-cyan)]",
+        21
+      ],
+      [
+        "bg-white/90",
+        20
+      ],
+      [
+        "bg-[#1a1a1a]",
+        15
+      ],
+      [
+        "bg-[#2a2a2a]",
+        13
+      ],
+      [
+        "bg-[var(--color-paper)]/95",
+        12
+      ],
+      [
+        "bg-[var(--color-ember)]",
+        10
+      ],
+      [
+        "bg-white/20",
+        8
+      ],
+      [
+        "bg-[var(--color-ink)]/30",
+        6
+      ],
+      [
+        "bg-[var(--color-lime)]/15",
+        5
+      ],
+      [
+        "bg-[var(--color-purple)]",
+        5
+      ],
+      [
+        "bg-[#ff5f57]",
+        5
+      ],
+      [
+        "bg-[#febc2e]",
+        5
+      ],
+      [
+        "bg-[#28c840]",
+        5
+      ],
+      [
+        "bg-[#0f0f0f]",
+        5
+      ],
+      [
+        "bg-[#043629]",
+        5
+      ],
+      [
+        "bg-energy",
+        5
+      ],
+      [
+        "bg-sunrise",
+        4
+      ],
+      [
+        "bg-gradient-to-b",
+        4
+      ],
+      [
+        "bg-[var(--color-sky)]",
+        4
+      ],
+      [
+        "bg-no-repeat",
+        2
+      ],
+      [
+        "bg-[var(--color-paper)]/25",
+        2
+      ],
+      [
+        "bg-dusk",
+        2
+      ],
+      [
+        "bg-[var(--color-plum)]",
+        2
+      ],
+      [
+        "bg-dots",
+        2
+      ],
+      [
+        "bg-[var(--color-pink)]/90",
+        1
+      ],
+      [
+        "bg-black/40",
+        1
+      ],
+      [
+        "bg-[#111]",
+        1
+      ]
+    ],
+    "border": [
+      [
+        "border-[var(--color-ink)]",
+        720
+      ],
+      [
+        "border-[3px]",
+        517
+      ],
+      [
+        "border-t-[3px]",
+        68
+      ],
+      [
+        "border-[var(--color-ink)]/20",
+        63
+      ],
+      [
+        "border-[4px]",
+        62
+      ],
+      [
+        "border-b-[3px]",
+        50
+      ],
+      [
+        "border-[2px]",
+        44
+      ],
+      [
+        "border-dashed",
+        41
+      ],
+      [
+        "border-t-2",
+        40
+      ],
+      [
+        "border-[var(--color-ink)]/30",
+        40
+      ],
+      [
+        "border-[var(--color-ink)]/10",
+        40
+      ],
+      [
+        "border-2",
+        37
+      ],
+      [
+        "border-[var(--color-paper)]",
+        34
+      ],
+      [
+        "border-y-[3px]",
+        30
+      ],
+      [
+        "border-[var(--color-paper)]/20",
+        30
+      ],
+      [
+        "border-white/20",
+        30
+      ],
+      [
+        "border-t",
+        30
+      ],
+      [
+        "border-white/10",
+        26
+      ],
+      [
+        "border-current",
+        18
+      ],
+      [
+        "border-t-[2px]",
+        15
+      ],
+      [
+        "border-[var(--color-ink)]/15",
+        15
+      ],
+      [
+        "border-black/20",
+        15
+      ],
+      [
+        "border-[5px]",
+        8
+      ],
+      [
+        "border-b",
+        5
+      ],
+      [
+        "border-white/5",
+        5
+      ],
+      [
+        "border-[#3a1c05]",
+        2
+      ],
+      [
+        "border-[var(--color-lime)]",
+        1
+      ],
+      [
+        "border-[var(--color-ink)]/40",
+        1
+      ]
+    ],
+    "radius": [
+      [
+        "relative",
+        480
+      ],
+      [
+        "rounded-full",
+        442
+      ],
+      [
+        "rounded-3xl",
+        220
+      ],
+      [
+        "rounded-2xl",
+        216
+      ],
+      [
+        "rotate-1",
+        83
+      ],
+      [
+        "right-0",
+        56
+      ],
+      [
+        "rotate-12",
+        55
+      ],
+      [
+        "right-3",
+        31
+      ],
+      [
+        "right-10",
+        26
+      ],
+      [
+        "rotate-6",
+        24
+      ],
+      [
+        "right-[8%]",
+        20
+      ],
+      [
+        "rounded",
+        17
+      ],
+      [
+        "rotate-[0.5deg]",
+        16
+      ],
+      [
+        "rotate-2",
+        15
+      ],
+      [
+        "rounded-t-lg",
+        13
+      ],
+      [
+        "rotate-[8deg]",
+        12
+      ],
+      [
+        "right-16",
+        12
+      ],
+      [
+        "rounded-sm",
+        12
+      ],
+      [
+        "rounded-[26%/21%]",
+        10
+      ],
+      [
+        "rounded-[21%/17%]",
+        10
+      ],
+      [
+        "rounded-r-lg",
+        10
+      ],
+      [
+        "rounded-r-md",
+        10
+      ],
+      [
+        "right-[6%]",
+        10
+      ],
+      [
+        "rounded-xl",
+        9
+      ],
+      [
+        "rounded-[2.5rem]",
+        8
+      ],
+      [
+        "rounded-b-2xl",
+        7
+      ],
+      [
+        "right-[12%]",
+        6
+      ],
+      [
+        "rounded-lg",
+        6
+      ],
+      [
+        "right-12",
+        5
+      ],
+      [
+        "right-[4%]",
+        5
+      ],
+      [
+        "right-[10%]",
+        5
+      ],
+      [
+        "rounded-t-[1.9rem]",
+        4
+      ],
+      [
+        "right-[14%]",
+        3
+      ],
+      [
+        "rotate-3",
+        2
+      ],
+      [
+        "right-[30%]",
+        2
+      ],
+      [
+        "rounded-[2rem]",
+        2
+      ],
+      [
+        "right-[54%]",
+        1
+      ],
+      [
+        "right-[45%]",
+        1
+      ],
+      [
+        "right-[7%]",
+        1
+      ],
+      [
+        "right-[20%]",
+        1
+      ]
+    ],
+    "shadow": [
+      [
+        "shadow-sticker",
+        324
+      ],
+      [
+        "shadow-sticker-sm",
+        179
+      ],
+      [
+        "shadow-sticker-lg",
+        77
+      ]
+    ],
+    "spacing": [
+      [
+        "mx-auto",
+        220
+      ],
+      [
+        "px-6",
+        167
+      ],
+      [
+        "px-3",
+        166
+      ],
+      [
+        "mb-4",
+        161
+      ],
+      [
+        "mb-2",
+        135
+      ],
+      [
+        "py-1",
+        132
+      ],
+      [
+        "py-3",
+        128
+      ],
+      [
+        "px-4",
+        126
+      ],
+      [
+        "p-6",
+        119
+      ],
+      [
+        "mb-1",
+        113
+      ],
+      [
+        "mb-3",
+        104
+      ],
+      [
+        "mb-6",
+        93
+      ],
+      [
+        "py-2",
+        77
+      ],
+      [
+        "p-4",
+        76
+      ],
+      [
+        "px-2",
+        76
+      ],
+      [
+        "py-1.5",
+        60
+      ],
+      [
+        "p-5",
+        53
+      ],
+      [
+        "py-24",
+        51
+      ],
+      [
+        "mt-3",
+        47
+      ],
+      [
+        "mb-5",
+        47
+      ],
+      [
+        "mt-4",
+        42
+      ],
+      [
+        "pt-4",
+        35
+      ],
+      [
+        "mb-10",
+        33
+      ],
+      [
+        "mt-1",
+        32
+      ],
+      [
+        "py-2.5",
+        31
+      ],
+      [
+        "pr-1",
+        30
+      ],
+      [
+        "pt-3",
+        30
+      ],
+      [
+        "py-20",
+        28
+      ],
+      [
+        "px-5",
+        27
+      ],
+      [
+        "mb-8",
+        24
+      ],
+      [
+        "px-2.5",
+        24
+      ],
+      [
+        "py-5",
+        23
+      ],
+      [
+        "px-10",
+        22
+      ],
+      [
+        "mt-0.5",
+        22
+      ],
+      [
+        "py-4",
+        21
+      ],
+      [
+        "px-1",
+        20
+      ],
+      [
+        "mr-1",
+        20
+      ],
+      [
+        "py-16",
+        17
+      ],
+      [
+        "mt-5",
+        16
+      ],
+      [
+        "pl-1",
+        15
+      ],
+      [
+        "mt-12",
+        15
+      ],
+      [
+        "mb-12",
+        14
+      ],
+      [
+        "pt-1.5",
+        13
+      ],
+      [
+        "pb-2",
+        13
+      ],
+      [
+        "mt-24",
+        12
+      ],
+      [
+        "pt-6",
+        12
+      ],
+      [
+        "mb-14",
+        12
+      ],
+      [
+        "p-7",
+        11
+      ],
+      [
+        "p-8",
+        11
+      ],
+      [
+        "mt-6",
+        11
+      ],
+      [
+        "pb-8",
+        11
+      ],
+      [
+        "p-[5.5%]",
+        10
+      ],
+      [
+        "mb-7",
+        9
+      ],
+      [
+        "pt-32",
+        9
+      ],
+      [
+        "px-8",
+        9
+      ],
+      [
+        "mt-10",
+        8
+      ],
+      [
+        "pb-20",
+        7
+      ],
+      [
+        "mt-8",
+        6
+      ],
+      [
+        "pb-16",
+        6
+      ],
+      [
+        "mt-2",
+        6
+      ]
+    ],
+    "gap": [
+      [
+        "gap-2",
+        293
+      ],
+      [
+        "gap-1.5",
+        80
+      ],
+      [
+        "gap-4",
+        57
+      ],
+      [
+        "gap-3",
+        49
+      ],
+      [
+        "gap-1",
+        40
+      ],
+      [
+        "gap-10",
+        30
+      ],
+      [
+        "gap-6",
+        26
+      ],
+      [
+        "gap-12",
+        25
+      ],
+      [
+        "gap-2.5",
+        17
+      ],
+      [
+        "gap-5",
+        17
+      ],
+      [
+        "gap-x-3",
+        14
+      ],
+      [
+        "gap-y-1",
+        14
+      ],
+      [
+        "gap-7",
+        12
+      ],
+      [
+        "gap-8",
+        3
+      ],
+      [
+        "gap-14",
+        1
+      ]
+    ],
+    "effects": [
+      [
+        "transition-transform",
+        364
+      ],
+      [
+        "shadow-sticker",
+        324
+      ],
+      [
+        "shadow-sticker-sm",
+        179
+      ],
+      [
+        "transition-[transform,box-shadow]",
+        99
+      ],
+      [
+        "duration-150",
+        99
+      ],
+      [
+        "rotate-1",
+        83
+      ],
+      [
+        "shadow-sticker-lg",
+        77
+      ],
+      [
+        "opacity-60",
+        60
+      ],
+      [
+        "opacity-80",
+        56
+      ],
+      [
+        "rotate-12",
+        55
+      ],
+      [
+        "backdrop-blur-sm",
+        49
+      ],
+      [
+        "opacity-90",
+        49
+      ],
+      [
+        "opacity-0",
+        30
+      ],
+      [
+        "transition-opacity",
+        30
+      ],
+      [
+        "animate-wobble",
+        25
+      ],
+      [
+        "rotate-6",
+        24
+      ],
+      [
+        "transition-all",
+        18
+      ],
+      [
+        "rotate-[0.5deg]",
+        16
+      ],
+      [
+        "animate-wiggle",
+        15
+      ],
+      [
+        "translate-x-[1px]",
+        15
+      ],
+      [
+        "rotate-2",
+        15
+      ],
+      [
+        "opacity-70",
+        13
+      ],
+      [
+        "animate-spin-slow",
+        12
+      ],
+      [
+        "rotate-[8deg]",
+        12
+      ],
+      [
+        "opacity-75",
+        8
+      ],
+      [
+        "drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]",
+        3
+      ],
+      [
+        "drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]",
+        3
+      ],
+      [
+        "rotate-3",
+        2
+      ],
+      [
+        "animate-float",
+        2
+      ],
+      [
+        "opacity-85",
+        2
+      ],
+      [
+        "drop-shadow-[0_2px_0_rgba(58,28,5,0.35)]",
+        2
+      ],
+      [
+        "opacity-20",
+        2
+      ],
+      [
+        "drop-shadow",
+        1
+      ],
+      [
+        "opacity-95",
+        1
+      ]
+    ],
+    "layout": [
+      [
+        "flex",
+        636
+      ],
+      [
+        "flex-col",
+        195
+      ],
+      [
+        "w-full",
+        187
+      ],
+      [
+        "h-4",
+        176
+      ],
+      [
+        "w-4",
+        166
+      ],
+      [
+        "object-cover",
+        138
+      ],
+      [
+        "h-full",
+        120
+      ],
+      [
+        "grid",
+        110
+      ],
+      [
+        "flex-1",
+        105
+      ],
+      [
+        "flex-wrap",
+        89
+      ],
+      [
+        "max-w-6xl",
+        77
+      ],
+      [
+        "w-8",
+        58
+      ],
+      [
+        "max-w-2xl",
+        47
+      ],
+      [
+        "h-3",
+        47
+      ],
+      [
+        "h-8",
+        46
+      ],
+      [
+        "w-3",
+        45
+      ],
+      [
+        "flex-shrink-0",
+        44
+      ],
+      [
+        "aspect-[4/5]",
+        43
+      ],
+      [
+        "aspect-[9/16]",
+        40
+      ],
+      [
+        "w-10",
+        36
+      ],
+      [
+        "h-10",
+        36
+      ],
+      [
+        "max-w-3xl",
+        28
+      ],
+      [
+        "h-5",
+        28
+      ],
+      [
+        "w-5",
+        26
+      ],
+      [
+        "w-3.5",
+        22
+      ],
+      [
+        "h-3.5",
+        22
+      ],
+      [
+        "aspect-[4/3]",
+        20
+      ],
+      [
+        "w-[calc((100%_-_1rem)/2)]",
+        20
+      ],
+      [
+        "max-w-[340px]",
+        20
+      ],
+      [
+        "w-7",
+        18
+      ],
+      [
+        "h-7",
+        18
+      ],
+      [
+        "max-w-xl",
+        18
+      ],
+      [
+        "w-11",
+        18
+      ],
+      [
+        "h-11",
+        18
+      ],
+      [
+        "max-w-[300px]",
+        18
+      ],
+      [
+        "max-w-md",
+        15
+      ],
+      [
+        "max-w-5xl",
+        15
+      ],
+      [
+        "max-w-4xl",
+        14
+      ],
+      [
+        "max-w-xs",
+        14
+      ],
+      [
+        "min-w-0",
+        13
+      ],
+      [
+        "grid-cols-1",
+        13
+      ],
+      [
+        "h-18",
+        12
+      ],
+      [
+        "aspect-[410/502]",
+        10
+      ],
+      [
+        "w-[10px]",
+        10
+      ],
+      [
+        "h-[15%]",
+        10
+      ],
+      [
+        "w-[6px]",
+        10
+      ],
+      [
+        "h-[20%]",
+        10
+      ],
+      [
+        "aspect-[3/4]",
+        9
+      ],
+      [
+        "aspect-[9/19]",
+        9
+      ],
+      [
+        "grid-cols-2",
+        8
+      ],
+      [
+        "h-auto",
+        8
+      ],
+      [
+        "max-w-[160px]",
+        8
+      ],
+      [
+        "h-6",
+        8
+      ],
+      [
+        "h-2",
+        7
+      ],
+      [
+        "w-2",
+        6
+      ],
+      [
+        "max-w-[220px]",
+        5
+      ],
+      [
+        "grid-cols-3",
+        5
+      ],
+      [
+        "w-24",
+        5
+      ],
+      [
+        "w-[86%]",
+        4
+      ],
+      [
+        "max-w-sm",
+        4
+      ]
+    ],
+    "top50": [
+      [
+        "font-display",
+        773
+      ],
+      [
+        "border-[var(--color-ink)]",
+        720
+      ],
+      [
+        "text-sm",
+        693
+      ],
+      [
+        "flex",
+        636
+      ],
+      [
+        "items-center",
+        628
+      ],
+      [
+        "absolute",
+        573
+      ],
+      [
+        "border-[3px]",
+        517
+      ],
+      [
+        "font-bold",
+        512
+      ],
+      [
+        "font-medium",
+        491
+      ],
+      [
+        "relative",
+        480
+      ],
+      [
+        "rounded-full",
+        442
+      ],
+      [
+        "uppercase",
+        383
+      ],
+      [
+        "hover:text-[var(--color-purple)]",
+        379
+      ],
+      [
+        "transition-transform",
+        364
+      ],
+      [
+        "text-[var(--color-ink)]",
+        327
+      ],
+      [
+        "shadow-sticker",
+        324
+      ],
+      [
+        "leading-tight",
+        303
+      ],
+      [
+        "justify-center",
+        294
+      ],
+      [
+        "gap-2",
+        293
+      ],
+      [
+        "hover:-rotate-1",
+        280
+      ],
+      [
+        "text-lg",
+        279
+      ],
+      [
+        "leading-relaxed",
+        272
+      ],
+      [
+        "tracking-widest",
+        255
+      ],
+      [
+        "overflow-hidden",
+        238
+      ],
+      [
+        "bg-[var(--color-paper)]",
+        232
+      ],
+      [
+        "text-xs",
+        225
+      ],
+      [
+        "rounded-3xl",
+        220
+      ],
+      [
+        "mx-auto",
+        220
+      ],
+      [
+        "rounded-2xl",
+        216
+      ],
+      [
+        "inline-flex",
+        212
+      ],
+      [
+        "inline-block",
+        210
+      ],
+      [
+        "flex-col",
+        195
+      ],
+      [
+        "w-full",
+        187
+      ],
+      [
+        "font-semibold",
+        183
+      ],
+      [
+        "shadow-sticker-sm",
+        179
+      ],
+      [
+        "text-base",
+        176
+      ],
+      [
+        "h-4",
+        176
+      ],
+      [
+        "text-xl",
+        171
+      ],
+      [
+        "px-6",
+        167
+      ],
+      [
+        "px-3",
+        166
+      ],
+      [
+        "w-4",
+        166
+      ],
+      [
+        "pointer-events-none",
+        161
+      ],
+      [
+        "mb-4",
+        161
+      ],
+      [
+        "inset-0",
+        152
+      ],
+      [
+        "text-[10px]",
+        142
+      ],
+      [
+        "object-cover",
+        138
+      ],
+      [
+        "text-[var(--color-paper)]",
+        136
+      ],
+      [
+        "mb-2",
+        135
+      ],
+      [
+        "border",
+        134
+      ],
+      [
+        "py-1",
+        132
+      ]
+    ]
+  }
+}
