@@ -227,7 +227,10 @@ def parse(md):
             while i < len(lines) and lines[i].strip().startswith(">"):
                 buf.append(re.sub(r"^>\s?", "", lines[i].strip())); i += 1
             qtext = " ".join(x for x in buf if x)
-            blocks.append({"t": "quote", "text": qtext, "vars": vars_in(qtext)}); continue
+            # "lines" keeps the author's line breaks (a letter's salutation and sign-off)
+            # for the site's copy payload; the .docx path reads only "text".
+            blocks.append({"t": "quote", "text": qtext, "lines": [x for x in buf if x],
+                           "vars": vars_in(qtext)}); continue
         m = re.match(r"^(\s*)[-*]\s+(.*)$", ln)
         if m:
             items = []
