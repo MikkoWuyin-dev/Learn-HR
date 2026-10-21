@@ -45,6 +45,8 @@ DOCS = {
 }
 LAST_VERIFIED = "2026-10-20"
 STAMP = "Checked 20 October 2026"
+# R7: legal pages say this beside the stamp. Interface wording fixed by the PRD.
+LEGAL_NOTE = "Not legal advice; current to the date checked."
 
 NAV = [
     ("/1/start-here/", "Start here"),
@@ -56,16 +58,19 @@ NAV = [
 
 # A bare URL wrapped in parentheses, e.g. "(https://search.cac.gov.ng/)" in
 # doc5's scam checklist. The shared renderer's URL_RE carries a (?<!\()
-# lookbehind so it cannot re-linkify a markdown (url) — which means these are
-# left as plain, unclickable text. Handled here, in the site layer only, so
-# docx_render.py and the frozen .docx baseline are untouched.
-PAREN_URL_RE = re.compile(r"\((https?://[^\s|)<>]+)\)")
+# lookbehind, so these would render as plain, unclickable text. The site
+# layer linkifies them instead, leaving docx_render.py — and therefore the
+# frozen .docx baseline — untouched. The (?<!\]) guard keeps it off a
+# markdown link's own "(url)". Used by md() and by link_sources().
+PAREN_URL_RE = re.compile(r"(?<!\])\((https?://[^\s)]+)\)")
 
 VERDICTS = {
     "free-to-finish": "Free to finish",
     "free-to-study-paid-cert": "Free to study · paid certificate",
     "limited-access": "Limited access",
     "check-before-committing": "Check before committing",
+    "free-to-use": "Free to use",     # not a course: boards, statutes, reference shelves
+    "paid": "Paid",
 }
 
 
@@ -117,7 +122,28 @@ def plain(s):
 
 
 def heading_text(b):
-    return plain(b["text"])
+    return plain_text(b["text"])
+
+
+def plain_text(s):
+    """Markdown inline -> plain text: links to their label, emphasis and code marks
+    dropped. Used for copy payloads, the path manifest and meta descriptions, where
+    a stray `**` would be visible to the reader. Words are never changed."""
+    s = R.clean_text(s)
+    s = re.sub(r"\[([^\]]+)\]\((/[^)\s]*)\)", r"\1", s)
+    s = re.sub(r"`([^`]+)`", r"\1", s)
+    s = re.sub(r"\*\*(.+?)\*\*", r"\1", s)
+    s = re.sub(r"(?<![\w*])\*(?=\S)(.+?)(?<=\S)\*(?![\w*])", r"\1", s)
+    return s.strip()
+
+
+def summary(s, limit=158):
+    """Shorten plain text to a meta-description length at a word boundary."""
+    s = re.sub(r"\s+", " ", s).strip()
+    if len(s) <= limit:
+        return s
+    cut = s[:limit].rsplit(" ", 1)[0].rstrip(",;:·—-")
+    return cut + "…"
 
 
 # ---------------------------------------------------------------- extraction
@@ -141,17 +167,22 @@ def week_sections():
             continue
         title = heading_text(b)
         title = re.sub(r"^PHASE\s+\d+\s*·\s*", "", title)
-        title = re.sub(r"^Week\s+%d\s*·\s*" % n, "", title)
+        title = re.sub(r"^Week\s+%d\s*[·—-]\s*" % n, "", title, flags=re.I)
         out.append({"n": n, "title": title.strip(), "heading": heading_text(b),
                     "id": b["id"], "blocks": body})
     return out
 
 
 def cards():
-    """doc3: one `####` heading per resource, with its bullet fields."""
+    """doc3: one `####` heading per resource, with its bullet fields and the `##`
+    section it sits under (3.1 the spine, 3.2 bodies and institutions, 3.3 jobs)."""
     bs = blocks("doc3")
     out = []
+    section = None
     for i, b in enumerate(bs):
+        if b["t"] == "h" and b["l"] == 2:
+            m = re.match(r"(\d+\.\d+)\s+(.*)", heading_text(b))
+            section = {"key": m.group(1), "title": m.group(2), "id": b["id"]} if m else None
         if b["t"] != "h" or b["l"] != 4:
             continue
         body = []
@@ -168,19 +199,85 @@ def cards():
                 if m:
                     fields.setdefault(m.group(1).strip().lower(), m.group(2).strip())
         out.append({"id": b["id"], "title": heading_text(b), "raw_title": b["text"],
-                    "fields": fields, "blocks": body})
+                    "fields": fields, "blocks": body, "section": section})
     return out
 
 
-def verdict_of(cost):
-    low = (cost or "").lower()
-    if "limited access" in low or "time-limited" in low or "no certificate" in low:
-        return "limited-access"
-    if "check before" in low or "verify" in low or "before you commit" in low:
-        return "check-before-committing"
-    if "free certificate" in low or "certificate of completion** (no application" in low:
-        return "free-to-finish"
-    return "free-to-study-paid-cert"
+def card_text(c):
+    """Everything a card says, as plain text, for checking a verdict's basis."""
+    parts = [c["title"]]
+    for b in c["blocks"]:
+        if b["t"] in ("p", "quote"):
+            parts.append(b["text"])
+        elif b["t"] == "list":
+            parts += [i["text"] for i in b["items"]]
+        elif b["t"] == "table":
+            parts += [" ".join(r) for r in b["rows"]]
+    return " ".join(plain_text(x) for x in parts)
+
+
+COURSE_CARDS_FILE = CONTENT / "course-cards.json"
+_course_cards = {}
+
+
+def course_cards():
+    """Card id -> [(tracker key, course name)], from content/course-cards.json (R10).
+
+    The tracker row keys are reused, so a tick on a card and a tick in the plan's
+    tracker are one tick. A row number the tracker doesn't have, an unknown card,
+    or wording the card no longer says is a build error.
+    """
+    if _course_cards:
+        return _course_cards
+    courses = tracker()["courses"]
+    by_num = {row[0].strip(): (k, plain_text(row[1])) for k, row in zip(courses["keys"], courses["rows"])}
+    by_id = {c["id"]: c for c in cards()}
+    data = json.loads(COURSE_CARDS_FILE.read_text(encoding="utf-8"))["courses"]
+    problems, out = [], {}
+    for num, where in data.items():
+        if num not in by_num:
+            problems.append(f"#{num}: no such row in the doc2 tracker")
+            continue
+        for cid, basis in where.items():
+            if cid not in by_id:
+                problems.append(f"#{num}: no such card {cid}")
+            elif plain_text(basis) not in card_text(by_id[cid]):
+                problems.append(f"#{num}: {cid} no longer says {basis!r}")
+            else:
+                out.setdefault(cid, []).append(by_num[num])
+    if problems:
+        raise SystemExit("course-cards.json needs the owner:\n  " + "\n  ".join(problems))
+    _course_cards.update(out)
+    return _course_cards
+
+
+VERDICTS_FILE = CONTENT / "resource-verdicts.json"
+_verdicts = {}
+
+
+def verdicts():
+    """The owner's cost verdict per card, from content/resource-verdicts.json.
+
+    A wrong card id, an unknown verdict, or a basis the card no longer says is a
+    build error: the sticker must rest on words the learner can read on the card.
+    A card with no entry gets no sticker, never a guess.
+    """
+    if _verdicts:
+        return _verdicts
+    data = json.loads(VERDICTS_FILE.read_text(encoding="utf-8"))["cards"]
+    by_id = {c["id"]: c for c in cards()}
+    problems = []
+    for cid, v in data.items():
+        if cid not in by_id:
+            problems.append(f"{cid}: no such card in doc3")
+        elif v.get("verdict") not in VERDICTS:
+            problems.append(f"{cid}: unknown verdict {v.get('verdict')!r}")
+        elif not v.get("basis") or plain_text(v["basis"]) not in card_text(by_id[cid]):
+            problems.append(f"{cid}: basis no longer on the card: {v.get('basis')!r}")
+    if problems:
+        raise SystemExit("resource-verdicts.json needs the owner:\n  " + "\n  ".join(problems))
+    _verdicts.update({cid: v["verdict"] for cid, v in data.items()})
+    return _verdicts
 
 
 def section(name, pattern):
@@ -211,50 +308,87 @@ def tracker():
     return {"courses": courses, "artefacts": artefacts}
 
 
-def external_urls():
-    """Every distinct external URL in the five documents, first-seen order.
+BLOCK_HEAD = ["time", "do this", "output"]
 
-    Three patterns are needed because the corpus spells links three ways: the
-    markdown form `[text](url)` (LINK_RE), the bare form `Link: https://…`
-    (URL_RE) and the parenthesised bare form `(https://…)` (PAREN_URL_RE).
-    The page linkifies all three, so the sweep has to cover all three.
-    Collecting only the markdown form found 12 of the 47 URLs.
 
-    No trailing-punctuation trimming, deliberately: the URL recorded here is
-    the exact string the page links to, so a bad href shows up as a bad sweep
-    result rather than being silently corrected in one place only.
+def learning_path():
+    """The ordered list of things a learner ticks, derived from doc2 and nothing else.
+
+    Doc 2: "Each block ends with an output. If you produced the output, the week
+    passes." So a week's activities are the rows of its block table (Time · Do this ·
+    Output), keyed by the row's data-k. Weeks 20 and 21 have no block table; their
+    outputs are the Support A artefacts dated to that week, so those tracker rows are
+    the week's activities (same key as the tracker, so a tick in either place is one
+    tick). Weeks 22-24 have no activities here: doc2 hands them to doc5.
     """
-    seen, out = set(), []
-    for name in DOCS:
-        for b in blocks(name):
-            texts = []
-            if b["t"] in ("p", "quote"):
-                texts.append(b["text"])
-            elif b["t"] == "list":
-                texts += [i["text"] for i in b["items"]]
-            elif b["t"] == "table":
-                texts += b["head"] + [c for row in b["rows"] for c in row]
-            elif b["t"] == "h":
-                texts.append(b["text"])
-            for t in texts:
-                for regex, group in ((R.LINK_RE, 2), (R.URL_RE, 1),
-                                     (PAREN_URL_RE, 1)):
-                    for m in regex.finditer(t):
-                        url = m.group(group)
-                        if url not in seen:
-                            seen.add(url)
-                            out.append(url)
+    art = tracker()["artefacts"]
+    dated = {}
+    if art:
+        wcol = [h.lower() for h in art["head"]].index("week")
+        for k, row in zip(art["keys"], art["rows"]):
+            if row[wcol].strip().isdigit():
+                dated.setdefault(int(row[wcol]), []).append((k, row))
+    out = []
+    for w in week_sections():
+        acts, source = [], "blocks"
+        for b in w["blocks"]:
+            if b["t"] == "table" and [h.lower() for h in b["head"]] == BLOCK_HEAD:
+                acts += [{"k": k, "time": plain_text(r[0]), "do": plain_text(r[1]),
+                          "out": plain_text(r[2])} for k, r in zip(b["keys"], b["rows"])]
+        if not acts:
+            source = "tracker"
+            acts = [{"k": k, "time": "", "do": plain_text(r[1]), "out": plain_text(r[1])}
+                    for k, r in dated.get(w["n"], [])]
+        out.append({"n": w["n"], "title": plain_text(w["title"]), "source": source,
+                    "url": f"/2/plan/week/{w['n']}/", "acts": acts})
+
     return out
 
 
-# ---------------------------------------------------------------- rendering
-def render_table(b, caption=None, ns=None):
-    """`ns` renames the row keys, for a table that renders on a second page.
+_manifests = {}
 
-    parse() mints each table's data-k once, so rendering one table on two
-    pages would emit the same key twice. That fails the site-wide uniqueness
-    check and would mean ticking one copy ticked the other (R9). Namespacing
-    keeps the keys distinct and still traceable to their source row.
+
+def path_manifest(detail=False):
+    """The JSON the browser needs to derive progress. Keys and week titles only,
+    unless `detail`, which adds each activity's words for the next-action card."""
+    if detail in _manifests:
+        return _manifests[detail]
+    t = tracker()
+    weeks = []
+    for w in learning_path():
+        entry = [w["n"], w["title"], [a["k"] for a in w["acts"]]]
+        if detail:
+            entry.append([[a["time"], a["do"], a["out"]] for a in w["acts"]])
+        weeks.append(entry)
+    data = {"v": 1, "weeks": weeks,
+            "courses": t["courses"]["keys"] if t["courses"] else [],
+            "artefacts": t["artefacts"]["keys"] if t["artefacts"] else []}
+    text = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
+    # Safe inside <script type="application/json">: no element can be closed early.
+    _manifests[detail] = text.replace("</", "<\\/")
+    return _manifests[detail]
+
+
+def external_urls():
+    """Every external URL in the five documents, first-seen order (see link_sources)."""
+    return list(link_sources())
+
+
+# ---------------------------------------------------------------- rendering
+def tick_button(key, label, context):
+    """A progress toggle. Hidden in the HTML; progress.js reveals it, so a page read
+    without JavaScript shows no control that does nothing (R12, R25)."""
+    return (f'<button type="button" class="tick" data-tick="{key}" aria-pressed="false" hidden>'
+            f'{label}<span class="vh"> · {html.escape(context)}</span></button>')
+
+
+def render_table(b, caption=None, tick_col=None, tick_label="Done", ns=None):
+    """`ns` renames the row keys, for a table rendered a second time elsewhere.
+
+    parse() mints each table's data-k once, so rendering one table on two pages
+    would emit the same key twice. That fails the site-wide uniqueness check,
+    and on a tickable table it would make one click tick two rows (R9). Use it
+    only for duplicates that are not themselves progress rows.
     """
     head = "".join(f'<th scope="col">{md(c)}</th>' for c in b["head"])
     rows = []
@@ -262,15 +396,49 @@ def render_table(b, caption=None, ns=None):
         key = b["keys"][i] if i < len(b.get("keys", [])) else ""
         if key and ns:
             key = f"{ns}-{key}"
-        cells = "".join(f"<td>{md(row[j] if j < len(row) else '')}</td>"
-                        for j in range(len(b["head"])))
-        rows.append(f'<tr data-k="{key}">{cells}</tr>')
+        cells = []
+        for j in range(len(b["head"])):
+            cell = md(row[j] if j < len(row) else "")
+            if tick_col == j and key:
+                context = plain_text(row[2] if tick_col == 2 else row[1]) if len(row) > 2 else key
+                cell = f'<span class="cell-text">{cell}</span>{tick_button(key, tick_label, context)}'
+            cells.append(f"<td>{cell}</td>")
+        rid = f' id="{key}"' if tick_col is not None and key else ""
+        rows.append(f'<tr{rid} data-k="{key}">{"".join(cells)}</tr>')
     cap = f'<caption class="table-caption">{md(caption)}</caption>' if caption else ""
     return (f'<div class="card table-card"><div class="scroller"><table>{cap}'
             f"<thead><tr>{head}</tr></thead><tbody>{''.join(rows)}</tbody></table></div></div>")
 
 
-def render_blocks(bs, level=2, caption_from_heading=True, default_caption="", ns=None):
+def copy_button(payload, what):
+    """A Copy control for a block the learner reuses. The payload is the source's
+    own words as plain text, line breaks kept; copy.js reveals the button."""
+    return (f'<button type="button" class="btn btn-sm copy-btn" hidden '
+            f'data-copy="{html.escape(payload, quote=True)}">Copy<span class="vh"> {what}</span></button>'
+            f'<span class="copy-status" role="status"></span>')
+
+
+def render_quote(b, copyable):
+    if not copyable:
+        return f'<aside class="callout"><p>{md(b["text"])}</p></aside>'
+    lines = b.get("lines") or [b["text"]]
+    payload = "\n".join(plain_text(x) for x in lines)
+    return (f'<figure class="copyable"><blockquote><p>{"<br>".join(md(x) for x in lines)}</p>'
+            f'</blockquote>{copy_button(payload, "this text")}</figure>')
+
+
+GLOSSARY_SEARCH = (
+    '<div class="glossary-search" data-glossary hidden><label for="glossary-q">Search the terms</label>'
+    '<input id="glossary-q" type="search" autocomplete="off" spellcheck="false">'
+    '<p class="note" data-glossary-count aria-live="polite"></p></div>')
+
+
+def render_blocks(bs, level=2, caption_from_heading=True, default_caption="",
+                  copyable=False, ticks=False, glossary=False, ns=None):
+    """`copyable`: blockquotes are reusable scripts and templates (docs 4 and 5), so
+    they get a Copy button; elsewhere they are callouts. `ticks`: block tables get a
+    progress toggle in their Output cell. `ns`: rename the row keys, for a table
+    that is rendered a second time on another page (see render_table)."""
     out, current = [], default_caption
     for b in bs:
         t = b["t"]
@@ -284,9 +452,13 @@ def render_blocks(bs, level=2, caption_from_heading=True, default_caption="", ns
         elif t == "p":
             out.append(f"<p>{md(b['text'])}</p>")
         elif t == "quote":
-            out.append(f'<aside class="callout"><p>{md(b["text"])}</p></aside>')
+            out.append(render_quote(b, copyable))
         elif t == "code":
-            out.append("<pre><code>" + html.escape("\n".join(b["lines"])) + "</code></pre>")
+            pre = "<pre><code>" + html.escape("\n".join(b["lines"])) + "</code></pre>"
+            if copyable:
+                pre = (f'<figure class="copyable">{pre}'
+                       f'{copy_button(chr(10).join(b["lines"]), "this card")}</figure>')
+            out.append(pre)
         elif t == "list":
             tag = "ol" if b["items"][0]["ordered"] else "ul"
             items = "".join(
@@ -294,20 +466,44 @@ def render_blocks(bs, level=2, caption_from_heading=True, default_caption="", ns
                 for it in b["items"])
             out.append(f"<{tag}>{items}</{tag}>")
         elif t == "table":
-            out.append(render_table(b, caption=(current if caption_from_heading
-                                                else default_caption) or None, ns=ns))
+            tick = 2 if ticks and [h.lower() for h in b["head"]] == BLOCK_HEAD else None
+            caption = (current if caption_from_heading else default_caption) or None
+            table = render_table(b, caption=caption, tick_col=tick,
+                                 tick_label="Output done", ns=ns)
+            if glossary and b["head"][0].strip().lower() == "term":
+                # R8: the search box ships hidden; glossary.js reveals it and filters rows.
+                table = GLOSSARY_SEARCH + table.replace('<div class="card table-card">',
+                                                        '<div class="card table-card" data-glossary-table>', 1)
+            out.append(table)
     return "\n".join(out)
 
 
-def page(path, title, body, *, lead="", extra_head="", body_class=""):
-    """Write one page. `path` is the directory under _site, '' for the root."""
+def full_title(title):
+    """The site name is appended only while the title stays within 70 characters, the
+    length search results show. A long source heading is never cut short."""
+    suffixed = f"{title} — HR Library"
+    return suffixed if len(suffixed) <= 70 else title
+
+
+SITE_URL = ""          # production origin, e.g. https://example.org — set by --site-url
+WRITTEN = []           # (path, title) of every page, for the sitemap and the audit
+
+
+def page(path, title, body, *, lead="", extra_head="", body_class="", detail=False):
+    """Write one page. `path` is the directory under _site, '' for the root.
+
+    Every page carries the path manifest (keys and week titles) so the footer can say
+    where the learner stopped; `detail` adds the activity words for the next-action
+    card. Scripts are deferred and optional: with JavaScript off, the page reads the
+    same minus the progress and copy controls.
+    """
     depth = 0 if not path else path.strip("/").count("/") + 1
     root = "../" * depth
-    # The attribute is built outside the f-string: an escaped quote inside an
-    # f-string expression is a SyntaxError before Python 3.12 (PEP 701), and
-    # this build has to run on 3.11.
+    # The aria-current attribute is built outside the f-string: an escaped quote
+    # inside an f-string expression is a SyntaxError before Python 3.12 (PEP 701),
+    # and this build has to run on 3.11.
     nav = []
-    for href, esc in NAV:
+    for href, esc in ((h, html.escape(label)) for h, label in NAV):
         here = (' aria-current="page"'
                 if path and href != "/" and path.startswith(href.strip("/"))
                 else "")
@@ -315,16 +511,35 @@ def page(path, title, body, *, lead="", extra_head="", body_class=""):
     nav = "".join(nav)
     stamp = (f'<p class="stamp"><span class="stamp-dot" aria-hidden="true"></span>'
              f'{STAMP} · <a href="{root}check/">see every link checked</a></p>')
+    url_path = f"/{path.strip('/')}/" if path else "/"
+    desc = html.escape(summary(lead), quote=True)
+    meta = [f'<meta name="description" content="{desc}">',
+            f'<meta property="og:type" content="website">',
+            f'<meta property="og:site_name" content="HR Library">',
+            f'<meta property="og:title" content="{html.escape(title, quote=True)}">',
+            f'<meta property="og:description" content="{desc}">']
+    if SITE_URL:
+        meta += [f'<link rel="canonical" href="{SITE_URL}{url_path}">',
+                 f'<meta property="og:url" content="{SITE_URL}{url_path}">']
+    scripts = f'<script src="{root}static/progress.js" defer></script>'
+    if "copy-btn" in body:
+        scripts += f'\n<script src="{root}static/copy.js" defer></script>'
+    if "data-lib-filter" in body:
+        scripts += f'\n<script src="{root}static/library.js" defer></script>'
+    if "data-glossary" in body:
+        scripts += f'\n<script src="{root}static/glossary.js" defer></script>'
     doc = f"""<!doctype html>
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{html.escape(title)} — HR Library</title>
-<meta name="description" content="{html.escape(lead)[:180]}">
+<title>{html.escape(full_title(title))}</title>
+{chr(10).join(meta)}
+<link rel="icon" href="data:,">
 <link rel="stylesheet" href="{root}wakeout.css">
 <link rel="stylesheet" href="{root}static/site.css">
 {extra_head}
+{scripts}
 </head>
 <body class="{body_class}">
 <a class="skip" href="#main">Skip to content</a>
@@ -339,22 +554,27 @@ def page(path, title, body, *, lead="", extra_head="", body_class=""):
 </main>
 <footer class="site-foot">
   <div class="wrap">
+    <p class="resume" data-resume hidden></p>
     <p class="stamp">Checked 20 October 2026 · <a href="{root}downloads/">downloads</a> · <a href="{root}check/">link status</a></p>
     <p>No accounts, no cookies, nothing leaves your device. Free to read; text shared CC BY-SA 4.0.</p>
+    <p class="vh" id="hr-live" aria-live="polite"></p>
   </div>
 </footer>
+<script type="application/json" id="hr-path">{path_manifest(detail)}</script>
 </body>
 </html>
 """
     dest = SITE / path / "index.html" if path else SITE / "index.html"
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(doc, encoding="utf-8")
+    WRITTEN.append((url_path, title))
     return dest
 
 
-def hero(title, lead, kicker=""):
+def hero(title, lead, kicker="", actions=""):
     k = f'<p class="eyebrow">{kicker}</p>' if kicker else ""
-    return f'<section class="hero">{k}<h1>{title}</h1><p class="lead">{lead}</p>{hero_stamp()}</section>'
+    return (f'<section class="hero">{k}<h1>{title}</h1><p class="lead">{lead}</p>{actions}'
+            f'{hero_stamp()}</section>')
 
 
 def hero_stamp():
@@ -363,6 +583,8 @@ def hero_stamp():
 
 
 def sticker(verdict):
+    if not verdict:
+        return ""
     return f'<span class="sticker sticker-{verdict}">{VERDICTS[verdict]}</span>'
 
 
@@ -400,33 +622,70 @@ def build_home():
     rendered = render_blocks(rest, level=2)
     for old, new in HOME_LINKS:
         rendered = rendered.replace(old, new)
-    body = [hero(md("Your HR Library"), md(intro["text"]) if intro else "", "The compass"),
-            rendered]
-    page("", "Your HR Library", "\n".join(body), lead=plain(intro["text"]) if intro else "")
+    body = [hero(md("Your HR Library"), md(intro["text"]) if intro else "", "The compass",
+                 actions=start_actions()),
+            NEXT_CARD, rendered]
+    page("", "Your HR Library", "\n".join(body),
+         lead=plain_text(intro["text"]) if intro else "", detail=True)
 
 
-def build_doc(name, path, title, lead="", kicker=""):
+# Filled by progress.js from the path manifest; empty and hidden on a first visit (R11).
+NEXT_CARD = ('<section class="card next-card" data-next hidden aria-labelledby="next-h">'
+             '<h2 id="next-h">Your next block</h2><div data-next-body></div></section>')
+
+
+def start_actions():
+    """The primary action. Doc 2 starts at Week 0, and the overview says "do the Week 0
+    row"; progress.js turns this into a Resume link once the learner has ticked anything."""
+    return ('<p class="actions"><a class="btn btn-primary" data-start href="/2/plan/week/0/">'
+            'Start with Week 0</a> <a class="btn btn-paper" href="/2/plan/">See the whole plan</a></p>')
+
+
+def build_doc(name, path, title, lead="", kicker="", copyable=False, seo_title=None,
+              legal=False, glossary=False):
     bs = blocks(name)
     body = [hero(md(title), md(lead) if lead else "", kicker)]
     if kicker:
-        body.append(stamp_block())
-    body.append(render_blocks(bs, level=2))
-    page(path, plain(title), "\n".join(body), lead=plain(lead))
+        body.append(stamp_block(legal))
+    body.append(render_blocks(bs, level=2, copyable=copyable, glossary=glossary))
+    # The meta description is the document's own first paragraph (R17), which says
+    # what the page answers better than the one-line subtitle does.
+    first_p = next((b["text"] for b in bs if b["t"] == "p" and not re.match(r"\*[^*]", b["text"])), lead)
+    page(path, seo_title or plain(title), "\n".join(body), lead=plain_text(first_p))
 
 
-def stamp_block():
+def stamp_block(legal=False):
+    note = f'<p class="legal-note">{LEGAL_NOTE}</p>' if legal else ""
     return (f'<p class="stamp stamp-block"><span class="stamp-dot" aria-hidden="true"></span>'
-            f"{STAMP}</p>")
+            f"{STAMP}</p>{note}")
+
+
+# Filled by progress.js; hidden on a first visit so nobody sees "0% complete" (R11).
+PROGRESS_PANEL = (
+    '<section class="card progress-card" data-progress hidden aria-labelledby="progress-h">'
+    '<h2 id="progress-h">Your progress</h2><div data-progress-body></div>'
+    '<p class="note">Saved in this browser on this device only. It does not follow you to '
+    'another phone or browser, and clearing your browser data clears it.</p>'
+    '<div class="reset" data-reset><button type="button" class="btn btn-sm btn-paper" '
+    'data-reset-ask>Clear my progress</button>'
+    '<span data-reset-confirm hidden> Clear every tick on this device? '
+    '<button type="button" class="btn btn-sm btn-ink" data-reset-yes>Yes, clear it</button> '
+    '<button type="button" class="btn btn-sm btn-paper" data-reset-no>Keep it</button></span>'
+    '</div></section>')
 
 
 def build_plan():
     weeks = week_sections()
     bs = blocks("doc2")
     head = next((b for b in bs if b["t"] == "h" and b["l"] == 3), None)
-    body = [hero("The 24-week plan", md(head["text"]) if head else "", "Document 2")]
+    body = [hero("The 24-week plan", md(head["text"]) if head else "", "Document 2",
+                 actions=start_actions().replace(
+                     ' <a class="btn btn-paper" href="/2/plan/">See the whole plan</a>', '')),
+            NEXT_CARD, PROGRESS_PANEL]
     rows = "".join(
-        f'<li><a href="/2/plan/week/{w["n"]}/"><span class="week-n">{w["n"]:02d}</span>'
-        f'<span>{md(w["title"])}</span></a></li>' for w in weeks)
+        f'<li data-week="{w["n"]}"><a href="/2/plan/week/{w["n"]}/"><span class="week-n">{w["n"]:02d}</span>'
+        f'<span>{md(w["title"])}</span><span class="week-state" data-week-state="{w["n"]}"></span>'
+        f'</a></li>' for w in weeks)
     body.append(f'<section class="card"><h2 id="weeks">The weeks</h2>'
                 f'<p class="note">Each week is a table of blocks. If the week\'s output exists, '
                 f'the week counts as passed.</p><ol class="week-list">{rows}</ol></section>')
@@ -440,15 +699,19 @@ def build_plan():
     for label, table in (("Courses and credentials", t["courses"]),
                          ("Portfolio artefacts", t["artefacts"])):
         if table:
+            col = [h.lower() for h in table["head"]]
+            tick = col.index("status") if "status" in col else col.index("done") if "done" in col else None
             body.append(f'<section><h2 id="tracker-{label.lower().replace(" ", "-")}">'
-                        f'Tracker · {label}</h2>{render_table(table, caption=label)}</section>')
-    page("2/plan", "The 24-week plan", "\n".join(body),
-         lead="Twenty-four weeks at five to ten hours a week, everything free.")
+                        f'Tracker · {label}</h2>{render_table(table, caption=label, tick_col=tick)}</section>')
+    page("2/plan", "The 24-week plan: from zero to job-ready in HR", "\n".join(body),
+         lead=plain_text(head["text"]) if head else "", detail=True)
 
 
 def build_week(w):
+    path_week = next((x for x in learning_path() if x["n"] == w["n"]), None)
     body = [f'<p class="eyebrow"><a href="/2/plan/">The plan</a> · Week {w["n"]}</p>',
-            f'<h1>Week {w["n"]} · {md(w["title"])}</h1>', stamp_block()]
+            f'<h1>Week {w["n"]} · {md(w["title"])}</h1>', stamp_block(),
+            f'<p class="week-progress" data-week-progress="{w["n"]}" hidden></p>']
     available = {x["n"] for x in week_sections()}
     prev_w = w["n"] - 1 if w["n"] > 0 else None
     links = []
@@ -459,31 +722,69 @@ def build_week(w):
         links.append(f'<a href="/2/plan/week/{nxt}/">Week {nxt} →</a>')
     else:
         links.append('<a href="/5/getting-the-job/">Weeks 22–24 →</a>')
-    body.append(f'<nav class="pager" aria-label="Weeks">{"".join(links)}</nav>')
-    body.append(render_blocks(w["blocks"], level=2,
+    pager = f'<nav class="pager" aria-label="Weeks">{"".join(links)}</nav>'
+    body.append(pager)
+    body.append(render_blocks(w["blocks"], level=2, ticks=True,
                               default_caption=f"Week {w['n']} — {w['title']}"))
-    page(f"2/plan/week/{w['n']}", f"Week {w['n']} · {w['title']}", "\n".join(body))
+    if path_week and path_week["source"] == "tracker" and path_week["acts"]:
+        # No block table this week: its outputs are the Support A rows dated to it.
+        items = "".join(f'<li id="{a["k"]}"><span class="cell-text">{html.escape(a["out"])}</span> '
+                        f'{tick_button(a["k"], "Output done", a["out"])}</li>'
+                        for a in path_week["acts"])
+        body.append(f'<section class="card"><h2 id="this-weeks-output">This week\'s output</h2>'
+                    f'<p class="note">From the plan\'s progress tracker (Support A). Tick only when '
+                    f'the output exists.</p><ul class="tick-list">{items}</ul></section>')
+    body.append(pager.replace('aria-label="Weeks"', 'aria-label="Weeks, again"'))
+    first = path_week["acts"][0]["do"] if path_week and path_week["acts"] else ""
+    lead = f"Week {w['n']} of the free 24-week HR plan: {plain_text(w['title'])}. {first}"
+    page(f"2/plan/week/{w['n']}", f"Week {w['n']} · {plain_text(w['title'])}", "\n".join(body),
+         lead=lead)
+
+
+LIBRARY_FILTER = (
+    '<div class="lib-filter" data-lib-filter hidden role="group" aria-label="Filter the library">'
+    '<label>Section <select name="section">{sections}</select></label>'
+    '<label>Cost <select name="cost">{costs}</select></label>'
+    '<p class="note" data-lib-count aria-live="polite"></p></div>')
 
 
 def build_library_index():
     cs = cards()
-    items = []
+    vs = verdicts()
+    groups, order = {}, []
     for c in cs:
-        v = verdict_of(c["fields"].get("cost", ""))
-        items.append(
-            f'<li class="card res-card"><a href="/3/library/{c["id"]}/">'
-            f'<h3>{md(c["raw_title"])}</h3></a>{sticker(v)}'
+        sec = c["section"] or {"key": "", "title": "", "id": ""}
+        if sec["key"] not in groups:
+            groups[sec["key"]] = (sec, [])
+            order.append(sec["key"])
+        v = vs.get(c["id"], "")
+        groups[sec["key"]][1].append(
+            f'<li class="card res-card" data-section="{sec["key"]}" data-cost="{v}">'
+            f'<a href="/3/library/{c["id"]}/"><h3>{md(c["raw_title"])}</h3></a>{sticker(v)}'
             f'<p class="note">{md(c["fields"].get("why it matters") or c["fields"].get("why") or "")}</p>'
             f'</li>')
+    sections = '<option value="">All sections</option>' + "".join(
+        f'<option value="{k}">{html.escape(groups[k][0]["title"].capitalize())}</option>' for k in order if k)
+    used = [k for k in VERDICTS if k in set(vs.values())]
+    costs = '<option value="">Any cost</option>' + "".join(
+        f'<option value="{k}">{VERDICTS[k]}</option>' for k in used)
     body = [hero("The resource library", f"{len(cs)} resources, each with the link, "
                 f"what it really costs, and how long it takes.", "Document 3"),
-            f'<ul class="grid grid-3 res-grid">{"".join(items)}</ul>']
-    page("3/library", "The resource library", "\n".join(body),
-         lead="Every course worth your time, with the link, the real cost and the hours.")
+            LIBRARY_FILTER.format(sections=sections, costs=costs)]
+    for k in order:
+        sec, items = groups[k]
+        head = f'<h2 id="{sec["id"]}">{html.escape(k + " " + sec["title"])}</h2>' if k else ""
+        body.append(f'<section class="lib-section" data-lib-section="{k}">{head}'
+                    f'<ul class="grid grid-3 res-grid">{"".join(items)}</ul></section>')
+    body.append('<p class="note">Each cost label sums up the card\'s own cost terms. '
+                'Open the card for the full terms before you plan a week around it.</p>')
+    sub = next((b["text"] for b in blocks("doc3") if b["t"] == "h" and b["l"] == 3), "")
+    page("3/library", "Free HR courses and professional resources", "\n".join(body),
+         lead=plain_text(sub) or "Every course worth your time, with the link, the real cost and the hours.")
 
 
 def build_card(c):
-    v = verdict_of(c["fields"].get("cost", ""))
+    v = verdicts().get(c["id"], "")
     body = [f'<p class="eyebrow"><a href="/3/library/">Library</a> · resource</p>',
             f'<h1>{md(c["raw_title"])}</h1>{sticker(v)}', stamp_block()]
     if c["fields"].get("cost"):
@@ -494,15 +795,25 @@ def build_card(c):
             body.append(f'<section class="field"><h2>{label.capitalize()}</h2>'
                         f'<p>{md(c["fields"][label])}</p></section>')
     body.append(render_blocks(c["blocks"], level=2, default_caption=c["title"]))
-    page(f"3/library/{c['id']}", c["title"], "\n".join(body), lead=c["title"])
+    tracked = course_cards().get(c["id"], [])
+    if tracked:
+        items = "".join(f'<li id="{k}"><span class="cell-text">{html.escape(name)}</span> '
+                        f'{tick_button(k, "Done", name)}</li>' for k, name in tracked)
+        body.append(f'<section class="card" aria-labelledby="card-courses"><h2 id="card-courses">'
+                    f'On your tracker</h2><p class="note">From the plan\'s progress tracker (Support A). '
+                    f'A tick here is the same tick as in <a href="/2/plan/#tracker-courses-and-credentials">'
+                    f'the plan</a>.</p><ul class="tick-list">{items}</ul></section>')
+    what = c["fields"].get("what it is") or c["fields"].get("why it matters") or ""
+    page(f"3/library/{c['id']}", c["title"], "\n".join(body),
+         lead=f"{c['title']}: {plain_text(what)}" if what else c["title"])
 
 
 def build_law_card():
     _, body = section("doc4", r"SUPPORT C")
-    inner = render_blocks(body, level=2)
+    inner = render_blocks(body, level=2, copyable=True)
     page("4/nigeria/law-card", "The one-page law card",
          '<p class="eyebrow"><a href="/4/nigeria/">Nigeria &amp; law</a> · one page</p>'
-         '<h1>Your one-page law card</h1>' + stamp_block() + inner,
+         '<h1>Your one-page law card</h1>' + stamp_block(legal=True) + inner,
          lead="Every section you must be able to state, on one page.", body_class="law-card")
 
 
@@ -516,11 +827,9 @@ def build_templates():
 
     R5 originally also named a 12-question intake template and a
     reference-check script. The owner dropped both on 2026-10-21: neither
-    exists as copy in any document — doc2 lists them as artefacts the learner
-    writes, in Weeks 13 and 12 — and they already render on those week pages
+    exists as copy in any document - doc2 lists them as artefacts the learner
+    writes, in Weeks 13 and 12 - and they already render on those week pages
     and in the tracker. See the amendment note under R5 in the PRD.
-
-    The Copy button itself is roadmap step 2.4 and is not built yet.
     """
     _, apply_bs = section("doc5", r"5\.5 THE APPLICATION")
     note = [b for b in apply_bs if b["t"] == "quote"]
@@ -532,7 +841,7 @@ def build_templates():
             ' · copyable</p>', '<h1>Templates to copy</h1>', stamp_block()]
     if note:
         body.append('<h2 id="note-90-word">The 90-word note</h2>')
-        body.append(render_blocks(note, level=3))
+        body.append(render_blocks(note, level=3, copyable=True))
     if bullets:
         body.append('<h2 id="cv-bullets">CV bullets</h2>')
         # Caption is the table's own column names, so it does not echo the
@@ -541,7 +850,7 @@ def build_templates():
                                   caption_from_heading=False,
                                   default_caption="Weak and strong"))
     body.append('<h2 id="follow-up">Follow-up messages</h2>')
-    body.append(render_blocks(follow, level=3, ns="tpl-follow"))
+    body.append(render_blocks(follow, level=3, ns="tpl-follow", copyable=True))
 
     page("5/templates", "Templates to copy", "\n".join(body),
          lead="The 90-word note, the CV bullet rewrites and the follow-up "
@@ -561,26 +870,199 @@ def build_downloads():
                 f'<caption class="eyebrow">Files</caption>'
                 f'<thead><tr><th scope="col">File</th><th scope="col">Bytes</th>'
                 f'<th scope="col">Approx</th></tr></thead><tbody>{rows}</tbody></table></div></div>')
-    page("downloads", "Downloads", "\n".join(body))
+    page("downloads", "Downloads", "\n".join(body),
+         lead="The five documents and the research archive, as files, with their sizes.")
+
+
+CHECKS_FILE = ROOT / "checks" / "links.json"
+
+OUTCOME_LABELS = {
+    "ok": "Reachable",
+    "redirected": "Reachable after a redirect",
+    "failed": "Failed",
+    "inconclusive": "Inconclusive",
+}
+
+
+def page_for(name, heading_ids, week_n, card_id):
+    """The site route (with anchor) where a source block is shown."""
+    if name == "doc2" and week_n is not None:
+        return f"/2/plan/week/{week_n}/"
+    if name == "doc3" and card_id:
+        return f"/3/library/{card_id}/"
+    base = {"doc1": "/1/start-here/", "doc2": "/2/plan/", "doc3": "/3/library/",
+            "doc4": "/4/nigeria/", "doc5": "/5/getting-the-job/"}[name]
+    return base + (f"#{heading_ids[-1]}" if heading_ids and name not in ("doc3",) else "")
+
+
+def link_sources():
+    """Every external URL in the five documents, in first-seen order, with where
+    each one appears: document, section heading and the site route that shows it."""
+    weeks = {w["id"]: w["n"] for w in week_sections()}
+    out = {}
+    for name in DOCS:
+        heads, week_n, card_id, head_text = [], None, None, ""
+        for b in blocks(name):
+            if b["t"] == "h":
+                heads = [b["id"]]
+                head_text = heading_text(b)
+                if name == "doc2" and b["l"] <= 3:
+                    week_n = weeks.get(b["id"])
+                if name == "doc3":
+                    card_id = b["id"] if b["l"] == 4 else (None if b["l"] < 4 else card_id)
+            texts = []
+            if b["t"] in ("p", "quote", "h"):
+                texts.append(b["text"])
+            elif b["t"] == "list":
+                texts += [i["text"] for i in b["items"]]
+            elif b["t"] == "table":
+                texts += b["head"] + [c for row in b["rows"] for c in row]
+            elif b["t"] == "code":
+                texts += b["lines"]
+            for t in texts:
+                # Markdown links first, then bare URLs in what is left — the same two
+                # passes the renderer uses, so this list matches the links on the site.
+                found = [m.group(2) for m in R.LINK_RE.finditer(t)]
+                rest = R.LINK_RE.sub("", t)
+                found += [m.group(1) for m in R.URL_RE.finditer(rest)]
+                # "(https://…)" in prose: the renderer leaves it as text, but the
+                # learner still relies on it, so it is checked too.
+                found += [m.group(1) for m in PAREN_URL_RE.finditer(rest)]
+                for url in found:
+                    src = {"doc": name, "file": DOCS[name], "section": head_text,
+                           "page": page_for(name, heads, week_n, card_id)}
+                    entry = out.setdefault(url, [])
+                    if src not in entry:
+                        entry.append(src)
+    return out
+
+
+def load_sweep():
+    """The last recorded link sweep, or None. Never invented: the page shows what
+    tools/sitegen/linkcheck.py wrote, or says plainly that no sweep has run."""
+    if not CHECKS_FILE.exists():
+        return None
+    try:
+        data = json.loads(CHECKS_FILE.read_text(encoding="utf-8"))
+        return data if isinstance(data.get("links"), list) else None
+    except (ValueError, AttributeError):
+        return None
 
 
 def build_check():
-    urls = external_urls()
-    rows = "".join(f'<tr><td class="url">{html.escape(u)}</td><td>not yet swept</td>'
-                   f'<td>—</td></tr>' for u in urls)
-    body = [hero("Link status", "Every external link in the five documents, with the date it was "
-                "last checked.", "Documentation"),
-            '<aside class="callout"><p><strong>No sweep recorded yet.</strong> All 47 links were '
-            'checked on 20 October 2026 when the documents were written; the automated sweep that '
-            'fills this page has not run. A link that has moved is a defect worth reporting.</p></aside>',
+    sources = link_sources()
+    sweep = load_sweep()
+    by_url = {r["url"]: r for r in (sweep or {}).get("links", [])}
+    rows = []
+    for url, where in sources.items():
+        places = " ".join(f'<a href="{w["page"]}">{html.escape(w["section"] or w["doc"])}</a>'
+                          for w in where[:3])
+        r = by_url.get(url)
+        if r:
+            label = OUTCOME_LABELS.get(r.get("outcome"), "Inconclusive")
+            detail = f' ({r["status"]})' if r.get("status") else (
+                f' ({html.escape(r["error"])})' if r.get("error") else "")
+            if r.get("outcome") == "redirected" and r.get("final_url"):
+                detail += f'<br><span class="note">now at {html.escape(r["final_url"])}</span>'
+            prev = r.get("previous") or {}
+            prev_txt = OUTCOME_LABELS.get(prev.get("outcome"), "—") if prev else "—"
+            checked = html.escape((r.get("checked_at") or "")[:10]) or "—"
+            state = f'<span class="status status-{r.get("outcome", "inconclusive")}">{label}</span>{detail}'
+        else:
+            state, prev_txt, checked = "Not yet checked", "—", "—"
+        rows.append(f'<tr><td class="url">{html.escape(url)}</td><td>{places}</td>'
+                    f'<td>{state}</td><td>{checked}</td><td>{prev_txt}</td></tr>')
+    if sweep:
+        run = sweep.get("run", {})
+        counts = {}
+        for r in sweep["links"]:
+            counts[r.get("outcome", "inconclusive")] = counts.get(r.get("outcome", "inconclusive"), 0) + 1
+        tally = " · ".join(f"{OUTCOME_LABELS.get(k, k)}: {v}" for k, v in sorted(counts.items()))
+        intro = (f'<aside class="callout"><p><strong>Last sweep: {html.escape(run.get("finished", "")[:10])}.</strong> '
+                 f'{tally}. "Inconclusive" means the site refused or slowed an automated check '
+                 f'(403, 429, a timeout, a network error); it does not mean the page is gone. '
+                 f'A reachable link only proves the page answered, not that the course or its '
+                 f'terms are unchanged.</p></aside>')
+    else:
+        intro = (f'<aside class="callout"><p><strong>No sweep recorded yet.</strong> All {len(sources)} '
+                 f'links were checked on 20 October 2026 when the documents were written; the '
+                 f'automated sweep that fills this page has not run. A link that has moved is a '
+                 f'defect worth reporting.</p></aside>')
+    body = [hero("Link status", "Every external link in the five documents, where it appears, "
+                 "and what the last check found.", "Documentation"),
+            intro,
             f'<div class="card table-card"><div class="scroller"><table>'
-            f'<caption class="eyebrow">{len(urls)} external links</caption>'
-            f'<thead><tr><th scope="col">URL</th><th scope="col">Status</th>'
-            f'<th scope="col">Checked</th></tr></thead><tbody>{rows}</tbody></table></div></div>']
-    page("check", "Link status", "\n".join(body))
+            f'<caption class="eyebrow">{len(sources)} external links</caption>'
+            f'<thead><tr><th scope="col">URL</th><th scope="col">Appears in</th>'
+            f'<th scope="col">Last result</th><th scope="col">Checked</th>'
+            f'<th scope="col">Previous</th></tr></thead><tbody>{"".join(rows)}</tbody></table></div></div>']
+    page("check", "Link status", "\n".join(body),
+         lead="Every external link in the five documents, where it appears, and what the last check found.")
+
+
+def write_crawl_files():
+    """robots.txt always; sitemap.xml only when the production origin is known,
+    because a sitemap must list absolute URLs and the domain is still undecided (D4)."""
+    lines = ["User-agent: *", "Allow: /"]
+    if SITE_URL:
+        lines.append(f"Sitemap: {SITE_URL}/sitemap.xml")
+        urls = "".join(f"<url><loc>{html.escape(SITE_URL + u)}</loc><lastmod>{LAST_VERIFIED}</lastmod></url>"
+                       for u, _ in sorted(set(WRITTEN)))
+        (SITE / "sitemap.xml").write_text(
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>\n',
+            encoding="utf-8")
+    (SITE / "robots.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 # ---------------------------------------------------------------- main
+WORD = re.compile(r"[A-Za-z0-9_$]")
+
+
+def squeeze_js(src):
+    """Shrink the site's JS to fit R24's 10 KB without a minifier dependency.
+
+    Comments go. Outside string literals, a run of spaces is dropped unless it sits
+    between two word characters (`var a`, `return x`). A line break is kept unless
+    it follows ; { or , so automatic semicolon insertion means what it meant.
+    The sources contain no regex literals or template strings; a `//` or `/*` left
+    outside a string after comment removal is a build error, not a guess.
+    """
+    src = re.sub(r"(?m)^\s*//.*$", "", src)
+    out, i, n = [], 0, len(src)
+    while i < n:
+        c = src[i]
+        if c in "\"'":
+            j = i + 1
+            while j < n and src[j] != c:
+                j += 2 if src[j] == "\\" else 1
+            out.append(src[i:j + 1])
+            i = j + 1
+        elif src.startswith("/*", i):
+            i = src.index("*/", i) + 2
+        elif src.startswith("//", i):
+            raise ValueError(f"inline // comment at offset {i}: keep comments on their own line")
+        elif c.isspace():
+            j = i
+            while j < n and src[j].isspace():
+                j += 1
+            run = src[i:j]
+            prev = out[-1][-1:] if out else ""
+            nxt = src[j:j + 1]
+            if "\n" in run:
+                # After ; { or , the next line can only start a new statement or item,
+                # so the break carries no meaning. Elsewhere (after } especially) it stays.
+                if out and prev not in "\n;{,":
+                    out.append("\n")
+            elif prev and nxt and WORD.match(prev) and WORD.match(nxt):
+                out.append(" ")
+            i = j
+        else:
+            out.append(c)
+            i += 1
+    return "".join(out).strip() + "\n"
+
+
 def copy_assets():
     SITE.mkdir(exist_ok=True)
     (SITE / "static").mkdir(parents=True, exist_ok=True)
@@ -592,10 +1074,13 @@ def copy_assets():
     text = re.sub(r"\s*([{};:,])\s*", r"\1", text).strip()
     (SITE / "wakeout.css").write_text(text, encoding="utf-8")
     shutil.copy2(ROOT / "site/static/site.css", SITE / "static/site.css")
+    for f in ("progress.js", "copy.js", "glossary.js", "library.js"):
+        js = (ROOT / "site/static" / f).read_text(encoding="utf-8")
+        (SITE / "static" / f).write_text(squeeze_js(js), encoding="utf-8")
     # The .woff2 files are SIL OFL 1.1, which requires the licence to travel
     # with them, so the two OFL texts ship beside the fonts they cover.
-    for pat in ("*.woff2", "*.txt"):
-        for f in (ROOT / "design-system/public/fonts").glob(pat):
+    for f in (ROOT / "design-system/public/fonts").glob("*"):
+        if f.suffix in (".woff2", ".txt"):
             shutil.copy2(f, SITE / "fonts" / f.name)
     (SITE / "files").mkdir(exist_ok=True)
     for f in (ROOT / "downloads").glob("HR_*"):
@@ -603,10 +1088,21 @@ def copy_assets():
 
 
 def main(argv):
+    global SITE_URL
+    import os
+    url = os.environ.get("HR_SITE_URL", "")
+    for arg in argv:
+        if arg.startswith("--site-url="):
+            url = arg.split("=", 1)[1]
+    SITE_URL = url.rstrip("/")
+    if SITE_URL and not re.match(r"^https://[^/\s]+$", SITE_URL):
+        print(f"--site-url must be an https origin with no path, got {SITE_URL!r}")
+        return 2
+    WRITTEN.clear()
     copy_assets()
     build_home()
     build_doc("doc1", "1/start-here", "Start here",
-              "The beginner's guide to learning HR from zero, for free.", "Document 1")
+              "The beginner's guide to learning HR from zero, for free.", "Document 1", glossary=True)
     build_plan()
     weeks = week_sections()
     for w in weeks:
@@ -615,13 +1111,17 @@ def main(argv):
     for c in cards():
         build_card(c)
     build_doc("doc4", "4/nigeria", "Nigeria: labour law & CIPM",
-              "The law and the profession you will actually be hired into.", "Document 4")
+              "The law and the profession you will actually be hired into.", "Document 4",
+              copyable=True, legal=True,
+              seo_title="Nigerian Labour Act & CIPM: the provisions you must be able to state")
     build_doc("doc5", "5/getting-the-job", "Getting the job",
-              "Positioning, CV, LinkedIn, applications, interviews — weeks 22 to 24.", "Document 5")
+              "Positioning, CV, LinkedIn, applications, interviews — weeks 22 to 24.", "Document 5",
+              copyable=True)
     build_law_card()
     build_templates()
     build_downloads()
     build_check()
+    write_crawl_files()
     pages = sorted(p.relative_to(SITE).as_posix() for p in SITE.rglob("index.html"))
     print(f"built {len(pages)} routes; weeks={len(weeks)} cards={len(cards())}")
     return 0

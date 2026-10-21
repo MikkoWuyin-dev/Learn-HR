@@ -1,0 +1,63 @@
+{
+  "about": "Which Document 3 card shows each Support A tracker course (doc2), confirmed by the owner on 2026-10-21. Keys are the tracker's # column; each card id maps to the card wording that names the course. The build fails if that wording leaves the card. A tick on the card and in the tracker is the same tick.",
+  "courses": {
+    "1": {
+      "openlearn-three-more-hr-courses-same-provider-same-terms": "Developing your skills as an HR professional"
+    },
+    "2": {
+      "saylor-academy-prdv226-introduction-to-human-resource-manage": "PRDV226"
+    },
+    "3": {
+      "cipd-the-three-free-moocs": "HR Fundamentals (5 weeks)"
+    },
+    "4": {
+      "alison-the-hr-and-talent-acquisition-courses-worth-your-time": "Fundamentals of Human Resources"
+    },
+    "5": {
+      "the-open-university-openlearn-human-resources-recruitment-an": "Human resources: recruitment and selection"
+    },
+    "6": {
+      "alison-the-hr-and-talent-acquisition-courses-worth-your-time": "Recruitment and Selection"
+    },
+    "7": {
+      "saylor-academy-bus301-human-resource-management": "BUS301"
+    },
+    "8": {
+      "alison-the-hr-and-talent-acquisition-courses-worth-your-time": "Diploma in Human Resources (HR)"
+    },
+    "9": {
+      "openlearn-three-more-hr-courses-same-provider-same-terms": "Workplace learning with coaching and mentoring"
+    },
+    "10": {
+      "openlearn-three-more-hr-courses-same-provider-same-terms": "Employee engagement"
+    },
+    "11": {
+      "alison-the-hr-and-talent-acquisition-courses-worth-your-time": "Human Resources: Behaviour and Diversity in the Workplace"
+    },
+    "12": {
+      "openlearn-three-more-hr-courses-same-provider-same-terms": "Human resource management and equality, diversity and inclusion"
+    },
+    "13": {
+      "itcilo-free-self-guided-courses-from-the-un-s-training-arm": "Introduction to Labour Administration"
+    },
+    "14": {
+      "itcilo-free-self-guided-courses-from-the-un-s-training-arm": "Business and Decent Work"
+    },
+    "15": {
+      "alison-the-hr-and-talent-acquisition-courses-worth-your-time": "Talent Acquisition Practices"
+    },
+    "16": {
+      "alison-the-hr-and-talent-acquisition-courses-worth-your-time": "Diploma in Recruitment and Selection"
+    },
+    "17": {
+      "workable-academy-their-ats-guide": "Workable Academy",
+      "greenhouse-learn": "Greenhouse Learn"
+    },
+    "18": {
+      "aihr-free-courses-in-the-academy": "Generative AI Prompt Design for HR"
+    },
+    "19": {
+      "cipd-the-three-free-moocs": "People Management Skills (5 weeks)"
+    }
+  }
+}

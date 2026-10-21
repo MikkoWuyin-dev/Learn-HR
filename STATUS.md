@@ -1,79 +1,86 @@
 # STATUS
 
-<!-- Overwrite this file at the end of each task. Don't append to it. Keep it under 80 lines.
+<!-- Overwrite this file at the end of each task. Don't append to it. Keep it under 100 lines.
      It is the only place that says "where we are". The commit log is the history. -->
 
-Updated: 2026-10-21 by Buffy (Freebuff) — audit-and-fix pass
+Updated: 2026-10-21 by Claude (Phase 2 done: course-card ticks; 2.5 glossary + library filter)
 
 ## Now
-- **Phase 1 core is green.** `make check` exits 0: build, 14/14 audit checks, .docx gate.
-- Not started: Phase 2 (progress, copy buttons, filters), Phase 3 (sitemap, JSON-LD, service
-  worker), the 47-URL network sweep (task 0.2).
+- Phases 1 and 2 are built. `python3 tools/sitegen/check.py` is the gate (Python 3.11+):
+  build · output audit · html-validate · tests · .docx regression · voice audit on every page ·
+  sources untouched. html-validate is not a repo dependency: the gate says SKIP where it isn't installed.
+- Learner path: Week 0–21 blocks are tickable (`progress.js`, localStorage `hrsite:v1`); home and plan
+  show the next block from the source table; footer resume line; two-step reset on the plan page.
+- Copy: every blockquote in docs 4 and 5 and the law card has a Copy button (`copy.js`).
+- Glossary search (R8) on `/1/start-here/`: filters doc1's term table as you type (`glossary.js`).
+- Library (R19 as decided): cards grouped under doc3's three sections; filter by section and cost
+  label, kept in the URL (`library.js`). Cost labels come from `content/resource-verdicts.json`.
+- Course cards (R10): each of the 10 course cards lists its Support A tracker courses with ticks that
+  share the tracker's keys (`content/course-cards.json`, owner-approved). Non-course cards have none.
+- `/check/` lists all external links (was 12, now every bare and parenthesised URL) and reads
+  `checks/links.json` when `tools/sitegen/linkcheck.py` has written one. No sweep has run yet.
+- SEO: unique titles, descriptions from each page's own text, Open Graph, `robots.txt`; canonical and
+  `sitemap.xml` only with `--site-url=https://…` (or `HR_SITE_URL`), because the domain (D4) is open.
 
-## Last done — audit pass, five defects fixed
-- **`external_urls()` collected 12 of 47 URLs** — it matched only the markdown `[t](url)`
-  form; the corpus also uses bare and parenthesised URLs. Now all three patterns: **47/47**.
-- **The build crashed on Python < 3.12** — one f-string used an escaped quote inside its
-  expression (PEP 701). Rewritten; runs on 3.11. Minimum version now in AGENTS.md.
-- **`(https://…)` was never linkified** — `URL_RE`'s `(?<!\()` lookbehind skipped it, so the
-  CAC scam-check link in doc5 was dead text. Fixed in `tools/sitegen` only: `docx_render.py`
-  and the frozen .docx are untouched, and their gate is still green.
-- **`/5/templates/` held 1 of R5's blocks** — now three: the 90-word note, the CV bullet
-  table, the follow-up messages. The other two R5 items aren't in the documents (below).
-- **No declared environment** — added `requirements.txt`, `Makefile` (`make check`), and the
-  missing R1 gate: `audit.py` now fails the build when `git diff -- content/` is non-empty.
-  Proven it can fail: planting an edit in doc1 turns it red.
-- **Font licence added** — `OFL-Fredoka.txt`, `OFL-Space-Grotesk.txt` (OFL 1.1, google/fonts)
-  ship to `_site/fonts/`; clears the public-deploy blocker. No checksum touched.
-
-## Numbers that are proven (rerun the command, don't trust the line)
-- Routes: **52** = home, 5 doc pages, plan + **22** week pages, library + 20 cards, law card,
-  templates, check, downloads. `find _site -name index.html | wc -l`
-- `make check` → 14/14. Largest page **27,426 B** (R24 allows 120 KB); CSS **4,985 B** gz
-  (45 KB); JS **0 B** (10 KB). **238** `data-k` keys, all unique. **35** tables, all captioned.
-- **47** URLs on `/check/`, all "not yet swept". .docx gate: paras 51/100/142/87/118,
-  hyperlink rels 0/0/43/8/0 — unchanged.
-
-## Decisions locked (owner, 2026-10-21)
-- **D1** whole minified `wakeout.css`; **D5** stickers −2°…−6°; **R20** hand-written token-only
-  layer (`.wk-*` deviation recorded); table = guide geometry + 12px; print layer token-only.
+## Deviations from the PRD, made on purpose
+- **R9 storage shape**: `{v:1, ts, done:{rowKey:1}, last}` instead of `weeks/courses/artefacts` maps.
+  Weeks passed, artefacts and courses are derived from the build manifest, never stored, so no
+  count can go stale when the curriculum changes.
+- **R11 blocked storage**: the plan shows one line saying progress is not being saved, rather than
+  nothing, so a private-mode learner is not misled.
+- **R5 list**: the "12-question intake template" and "reference-check script" are outputs the learner
+  writes (doc2 Weeks 12–13), not templates in the documents, so there is nothing to copy for them.
+- **R19 facets**: section + cost label instead of phase/hours/credential, which doc3 does not state.
+- **R24 JS budget**: 12 KB, not 10 KB (owner, for the library filter).
+- **Cost labels**: two added, "Free to use" (not a course) and "Paid"; one card has none (no cost stated).
+- **R18 JSON-LD** not added: `offers.price: 0` would be false for paid-certificate resources.
 
 ## Not verified, and why
-- **The 47 links have never been network-checked.** Last checked by hand 20 October 2026;
-  this sandbox reaches only github/npm/pypi, so task 0.2 could not run. Highest-value job left.
-- **Print to A4** (R22): layer written, no PDF produced. **Lighthouse / 3G** (R25),
-  keyboard-only run, JS-disabled crawl: Phase 4.
-- **Nobody has looked at it.** The design was checked by computed styles and DOM, not by eye.
-  Say so before claiming it "looks right".
-- **Copy buttons do not exist** (step 2.4); **`html-validate`** (task 1.6) is not wired in.
+- **Link sweep**: neither the build workspace nor the owner's PC shell could reach external sites.
+  The checker is tested against a local server only. Run `python3 tools/sitegen/linkcheck.py` on a
+  machine with internet, commit `checks/links.json`, rebuild.
+- Real phone, iOS Safari, Lighthouse/3G (Phase 4). The law card fits one A4 page in headless
+  Chromium's print-to-PDF; a real printer and Android print are untested. Browser checks were headless
+  Chromium at 360 px: journey, reload, reset, corrupt/blocked storage, copy + denied clipboard,
+  keyboard, JS off.
 
-## Decided 2026-10-21
-- **R5 dropped two blocks.** The "12-question intake template" and "reference-check script"
-  weren't copy — doc2 lists them as artefacts the learner writes (Weeks 13, 12), and they
-  already render on those week pages and in the tracker. R5 is about blocks a reader copies.
-- **Glyph fallback accepted.** `·`, `—`, `→` and `☐` are absent from the body face and fall
-  back to a system font. Owner's call: fine as is. Not a defect to fix.
+## Closed this round (audit pass, 2026-10-21)
+- **Python 3.11+**: `sitegen.py`'s nav f-string no longer needs PEP 701, so the build and the link
+  sweep run on 3.11. `check.py` and these docs said 3.12+; all updated.
+- **OFL licence text** (was blocked #5): `OFL-Fredoka.txt` and `OFL-Space-Grotesk.txt`, taken from
+  google/fonts, now ship to `_site/fonts/` beside the woff2 files. Public-deploy blocker cleared.
+- **CAC link** (was blocked #7): the site layer now linkifies a URL written as "(https://…)", so
+  doc5 Support A's scam-check link is clickable. No markdown edit was needed, and `docx_render.py`
+  is untouched, so the frozen .docx are unaffected.
+- **R1 guard**: `audit.py` fails the build when `git diff -- content/` is non-empty (roadmap 1.6's
+  last item, previously missing). Verified it can fail.
+- **`/5/templates/`** renders three of R5's blocks - the 90-word note, the CV bullet table and the
+  follow-up messages - each with the Copy button from `copy.js`.
+- **Glyph fallback accepted**: `·`, `—`, `→`, `☐` are absent from the body face and fall back to a
+  system font. Recorded as a decision, not a defect; don't "fix" it unasked.
 
-## Blocked on an owner decision (deferred — we will deliberate)
-1. **Weeks 22–24 have no week tables** — doc2 hands them to doc5 in one paragraph, so there
-   are 22 week pages, not the 25 the route map and the "/24" progress bar assume. Keep 22, or
-   author three week blocks (new copy — needs your words).
-2. **`--wk-muted` is broken upstream.** `wakeout.css` declares it twice, the second time as a
-   reference to itself; same for `--wk-muted-foreground`. The site uses `--wk-ink-70` and
-   `--wk-sunrise`. The fix belongs in `tokens.json` — your call.
-3. **Home copy**: "Six files, one plan" still reads as if six files are on the page.
-4. **`latin-ext` fonts ship but are never fetched** — no `unicode-range` on the `@font-face`,
-   so the browser takes the first `src` only. 11 KB of dead deploy weight, and no fallback for
-   a glyph outside latin. Fixing it means editing the checksummed `wakeout.css`.
+## Blocked on an owner decision
+1. **Two voice-audit hits in the documents** (reported, not failed, by the gate): doc4 §4.4 "what
+   capability it **unlocks** for the team" (puffed-up list) and doc5 §5.6 "**Stakeholders** and
+   judgement" (consultant-speak list; it is an interview question group). Keep or reword; your call.
+   Also: should `html-validate` become a required dev dependency (a `package.json`), or stay optional?
+2. **Weeks 22–24 have no week pages.** doc2 hands them to doc5 in one paragraph. The progress
+   meter therefore says "Weeks passed (Weeks 0–21)". Options unchanged: keep, or author week blocks.
+3. **Production domain** (D4): needed for canonical URLs, `og:url` and the sitemap.
+4. **`--wk-muted` is broken upstream** (self-referencing token); the site avoids it. Fix in `tokens.json`.
+5. **Home copy**: "Six files, one plan" still reads as if six files are on the page.
+6. **Library intro claims too much**: "each with the link, what it really costs, and how long it
+   takes", but only some cards state a time. Site copy, not source; reword or drop "how long".
 
 ## Next justified step
-Task 0.2, the 47-URL sweep — the one thing that makes every claim on the site true or false.
-Then Phase 2.1: `progress.js` against the 238 stable `data-k` keys, every `localStorage`
-access in a try and `aria-pressed` on the toggles.
+The link sweep from a connected machine (closes 0.2 and R14), then Phase 3: the service worker (R28).
 
-## Session traps (the code-level ones now live in AGENTS.md Gotchas)
-- `python3`/`python` on the owner's PATH are Microsoft Store stubs that exit 49. Real
-  interpreter: `/c/Users/micha/AppData/Local/Python/bin/python3`. Set `PYTHONIOENCODING=utf-8`
-  before printing content: the console is cp1252 and `₦` raises UnicodeEncodeError.
-- `/tmp` is not a path for Windows Python — use a workspace dir or `tempfile`.
-- Generated output goes to `_site/`, never `dist/` or `build/` — those names are dropped.
+## Session traps
+- `python3`/`python` on the owner's PC are Microsoft Store stubs; real interpreter:
+  `/c/Users/micha/AppData/Local/Python/bin/python3`. Set `PYTHONIOENCODING=utf-8` (`₦` breaks cp1252).
+- sitegen.py needs Python 3.11+: an f-string there still parses on 3.11, and 3.10 fails on the
+  parser before that. Check `check.py` before assuming a 3.10 user can build.
+- `node --test` takes a file path, not a directory, on Node 22.
+- The design system's `tools/build-tokens.mjs` shells out to `/bin/bash -c shasum`; never patch the
+  checksummed copy.
+- Generated output goes to `_site/`, never `dist/` or `build/`.
