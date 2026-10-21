@@ -1,0 +1,5 @@
+# generated
+_site/
+_audit_text/
+__pycache__/
+*.pyc

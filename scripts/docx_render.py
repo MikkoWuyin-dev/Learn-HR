@@ -6,7 +6,23 @@ Supported markdown subset: #..#### headings, pipe tables, - / 1. lists,
 and [SHORTKEY] tags (stripped from the output, useful for cross-referencing).
 
 Public API:  parse(md) -> blocks ; build_docx(blocks, path, title=, subtitle=,
-             skip_first_h1=, hero_meta=) ; build_html(blocks, path)
+             skip_first_h1=, hero_meta=) ; build_html(blocks, path) ;
+             slug(text) ; subst(text, values)
+
+Blocks carry three extra fields the site build needs; the .docx path ignores them,
+so the Word output stays byte-comparable:
+
+  heading  "id"     stable anchor, unique in the document, deduped with -2, -3 …
+                    A `#### Title 【KEY】` heading becomes id="card-key".
+  table    "keys"   one `data-k` per row: "<table>-r<n>", n counting from 1
+                    within that table. <table> is the enclosing heading's key —
+                    "w13" when the heading says "Week 13", otherwise its slug —
+                    plus the slug of a bold label directly above the table when
+                    one is there ("support-a-courses-and-credentials"), so adding
+                    a row never moves another row's key and a saved tick is not
+                    orphaned (PRD R9). A repeat table in one section gets "-t2".
+  any      "vars"   the {{names}} found in the block, for subst() to fill.
+
 
 Titles: override TITLE/SUBTITLE/META by passing them to the builders, or set
 LIB_TITLE / LIB_SUBTITLE / LIB_META in the environment for a standalone run:
@@ -19,6 +35,10 @@ SUBTITLE = os.environ.get("LIB_SUBTITLE", "A free, self-paced path from zero to 
 META = os.environ.get("LIB_META", "Compiled today · verify every free tier on its enrolment page")
 
 KEY_RE = re.compile(r"\s*【[^】]*】")
+KEY_TAG_RE = re.compile(r"【([^】]+)】")
+VAR_RE = re.compile(r"\{\{\s*([A-Za-z0-9_]+)\s*\}\}")
+WEEK_RE = re.compile(r"\bweek\s+(\d+)\b", re.I)
+BOLD_ONLY_RE = re.compile(r"^\*\*(.+?)\*\*[.:]?$")
 LINK_RE = re.compile(r"\[([^\]]+)\]\((https?://[^)\s]+)\)")
 BOLD_RE = re.compile(r"\*\*(.+?)\*\*")
 ITAL_RE = re.compile(r"(?<!\*)\*([^*\n]+)\*(?!\*)")
@@ -29,6 +49,39 @@ def clean_text(s):
     s = KEY_RE.sub("", s)
     s = LINK_RE.sub(lambda m: m.group(1), s)
     return s.strip()
+
+
+def slug(text):
+    """Stable anchor from heading text: lowercase, non-alphanumerics to '-', max 60."""
+    s = re.sub(r"[^a-z0-9]+", "-", clean_text(text).lower()).strip("-")
+    return s[:60] or "sec"
+
+
+def subst(text, values):
+    """Fill {{name}} from a mapping; an unknown name is left visible, never blanked."""
+    return VAR_RE.sub(lambda m: str(values[m.group(1)]) if m.group(1) in values else m.group(0), text)
+
+
+def vars_in(text):
+    return sorted(set(VAR_RE.findall(text)))
+
+
+def week_key(text):
+    """'Week 13 · …' -> 'w13'. None when the heading is not a week."""
+    m = WEEK_RE.search(clean_text(text))
+    return f"w{m.group(1)}" if m else None
+
+
+def bold_label(text):
+    """'**Courses and credentials**' -> 'courses-and-credentials', else None.
+
+    A table's bold lead-in is a better identity than its position: rows can be
+    added without moving the keys of a table further down the same section.
+    """
+    m = BOLD_ONLY_RE.match(text.strip())
+    if not m:
+        return None
+    return slug(m.group(1))[:24].rstrip("-") or None
 
 
 def inline(s):
@@ -87,12 +140,20 @@ def inline(s):
 
 def inline_html(s):
     s = html.escape(KEY_RE.sub("", s), quote=False)
-    s = re.sub(r"\[([^\]]+)\]\((https?://[^)\s]+)\)",
-               lambda m: f'<a href="{m.group(2)}">{m.group(1)}</a>', s)
+    # Anchors are parked behind placeholders while bare URLs are linkified.
+    # Without this, the URL inside href="…" is matched again and the anchor is
+    # nested inside its own href (a dead link that still looks like markup).
+    anchors = []
+
+    def park(m):
+        anchors.append(f'<a href="{m.group(2)}">{m.group(1)}</a>')
+        return f"\x00{len(anchors) - 1}\x00"
+
+    s = LINK_RE.sub(park, s)
     s = URL_RE.sub(lambda m: f'<a href="{m.group(1)}">{m.group(1)}</a>', s)
     s = BOLD_RE.sub(r"<strong>\1</strong>", s)
     s = ITAL_RE.sub(r"<em>\1</em>", s)
-    return s
+    return re.sub(r"\x00(\d+)\x00", lambda m: anchors[int(m.group(1))], s)
 
 
 def split_row(line):
@@ -107,6 +168,19 @@ def split_row(line):
 def parse(md):
     blocks, lines = [], md.split("\n")
     i = 0
+    used_ids = {}
+    used_bases = {}
+    section = ["doc", 0]          # current heading key, tables emitted under it
+
+    def register(candidate):
+        n = used_ids.get(candidate, 0) + 1
+        used_ids[candidate] = n
+        return candidate if n == 1 else f"{candidate}-{n}"
+
+    def register_base(candidate):
+        n = used_bases.get(candidate, 0) + 1
+        used_bases[candidate] = n
+        return candidate if n == 1 else f"{candidate}-{n}"
     while i < len(lines):
         ln = lines[i]
         st = ln.strip()
@@ -116,7 +190,12 @@ def parse(md):
             blocks.append({"t": "rule"}); i += 1; continue
         m = re.match(r"^(#{1,6})\s+(.*)$", st)
         if m:
-            blocks.append({"t": "h", "l": len(m.group(1)), "text": m.group(2).strip()})
+            txt = m.group(2).strip()
+            tag = KEY_TAG_RE.search(txt)
+            hid = register("card-" + slug(tag.group(1))) if tag else register(slug(txt))
+            section = [week_key(txt) or hid, 0]
+            blocks.append({"t": "h", "l": len(m.group(1)), "text": txt,
+                           "id": hid, "vars": vars_in(txt)})
             i += 1; continue
         if st.startswith("|") and i + 1 < len(lines) and re.match(r"^\|?[\s:|-]+\|[\s:|-]*$", lines[i + 1].strip()):
             header = split_row(st)
@@ -124,7 +203,19 @@ def parse(md):
             rows = []
             while i < len(lines) and lines[i].strip().startswith("|"):
                 rows.append(split_row(lines[i].strip())); i += 1
-            blocks.append({"t": "table", "head": header, "rows": rows}); continue
+            prev = blocks[-1] if blocks else None
+            label = bold_label(prev["text"]) if prev and prev["t"] == "p" else None
+            section[1] += 1
+            if label:
+                key_base = f"{section[0]}-{label}"
+            elif section[1] > 1:
+                key_base = f"{section[0]}-t{section[1]}"
+            else:
+                key_base = section[0]
+            key_base = register_base(key_base)
+            keys = [f"{key_base}-r{n}" for n in range(1, len(rows) + 1)]
+            blocks.append({"t": "table", "head": header, "rows": rows,
+                           "key_base": key_base, "keys": keys}); continue
         if st.startswith("```"):
             buf = []; i += 1
             while i < len(lines) and not lines[i].strip().startswith("```"):
@@ -135,7 +226,8 @@ def parse(md):
             buf = []
             while i < len(lines) and lines[i].strip().startswith(">"):
                 buf.append(re.sub(r"^>\s?", "", lines[i].strip())); i += 1
-            blocks.append({"t": "quote", "text": " ".join(x for x in buf if x)}); continue
+            qtext = " ".join(x for x in buf if x)
+            blocks.append({"t": "quote", "text": qtext, "vars": vars_in(qtext)}); continue
         m = re.match(r"^(\s*)[-*]\s+(.*)$", ln)
         if m:
             items = []
@@ -144,7 +236,8 @@ def parse(md):
                 if not mm or mm.group(3).startswith("|"):
                     break
                 items.append({"ind": len(mm.group(1)), "text": mm.group(3),
-                              "ordered": mm.group(2)[0].isdigit()})
+                              "ordered": mm.group(2)[0].isdigit(),
+                              "vars": vars_in(mm.group(3))})
                 i += 1
             blocks.append({"t": "list", "items": items}); continue
         m = re.match(r"^\s*(\d+)\.\s+(.*)$", ln)
@@ -154,7 +247,8 @@ def parse(md):
                 mm = re.match(r"^(\s*)(\d+)\.\s+(.*)$", lines[i])
                 if not mm:
                     break
-                items.append({"ind": len(mm.group(1)), "text": mm.group(3), "ordered": True})
+                items.append({"ind": len(mm.group(1)), "text": mm.group(3), "ordered": True,
+                              "vars": vars_in(mm.group(3))})
                 i += 1
             blocks.append({"t": "list", "items": items}); continue
         buf = [st]
@@ -162,7 +256,8 @@ def parse(md):
         while i < len(lines) and lines[i].strip() and not re.match(
                 r"^\s*([-*]\s|\d+\.\s|#|\||>|```)", lines[i]) and lines[i].strip() != "---":
             buf.append(lines[i].strip()); i += 1
-        blocks.append({"t": "p", "text": " ".join(buf)})
+        ptext = " ".join(buf)
+        blocks.append({"t": "p", "text": ptext, "vars": vars_in(ptext)})
     return blocks
 
 
@@ -452,10 +547,6 @@ def build_html(blocks, path):
     out = []
     anchors = []
 
-    def slug(txt):
-        s = re.sub(r"[^a-z0-9]+", "-", clean_text(txt).lower()).strip("-")
-        return s[:60] or "sec"
-
     body = []
     first_h1 = True
     for b in blocks:
@@ -465,7 +556,7 @@ def build_html(blocks, path):
         if t == "h":
             txt = inline_html(b["text"])
             plain = clean_text(b["text"])
-            a = slug(b["text"])
+            a = b.get("id") or slug(b["text"])
             if b["l"] == 1 and first_h1:
                 first_h1 = False
                 body.append(f'<h1 id="top-of-library">{txt}</h1>')

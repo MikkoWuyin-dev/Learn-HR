@@ -1,0 +1,293 @@
+/* HR Library — site layer.
+   Every visual value is a var(--wk-*) from wakeout.css (PRD R20). The only
+   numbers written here are layout: breakpoints, grid tracks, and the 2px focus
+   offset. If a value has no token it is marked TODO and raised with the owner.
+
+   Table type is --wk-text-caption (12px = 9pt), not the style guide's 11px:
+   R26 sets a 9pt floor, and DESIGN.md §8 defines the 12px Eyebrow recipe.
+
+   KNOWN DESIGN-SYSTEM DEFECT (reported, owner decision pending):
+   wakeout.css declares --wk-muted twice, and the second declaration points at
+   itself — the semantic alias collides with the primitive of the same name and
+   forms a cycle, so every use of that token resolves to nothing. Its companion
+   --wk-muted-foreground has the same defect. Nothing here depends on either:
+   quiet text uses --wk-ink-70 (5.17:1 on paper, measured) and wells use the
+   solid --wk-sunrise. The fix belongs upstream in tokens.json, not here.        */
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--wk-paper);
+  color: var(--wk-ink);
+  font-family: var(--wk-font-body);
+  font-size: var(--wk-text-body);
+  line-height: var(--wk-leading-relaxed);
+}
+
+/* ---------------------------------------------------------------- type */
+h1, h2, h3, h4, .brand, .week-n, .btn {
+  font-family: var(--wk-font-display);
+  font-weight: var(--wk-weight-bold);
+  letter-spacing: var(--wk-tracking-tight);
+  line-height: var(--wk-leading-tight);
+  margin: 0 0 var(--wk-space-3);
+}
+
+h1 { font-size: var(--wk-text-headline); }
+h2 { font-size: var(--wk-text-title); margin-top: var(--wk-space-12); }
+h3 { font-size: var(--wk-text-title-sm); margin-top: var(--wk-space-8); }
+h4 { font-size: var(--wk-text-subhead); margin-top: var(--wk-space-6); }
+
+p { margin: 0 0 var(--wk-space-4); }
+ul, ol { margin: 0 0 var(--wk-space-4); padding-left: var(--wk-space-6); }
+li { margin-bottom: var(--wk-space-2); }
+li.sub { margin-left: var(--wk-space-4); }
+
+a { color: var(--wk-ink); text-decoration-thickness: var(--wk-border-thin); text-underline-offset: 3px; }
+a:hover { color: var(--wk-purple); }
+
+strong { font-weight: var(--wk-weight-bold); }
+
+/* The naira sign, always in the body face: Fredoka's subset has no U+20A6, so a
+   bare sign inside a heading would fall back to a system font mid-word. */
+.naira { font-family: var(--wk-font-body); }
+small, .note { color: var(--wk-ink-70); font-size: var(--wk-text-small); }
+
+.eyebrow {
+  font-family: var(--wk-font-display);
+  font-size: var(--wk-text-eyebrow);
+  font-weight: var(--wk-weight-bold);
+  letter-spacing: var(--wk-tracking-widest);
+  text-transform: uppercase;
+  margin: 0 0 var(--wk-space-2);
+}
+
+.lead { font-size: var(--wk-text-lead); }
+
+/* ---------------------------------------------------------------- shell */
+.wrap { width: 100%; max-width: var(--wk-container-6xl); margin: 0 auto; padding: 0 var(--wk-space-5); }
+
+.site-head { border-bottom: var(--wk-border-base) solid var(--wk-ink); background: var(--wk-paper); }
+.site-head .wrap {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: var(--wk-space-3); padding-top: var(--wk-space-4); padding-bottom: var(--wk-space-4);
+}
+.brand {
+  display: inline-flex; align-items: center; gap: var(--wk-space-2);
+  font-size: var(--wk-text-subhead); text-decoration: none; margin: 0;
+}
+.brand-mark {
+  width: var(--wk-space-4); height: var(--wk-space-4); display: inline-block;
+  background: var(--wk-lime); border: var(--wk-border-base) solid var(--wk-ink);
+  border-radius: var(--wk-radius-full);
+}
+.site-nav { display: flex; flex-wrap: wrap; gap: var(--wk-space-1); font-size: var(--wk-text-small); }
+.site-nav a {
+  text-decoration: none; padding: var(--wk-space-1) var(--wk-space-3);
+  border-radius: var(--wk-radius-full); border: var(--wk-border-thin) solid transparent;
+}
+.site-nav a:hover { background: var(--wk-sunrise); border-color: var(--wk-ink); }
+.site-nav a[aria-current="page"] { background: var(--wk-lime); border-color: var(--wk-ink); }
+
+main { padding-top: var(--wk-space-8); padding-bottom: var(--wk-space-16); }
+main > * { max-width: var(--wk-container-3xl); }
+main > .wide, main > .grid, main > .table-card, main > .res-grid { max-width: none; }
+
+.site-foot {
+  border-top: var(--wk-border-base) solid var(--wk-ink);
+  padding: var(--wk-space-8) 0 var(--wk-space-10);
+  font-size: var(--wk-text-small); color: var(--wk-ink-70);
+}
+.site-foot p { margin: 0 0 var(--wk-space-2); }
+
+.skip {
+  position: absolute; left: -9999px; top: 0; background: var(--wk-surface);
+  border: var(--wk-border-base) solid var(--wk-ink); padding: var(--wk-space-2) var(--wk-space-4);
+}
+.skip:focus { left: var(--wk-space-2); top: var(--wk-space-2); z-index: 10; }
+
+/* ---------------------------------------------------------------- hero */
+.hero {
+  background: var(--wk-surface);
+  border: var(--wk-border-base) solid var(--wk-ink);
+  border-radius: var(--wk-radius-3xl);
+  box-shadow: var(--wk-shadow-sticker);
+  padding: var(--wk-space-8) var(--wk-space-6);
+  margin-bottom: var(--wk-space-10);
+}
+.hero h1 { font-size: var(--wk-text-headline-lg); margin-bottom: var(--wk-space-3); }
+.hero .lead { margin-bottom: var(--wk-space-4); max-width: var(--wk-container-2xl); }
+
+/* ---------------------------------------------------------------- pieces */
+.card {
+  background: var(--wk-surface);
+  border: var(--wk-border-base) solid var(--wk-ink);
+  border-radius: var(--wk-radius-3xl);
+  box-shadow: var(--wk-shadow-sticker);
+  padding: var(--wk-space-6);
+  margin-bottom: var(--wk-space-8);
+}
+.card > :last-child { margin-bottom: 0; }
+
+.callout {
+  background: var(--wk-sunrise);
+  border: var(--wk-border-base) solid var(--wk-ink);
+  border-radius: var(--wk-radius-2xl);
+  box-shadow: var(--wk-shadow-sticker-sm);
+  padding: var(--wk-space-5);
+  margin: 0 0 var(--wk-space-6);
+}
+.callout p:last-child { margin-bottom: 0; }
+
+.stamp {
+  display: inline-flex; align-items: center; gap: var(--wk-space-2);
+  font-size: var(--wk-text-eyebrow);
+  font-weight: var(--wk-weight-bold);
+  letter-spacing: var(--wk-tracking-widest);
+  text-transform: uppercase;
+  color: var(--wk-ink-70);
+  margin: 0 0 var(--wk-space-4);
+}
+.stamp-block { display: flex; }
+.stamp-dot {
+  width: var(--wk-space-2); height: var(--wk-space-2); border-radius: var(--wk-radius-full);
+  background: var(--wk-lime); border: var(--wk-border-thin) solid var(--wk-ink);
+}
+
+.sticker {
+  display: inline-block;
+  font-family: var(--wk-font-display);
+  font-size: var(--wk-text-caption);
+  font-weight: var(--wk-weight-bold);
+  letter-spacing: var(--wk-tracking-widest);
+  text-transform: uppercase;
+  color: var(--wk-ink);
+  background: var(--wk-surface);
+  border: var(--wk-border-base) solid var(--wk-ink);
+  border-radius: var(--wk-radius-full);
+  box-shadow: var(--wk-shadow-sticker-sm);
+  padding: var(--wk-space-1) var(--wk-space-3);
+  rotate: var(--wk-tilt-medium);
+  margin-bottom: var(--wk-space-4);
+}
+.sticker-free-to-finish { background: var(--wk-lime); }
+.sticker-free-to-study-paid-cert { background: var(--wk-paper); }
+.sticker-limited-access { background: var(--wk-yellow); }
+.sticker-check-before-committing { background: var(--wk-sunrise); }
+
+.rule { border: 0; border-top: var(--wk-border-base) solid var(--wk-border-faint); margin: var(--wk-space-10) 0; }
+
+.pager { display: flex; justify-content: space-between; gap: var(--wk-space-4); margin: var(--wk-space-6) 0; font-size: var(--wk-text-small); }
+.pager a { text-decoration: none; }
+
+pre {
+  background: var(--wk-sunrise);
+  border: var(--wk-border-thin) solid var(--wk-ink);
+  border-radius: var(--wk-radius-2xl);
+  padding: var(--wk-space-4);
+  overflow-x: auto;
+  font-family: var(--wk-font-mono);
+  font-size: var(--wk-text-body-sm);
+  line-height: var(--wk-leading-normal);
+  margin: 0 0 var(--wk-space-6);
+}
+code { font-family: var(--wk-font-mono); font-size: 0.92em; }
+
+/* ---------------------------------------------------------------- tables */
+.table-card { padding: var(--wk-space-2); }
+.scroller { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: var(--wk-text-caption); }
+/* 12px, not the eyebrow's 10px: R26 sets a 9pt floor for table text and
+   DESIGN.md §8's Eyebrow recipe is text-caption (12px). */
+caption.table-caption {
+  text-align: left;
+  font-family: var(--wk-font-display);
+  font-size: var(--wk-text-caption);
+  font-weight: var(--wk-weight-bold);
+  letter-spacing: var(--wk-tracking-widest);
+  text-transform: uppercase;
+  padding: var(--wk-space-3) var(--wk-space-4);
+  color: var(--wk-ink);
+}
+th {
+  text-align: left;
+  font-family: var(--wk-font-display);
+  font-size: var(--wk-text-caption);
+  font-weight: var(--wk-weight-bold);
+  letter-spacing: var(--wk-tracking-widest);
+  text-transform: uppercase;
+  background: var(--wk-sunrise);
+  border-bottom: var(--wk-border-base) solid var(--wk-ink);
+  padding: var(--wk-space-3) var(--wk-space-4);
+  vertical-align: bottom;
+}
+td {
+  padding: var(--wk-space-2-5) var(--wk-space-4);
+  vertical-align: top;
+  border-bottom: var(--wk-border-hairline) solid var(--wk-border-faint);
+}
+tbody tr:last-child td { border-bottom: 0; }
+td.num, .num { font-variant-numeric: tabular-nums; }
+
+/* ---------------------------------------------------------------- grids */
+.grid { display: grid; gap: var(--wk-space-5); margin-bottom: var(--wk-space-8); }
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); }
+
+.week-list { list-style: none; padding: 0; margin: 0; columns: 2; column-gap: var(--wk-space-6); }
+.week-list li { break-inside: avoid; margin-bottom: var(--wk-space-1); }
+.week-list a {
+  display: flex; gap: var(--wk-space-3); align-items: baseline;
+  text-decoration: none; padding: var(--wk-space-2); border-radius: var(--wk-radius-xl);
+}
+.week-list a:hover { background: var(--wk-sunrise); }
+.week-n { font-size: var(--wk-text-caption); color: var(--wk-ink-70); min-width: 2ch; }
+
+.res-grid { list-style: none; padding: 0; }
+.res-card { margin: 0; display: flex; flex-direction: column; gap: var(--wk-space-2); }
+.res-card h3 { font-size: var(--wk-text-subhead); margin: 0; }
+.res-card a { text-decoration: none; }
+.res-card .sticker { margin: var(--wk-space-2) 0 0; align-self: flex-start; }
+.res-card .note { margin: 0; }
+.cost-line { font-size: var(--wk-text-small); color: var(--wk-ink-70); }
+
+.field { margin-bottom: var(--wk-space-6); }
+.field h2 { font-size: var(--wk-text-subhead); margin: 0 0 var(--wk-space-2); }
+.field p { margin: 0; }
+
+/* ---------------------------------------------------------------- focus */
+:focus-visible {
+  outline: var(--wk-border-thick) solid color-mix(in oklab, var(--wk-ring) 40%, transparent);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- print */
+@media print {
+  body { background: var(--wk-surface); color: var(--wk-ink); font-size: var(--wk-text-caption); }
+  .site-head, .site-foot, .pager, .skip, .sticker { display: none; }
+  main { padding: 0; max-width: none; }
+  main > * { max-width: none; }
+  .hero, .card, .callout, .table-card {
+    box-shadow: none;
+    border-radius: 0;
+    border-color: var(--wk-ink);
+    break-inside: avoid;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .hero { padding: 0 0 var(--wk-space-4); border-width: 0 0 var(--wk-border-base) 0; }
+  a { text-decoration: none; color: var(--wk-ink); }
+  th, td { padding: var(--wk-space-2) var(--wk-space-3); }
+  .week-list { columns: 1; }
+}
+
+/* ---------------------------------------------------------------- narrow */
+@media (max-width: 40rem) {
+  .hero { padding: var(--wk-space-6) var(--wk-space-4); border-radius: var(--wk-radius-2xl); }
+  h1 { font-size: var(--wk-text-headline); }
+  .week-list { columns: 1; }
+  .site-head .wrap { justify-content: flex-start; }
+}

@@ -6,54 +6,71 @@
 Updated: 2026-10-21 by Buffy (Freebuff)
 
 ## Now
-- Phase / roadmap step: **Phase 0, step 0.1 done; all decisions locked. 0.2/0.3 not started.**
-  Holding at the kickoff's gate: no page code until the owner says go.
-- In progress: nothing. Nothing blocks Phase 1.
+- **Phase 1 core is built and green.** `python3 tools/sitegen/sitegen.py` writes 52 routes to
+  `_site/`; `python3 tools/sitegen/audit.py` passes 13/13; the .docx regression passes.
+- Not started: Phase 2 (progress, copy buttons, filters), Phase 3 (sitemap, JSON-LD, service
+  worker), the 47-URL sweep (task 0.2).
 
 ## Last done
-- Unpacked `hr-site-handoff.zip` to the repo root; read 00-CONTEXT, 01-PR, 02-ROADMAP, doc1, overview.
-- Environment proof, all three green: word counts 1382/4973/3271/3013/3211; overview
-  `mechanical problems: 0`; renderer dry-run writing nothing.
-- Unpacked the design system to `design-system/`; 23/23 SHA256SUMS OK (still OK after adding the
-  style guide as an unlisted doc).
-- Ran `tools/` generators (scratch copy, one POSIX line swapped for `node:crypto`): 183 tokens,
-  20 groups; all seven outputs byte-identical to the shipped artifacts.
-- Received `styleguide.html`: served it on loopback and read the **rendered** DOM (it is a built
-  React SPA, content is in the bundle, so the HTML source alone proves nothing). Marked up its three
-  tables' computed styles — that is where the table treatment now comes from.
-- Wrote `site-plan/04-DESIGN-SYSTEM-NOTES.md` — the 0.1 exit artifact, now including the style-guide
-  analysis, the measured table recipe and the locked decisions.
+- Extended `parse()` in `scripts/docx_render.py` (not forked): `slug()`, unique heading ids,
+  `#### Title 【KEY】` → `id="card-key"`, per-table `data-k` keys, `{{var}}` support + `subst()`.
+- Fixed two real defects found on the way: `inline_html()` nested an anchor inside its own href
+  (bare-URL pass re-linkified URLs it had just wrapped); table keys now reset per table and take
+  the bold lead-in, so adding a tracker row no longer shifts every artefact key.
+- `tools/sitegen/sitegen.py` — extract + five render paths; `site/static/site.css` — token-only
+  layer; `tools/sitegen/audit.py` — links, budget, caption/scope, stamp, keys, copy leaks;
+  `tools/sitegen/docx_regression.py` — the 1.7 gate, rerunnable.
+- Verified through the browser: Fredoka 700 on h1 (−0.02em), 3px ink borders, 48px cards,
+  `6px 6px 0 ink` shadows, 12px table text, ink/70 quiet text, no horizontal overflow at 360px.
+
+## Numbers that are proven (rerun the command, don't trust the line)
+- Routes: 52 = home, 5 doc pages, plan + **22** week pages, library + 20 cards, law card,
+  templates, check, downloads. `find _site -name index.html | wc -l`
+- CSS: 4,579 B gzipped (site.css + wakeout.css) against R24's 45 KB.
+- Largest page 27,233 B against 120 KB. 234 `data-k` keys, all unique. 34 tables, all with
+  `<caption>` and `scope="col"`.
 
 ## Decisions locked (owner, 2026-10-21)
-- **D1**: ship whole `wakeout.css`, minified — 2,080 B gzip of a 45 KB budget.
-- **D5**: rotated stickers approved at −2°…−6°, stickers/annotations only.
-- **R20**: hand-write a token-only site layer; R20's `.wk-*` clause is a **recorded deviation**.
-- **Table**: guide geometry + 12px (9pt) type per R26, real `<caption>`, `scope` on header cells.
-- **Print**: hand-written token-only print layer per R22.
+- **D1** whole minified `wakeout.css`; **D5** stickers −2°…−6°; **R20** hand-written token-only
+  layer, `.wk-*` clause recorded as a deviation; table = guide geometry + 12px type; print =
+  token-only layer.
 
 ## Not verified, and why
-- Generators executed unmodified: **no** — Windows cannot run their `/bin/bash -c shasum` line.
-  Reproduced from a scratch copy with only that hash call replaced, then diffed byte-for-byte
-  against the pristine shipped files.
-- Whether the shipped woff2 latin subsets contain `₦` (U+20A6): no `brotli`/`fontTools` available.
-  Check at 1.4 by rendering the glyph in the specimen.
-- Phase 1 regression on the five `.docx` (paragraph counts 51/100/142/87/118, hyperlink rels
-  0/0/43/8/0): **not run.** Nothing under `content/` or `scripts/` has been touched, so there is
-  nothing to regress yet — the numbers are the baseline to hold against 1.7.
-- No git repository exists here, so the "`git diff` shows zero changes under `content/`" proof in
-  the PRD's definition of done cannot run. Needs `git init` + a baseline commit when building starts.
+- **Print to A4** (R22): the print layer is written and token-only, but no PDF has been produced —
+  that is Phase 4, and needs Chrome or a phone.
+- **Lighthouse / throttled 3G** (R25), keyboard-only run (R26 flow), JS-disabled crawl: Phase 4.
+- **Screenshots**: the preview webview would not composite in this session, so the design was
+  checked by computed styles and DOM, not by eye. Say so before claiming it "looks right".
+- `/check/` shows **no sweep data**: task 0.2 has not run, so the page renders the 47 links with
+  "not yet swept" rather than inventing statuses.
+
+## Blocked on an owner decision
+1. **Weeks 22–24 have no week tables.** doc2 hands them to doc5 in one paragraph, so the site has
+   22 week pages, not the 25 the route map and the "/24" progress bar assume. Options: keep 22 +
+   the phase-7 note (current), or author three week blocks (new copy — needs your words).
+2. **`--wk-muted` is broken upstream.** `wakeout.css` declares it twice, the second time as a
+   reference to itself, so every `var(--wk-muted)` resolves to nothing; `--wk-muted-foreground`
+   has the same defect. The site uses `--wk-ink-70` and `--wk-sunrise` instead. The fix belongs in
+   `tokens.json` — your call, since that changes the design system.
+3. **R20 deviation**: the site has no `.wk-*` class surface. Confirmed by you; carried for the
+   launch notes.
+4. **OFL text**: the fonts may ship (SIL OFL 1.1) but the bundle has no licence file, so the
+   required licence text still has to be added before a public deploy.
+5. **Home copy**: R6's "Document 2 → the Plan" is applied in two sentences and the five document
+   labels are linked; "Six files, one plan" still reads as if six files are on the page.
 
 ## Next justified step
-Phase 1.1: extend `parse()` in `scripts/docx_render.py` (add `slug()`, `#### Card 【KEY】` →
-`id="card-key"`, `data-k` row keys, `{{var}}`) without touching the `.docx` path, and prove it with
-the 1.7 regression before any page is rendered.
+Phase 2.1: `progress.js` against the existing `data-k` keys, with every localStorage access in a
+try and `aria-pressed` on the toggles — the keys are already stable and audited.
 
 ## Session traps
 - `python3`/`python` on PATH are Microsoft Store stubs that exit 49. Real interpreter:
-  `/c/Users/micha/AppData/Local/Python/bin/python3` (3.14.3). Use that path, or `py`.
-- The design system's `tools/build-tokens.mjs` shells out to `/bin/bash -c "shasum -a 256 …"` and
-  dies on Windows. Never "fix" the checksummed copy; copy the tree, patch that one line, diff.
-- `styleguide.html` is a client-rendered SPA: the HTML source has no copy, only a bundle. Serve it
-  and read the DOM, or you will "verify" an empty page.
-- `grep -- '--wk-…'` needs the `--` separator, or grep reads the pattern as an option.
-- Generated output must never live in `dist/` or `build/` — those names are dropped from snapshots.
+  `/c/Users/micha/AppData/Local/Python/bin/python3` (3.14.3). Set `PYTHONIOENCODING=utf-8` before
+  printing content: the console is cp1252 and `₦` raises UnicodeEncodeError.
+- `/tmp` is not a path for Windows Python — use a workspace dir or `tempfile`.
+- `python-docx`, `fonttools`, `brotli` are installed **user-level** for the gates. They are dev
+  tools; nothing in the repo depends on them at runtime.
+- The design system's `tools/build-tokens.mjs` shells out to `/bin/bash -c shasum` and dies on
+  Windows. Never "fix" the checksummed copy; copy the tree, patch that line, diff.
+- Generated output goes to `_site/`, never `dist/` or `build/` — those names are dropped from
+  snapshots.
