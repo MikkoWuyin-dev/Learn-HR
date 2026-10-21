@@ -35,7 +35,7 @@ The specs were written inside the original workspace. In this tree:
 | `HR_Library_Overview.md` | `content/HR_Library_Overview.md` |
 | `skills/resource-learning-library/scripts/NAME.py` | `scripts/NAME.py` |
 | `HR_Doc*.docx` / `HR_Roadmap_Library.*` | `downloads/` |
-| `make check` | does not exist yet — it is the Phase 1.6 audit script the build creates |
+| `make check` | `make check` — builds, then runs the audit and the .docx gate |
 
 ## Content inventory, for a 30-second integrity check
 
@@ -43,4 +43,6 @@ words 1382 / 4973 / 3271 / 3013 / 3211 for doc1-5; overview 904; 20 `####` resou
 
 ## Sizes
 
-Handoff archive: 23 files. Content is about 48,000 words in markdown; the site it generates is 32 routes.
+Handoff archive: 23 files. Content is about 48,000 words in markdown; the site it generates is
+52 routes (home, 5 documents, plan + 22 week pages, library + 20 cards, law card, templates,
+check, downloads). Count them with `find _site -name index.html | wc -l`.

@@ -6,7 +6,7 @@
 Updated: 2026-10-21 by Claude (Phase 2 done: course-card ticks; 2.5 glossary + library filter)
 
 ## Now
-- Phases 1 and 2 are built. `python3 tools/sitegen/check.py` is the gate (Python 3.12+):
+- Phases 1 and 2 are built. `python3 tools/sitegen/check.py` is the gate (Python 3.11+):
   build · output audit · html-validate · tests · .docx regression · voice audit on every page ·
   sources untouched. html-validate is not a repo dependency: the gate says SKIP where it isn't installed.
 - Learner path: Week 0–21 blocks are tickable (`progress.js`, localStorage `hrsite:v1`); home and plan
@@ -44,6 +44,21 @@ Updated: 2026-10-21 by Claude (Phase 2 done: course-card ticks; 2.5 glossary + l
   Chromium at 360 px: journey, reload, reset, corrupt/blocked storage, copy + denied clipboard,
   keyboard, JS off.
 
+## Closed this round (audit pass, 2026-10-21)
+- **Python 3.11+**: `sitegen.py`'s nav f-string no longer needs PEP 701, so the build and the link
+  sweep run on 3.11. `check.py` and these docs said 3.12+; all updated.
+- **OFL licence text** (was blocked #5): `OFL-Fredoka.txt` and `OFL-Space-Grotesk.txt`, taken from
+  google/fonts, now ship to `_site/fonts/` beside the woff2 files. Public-deploy blocker cleared.
+- **CAC link** (was blocked #7): the site layer now linkifies a URL written as "(https://…)", so
+  doc5 Support A's scam-check link is clickable. No markdown edit was needed, and `docx_render.py`
+  is untouched, so the frozen .docx are unaffected.
+- **R1 guard**: `audit.py` fails the build when `git diff -- content/` is non-empty (roadmap 1.6's
+  last item, previously missing). Verified it can fail.
+- **`/5/templates/`** renders three of R5's blocks - the 90-word note, the CV bullet table and the
+  follow-up messages - each with the Copy button from `copy.js`.
+- **Glyph fallback accepted**: `·`, `—`, `→`, `☐` are absent from the body face and fall back to a
+  system font. Recorded as a decision, not a defect; don't "fix" it unasked.
+
 ## Blocked on an owner decision
 1. **Two voice-audit hits in the documents** (reported, not failed, by the gate): doc4 §4.4 "what
    capability it **unlocks** for the team" (puffed-up list) and doc5 §5.6 "**Stakeholders** and
@@ -53,11 +68,8 @@ Updated: 2026-10-21 by Claude (Phase 2 done: course-card ticks; 2.5 glossary + l
    meter therefore says "Weeks passed (Weeks 0–21)". Options unchanged: keep, or author week blocks.
 3. **Production domain** (D4): needed for canonical URLs, `og:url` and the sitemap.
 4. **`--wk-muted` is broken upstream** (self-referencing token); the site avoids it. Fix in `tokens.json`.
-5. **OFL licence text** must ship with the fonts before a public deploy.
-6. **Home copy**: "Six files, one plan" still reads as if six files are on the page.
-7. **CAC link** in doc5 Support A is written as "(https://…)", which the renderer leaves as plain
-   text. It is now checked by the sweep; making it clickable needs a markdown edit (your call).
-8. **Library intro claims too much**: "each with the link, what it really costs, and how long it
+5. **Home copy**: "Six files, one plan" still reads as if six files are on the page.
+6. **Library intro claims too much**: "each with the link, what it really costs, and how long it
    takes", but only some cards state a time. Site copy, not source; reword or drop "how long".
 
 ## Next justified step
@@ -66,7 +78,8 @@ The link sweep from a connected machine (closes 0.2 and R14), then Phase 3: the 
 ## Session traps
 - `python3`/`python` on the owner's PC are Microsoft Store stubs; real interpreter:
   `/c/Users/micha/AppData/Local/Python/bin/python3`. Set `PYTHONIOENCODING=utf-8` (`₦` breaks cp1252).
-- sitegen.py needs Python 3.12+: a backslash inside an f-string (PEP 701).
+- sitegen.py needs Python 3.11+: an f-string there still parses on 3.11, and 3.10 fails on the
+  parser before that. Check `check.py` before assuming a 3.10 user can build.
 - `node --test` takes a file path, not a directory, on Node 22.
 - The design system's `tools/build-tokens.mjs` shells out to `/bin/bash -c shasum`; never patch the
   checksummed copy.

@@ -56,6 +56,14 @@ NAV = [
     ("/5/getting-the-job/", "Getting the job"),
 ]
 
+# A bare URL wrapped in parentheses, e.g. "(https://search.cac.gov.ng/)" in
+# doc5's scam checklist. The shared renderer's URL_RE carries a (?<!\()
+# lookbehind, so these would render as plain, unclickable text. The site
+# layer linkifies them instead, leaving docx_render.py — and therefore the
+# frozen .docx baseline — untouched. The (?<!\]) guard keeps it off a
+# markdown link's own "(url)". Used by md() and by link_sources().
+PAREN_URL_RE = re.compile(r"(?<!\])\((https?://[^\s)]+)\)")
+
 VERDICTS = {
     "free-to-finish": "Free to finish",
     "free-to-study-paid-cert": "Free to study · paid certificate",
@@ -97,6 +105,9 @@ def md(s):
     s = re.sub(r"`([^`]+)`", park_code, s)
     s = re.sub(r"\[([^\]]+)\]\((/[^)\s]*)\)", park_link, s)
     out = R.inline_html(s)
+    # Runs while both links and code spans are still placeholders, so
+    # neither can be linkified by mistake.
+    out = PAREN_URL_RE.sub(r'(<a href="\1">\1</a>)', out)
     out = re.sub(r"\x02(\d+)\x02", lambda m: links[int(m.group(1))], out)
     out = re.sub(r"\x01(\d+)\x01", lambda m: codes[int(m.group(1))], out)
     # Fredoka has no U+20A6 (verified: 217 glyphs, naira absent; Space Grotesk has
@@ -330,6 +341,7 @@ def learning_path():
                     for k, r in dated.get(w["n"], [])]
         out.append({"n": w["n"], "title": plain_text(w["title"]), "source": source,
                     "url": f"/2/plan/week/{w['n']}/", "acts": acts})
+
     return out
 
 
@@ -370,11 +382,20 @@ def tick_button(key, label, context):
             f'{label}<span class="vh"> · {html.escape(context)}</span></button>')
 
 
-def render_table(b, caption=None, tick_col=None, tick_label="Done"):
+def render_table(b, caption=None, tick_col=None, tick_label="Done", ns=None):
+    """`ns` renames the row keys, for a table rendered a second time elsewhere.
+
+    parse() mints each table's data-k once, so rendering one table on two pages
+    would emit the same key twice. That fails the site-wide uniqueness check,
+    and on a tickable table it would make one click tick two rows (R9). Use it
+    only for duplicates that are not themselves progress rows.
+    """
     head = "".join(f'<th scope="col">{md(c)}</th>' for c in b["head"])
     rows = []
     for i, row in enumerate(b["rows"]):
         key = b["keys"][i] if i < len(b.get("keys", [])) else ""
+        if key and ns:
+            key = f"{ns}-{key}"
         cells = []
         for j in range(len(b["head"])):
             cell = md(row[j] if j < len(row) else "")
@@ -413,10 +434,11 @@ GLOSSARY_SEARCH = (
 
 
 def render_blocks(bs, level=2, caption_from_heading=True, default_caption="",
-                  copyable=False, ticks=False, glossary=False):
+                  copyable=False, ticks=False, glossary=False, ns=None):
     """`copyable`: blockquotes are reusable scripts and templates (docs 4 and 5), so
     they get a Copy button; elsewhere they are callouts. `ticks`: block tables get a
-    progress toggle in their Output cell."""
+    progress toggle in their Output cell. `ns`: rename the row keys, for a table
+    that is rendered a second time on another page (see render_table)."""
     out, current = [], default_caption
     for b in bs:
         t = b["t"]
@@ -445,8 +467,9 @@ def render_blocks(bs, level=2, caption_from_heading=True, default_caption="",
             out.append(f"<{tag}>{items}</{tag}>")
         elif t == "table":
             tick = 2 if ticks and [h.lower() for h in b["head"]] == BLOCK_HEAD else None
-            table = render_table(b, caption=current if caption_from_heading else None,
-                                 tick_col=tick, tick_label="Output done")
+            caption = (current if caption_from_heading else default_caption) or None
+            table = render_table(b, caption=caption, tick_col=tick,
+                                 tick_label="Output done", ns=ns)
             if glossary and b["head"][0].strip().lower() == "term":
                 # R8: the search box ships hidden; glossary.js reveals it and filters rows.
                 table = GLOSSARY_SEARCH + table.replace('<div class="card table-card">',
@@ -476,9 +499,18 @@ def page(path, title, body, *, lead="", extra_head="", body_class="", detail=Fal
     """
     depth = 0 if not path else path.strip("/").count("/") + 1
     root = "../" * depth
-    nav = "".join(
-        f'<a href="{root}{href.strip("/")}/"{" aria-current=\"page\"" if path.startswith(href.strip("/")) and href != "/" and path else ""}>{esc}</a>'
-        for href, esc in ((h, html.escape(label)) for h, label in NAV))
+    # The aria-current attribute is built outside the f-string: an escaped quote
+    # inside an f-string expression is a SyntaxError before Python 3.12 (PEP 701),
+    # and this build has to run on 3.11.
+    nav = []
+    for href, esc in ((h, html.escape(label)) for h, label in NAV):
+        here = (' aria-current="page"'
+                if path and href != "/" and path.startswith(href.strip("/"))
+                else "")
+        nav.append(f'<a href="{root}{href.strip("/")}/"{here}>{esc}</a>')
+    nav = "".join(nav)
+    stamp = (f'<p class="stamp"><span class="stamp-dot" aria-hidden="true"></span>'
+             f'{STAMP} · <a href="{root}check/">see every link checked</a></p>')
     url_path = f"/{path.strip('/')}/" if path else "/"
     desc = html.escape(summary(lead), quote=True)
     meta = [f'<meta name="description" content="{desc}">',
@@ -786,11 +818,43 @@ def build_law_card():
 
 
 def build_templates():
-    _, body = section("doc5", r"SUPPORT C")
-    page("5/templates", "Templates to copy",
-         '<p class="eyebrow"><a href="/5/getting-the-job/">Getting the job</a> · copyable</p>'
-         '<h1>Templates to copy</h1>' + stamp_block() + render_blocks(body, level=2, copyable=True),
-         lead="The follow-up messages, kept in one place.")
+    """R5: doc5's copyable blocks on one page, no prose between them.
+
+    Three blocks exist as copy in the source: the 90-word note (5.5), the
+    weak/strong CV bullets (5.3) and the follow-up messages (SUPPORT C). All
+    three re-render the same parsed markdown, so this is a second *rendering*
+    of one source, not a second copy of the copy (R1).
+
+    R5 originally also named a 12-question intake template and a
+    reference-check script. The owner dropped both on 2026-10-21: neither
+    exists as copy in any document - doc2 lists them as artefacts the learner
+    writes, in Weeks 13 and 12 - and they already render on those week pages
+    and in the tracker. See the amendment note under R5 in the PRD.
+    """
+    _, apply_bs = section("doc5", r"5\.5 THE APPLICATION")
+    note = [b for b in apply_bs if b["t"] == "quote"]
+    _, cv_bs = section("doc5", r"5\.3 THE CV")
+    bullets = [b for b in cv_bs if b["t"] == "table" and b["head"][:1] == ["Weak"]]
+    _, follow = section("doc5", r"SUPPORT C")
+
+    body = ['<p class="eyebrow"><a href="/5/getting-the-job/">Getting the job</a>'
+            ' · copyable</p>', '<h1>Templates to copy</h1>', stamp_block()]
+    if note:
+        body.append('<h2 id="note-90-word">The 90-word note</h2>')
+        body.append(render_blocks(note, level=3, copyable=True))
+    if bullets:
+        body.append('<h2 id="cv-bullets">CV bullets</h2>')
+        # Caption is the table's own column names, so it does not echo the
+        # heading above it; R26 still gets its <caption>.
+        body.append(render_blocks(bullets, level=3, ns="tpl-cv",
+                                  caption_from_heading=False,
+                                  default_caption="Weak and strong"))
+    body.append('<h2 id="follow-up">Follow-up messages</h2>')
+    body.append(render_blocks(follow, level=3, ns="tpl-follow", copyable=True))
+
+    page("5/templates", "Templates to copy", "\n".join(body),
+         lead="The 90-word note, the CV bullet rewrites and the follow-up "
+              "messages, kept in one place.")
 
 
 def build_downloads():
@@ -829,9 +893,6 @@ def page_for(name, heading_ids, week_n, card_id):
     base = {"doc1": "/1/start-here/", "doc2": "/2/plan/", "doc3": "/3/library/",
             "doc4": "/4/nigeria/", "doc5": "/5/getting-the-job/"}[name]
     return base + (f"#{heading_ids[-1]}" if heading_ids and name not in ("doc3",) else "")
-
-
-PAREN_URL_RE = re.compile(r"(?<!\])\((https?://[^\s)]+)\)")
 
 
 def link_sources():
@@ -1016,8 +1077,11 @@ def copy_assets():
     for f in ("progress.js", "copy.js", "glossary.js", "library.js"):
         js = (ROOT / "site/static" / f).read_text(encoding="utf-8")
         (SITE / "static" / f).write_text(squeeze_js(js), encoding="utf-8")
-    for f in (ROOT / "design-system/public/fonts").glob("*.woff2"):
-        shutil.copy2(f, SITE / "fonts" / f.name)
+    # The .woff2 files are SIL OFL 1.1, which requires the licence to travel
+    # with them, so the two OFL texts ship beside the fonts they cover.
+    for f in (ROOT / "design-system/public/fonts").glob("*"):
+        if f.suffix in (".woff2", ".txt"):
+            shutil.copy2(f, SITE / "fonts" / f.name)
     (SITE / "files").mkdir(exist_ok=True)
     for f in (ROOT / "downloads").glob("HR_*"):
         shutil.copy2(f, SITE / "files" / f.name)

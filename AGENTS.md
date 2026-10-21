@@ -15,7 +15,8 @@ with no backend and no framework.
 
 ## Commands
 
-- Python 3.12+ is required (sitegen uses PEP 701 f-strings). The .docx regression also needs `python-docx`.
+- Python 3.11+ is required (3.10 and older fail on the parser). The .docx regression also needs
+  `python-docx`, declared in `requirements.txt`.
 - Build: `python3 tools/sitegen/sitegen.py`, written to `_site/`. Add `--site-url=https://…` (or set
   `HR_SITE_URL`) to emit canonical URLs and `sitemap.xml`.
 - Preview: `python3 -m http.server 8000 --directory _site`. Internal links are root-absolute, so the

@@ -8,7 +8,7 @@ Steps: build (sitegen.py) · output audit (audit.py) · html-validate on every p
 (node --test; skipped if Node is missing) · the .docx regression (needs python-docx)
 · the voice audit (style_audit.py) over every generated page's text and the run-time
 interface strings · proof that the build left content/ and downloads/ byte-identical.
-Needs Python 3.12+. Sends no network requests; the link sweep is linkcheck.py.
+Needs Python 3.11+. Sends no network requests; the link sweep is linkcheck.py.
 """
 import hashlib
 import os
@@ -113,8 +113,8 @@ def source_digest():
 
 
 def main():
-    if sys.version_info < (3, 12):
-        print(f"FAIL  Python {sys.version.split()[0]}: sitegen.py needs 3.12+")
+    if sys.version_info < (3, 11):
+        print(f"FAIL  Python {sys.version.split()[0]}: sitegen.py needs 3.11+")
         return 1
     before = source_digest()
     results = [run("build", [PY, "tools/sitegen/sitegen.py"]),
