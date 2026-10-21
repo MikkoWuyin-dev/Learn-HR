@@ -102,8 +102,9 @@ Technical:
 
 ## Approval gates: ask first
 
-- Commit: [allowed once the gate passes | ask every time]
-- Push, merge, history rewrite, deploy, release
+- Commit: **allowed once the gate passes — and push to the session branch at the end of every
+  implementation round.** No need to ask per commit.
+- Merge, history rewrite, deploy, release
 - Deleting data, or discarding changes you didn't make
 - Adding a dependency, or upgrading a major dependency or tool version
 - Changing an approved architecture decision, a data or persistence contract, a security boundary, or product scope
@@ -142,7 +143,8 @@ Everything else (reading, local edits, running tests and builds) needs no approv
   or an artifact, copy the tree, patch the copy, diff. `SHA256SUMS.txt` is the record.
 - **The naira sign needs a face.** Fredoka's subset has no U+20A6; Space Grotesk's does.
   `md()` wraps every `₦` in `<span class="naira">` so it never falls back mid-word.
-  `·`, `—`, `→` and `☐` are absent from the body face and do fall back — known, see STATUS.
+  `·`, `—`, `→` and `☐` are also absent from the body face and do fall back to a system
+  font. **Accepted 2026-10-21** — not a defect to fix; don't "correct" it unasked.
 - `python3`/`python` on the owner's PATH are Microsoft Store stubs that exit 49. Real
   interpreter: `/c/Users/micha/AppData/Local/Python/bin/python3`.
 - `/tmp` is not a path for Windows Python — use a workspace dir or `tempfile`.
@@ -150,4 +152,6 @@ Everything else (reading, local edits, running tests and builds) needs no approv
 
 ## Finish with
 
-Outcome · files changed · checks run and their results · what isn't verified and why · next step, plus anything that needs approval.
+Run the gate, then **commit and push to the session branch**. Then report: outcome · files
+changed · checks run and their results · what isn't verified and why · next step, plus
+anything that needs approval.

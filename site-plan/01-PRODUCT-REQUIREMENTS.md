@@ -40,7 +40,14 @@ Numbered for traceability. `M1` must ship in phase 1, `M2` phase 2, `M3` phase 3
 - **R2 (M1)** 24 week pages plus Week 0, each showing: phase label, week number, the block table (minutes · activity · output), the pass mark where the source states one, and the source's `>` notes as callouts.
 - **R3 (M1)** Doc 3 renders as filterable cards. Each card exposes link, cost verdict, hours, level, phase, and the four prose fields (what it is · why it matters · what to do with it · plus the doc's own caveats).
 - **R4 (M1)** Doc 4 renders the statute table, the statute list, the 20 tasks, the 10 myths, and the law card at its own route with a print stylesheet that fits one A4 page at 9–10pt.
-- **R5 (M1)** Doc 5's copyable blocks (CV bullet rewrites, the 90-word application note, follow-up messages, the 12-question intake template, the reference-check script) render as discrete blocks with a `Copy` button.
+- **R5 (M1)** Doc 5's copyable blocks — the CV bullet rewrites, the 90-word application note
+  and the follow-up messages — render as discrete blocks with a `Copy` button.
+
+  *Amended 2026-10-21 (owner).* The list also named a 12-question intake template and a
+  reference-check script. Neither exists as copy in any document: doc2 lists them as artefacts
+  the learner **writes**, in Weeks 13 and 12, and they already render on those week pages and
+  in the 16-item tracker. Dropped, because R5 is about blocks a reader copies, and generating
+  them would mean inventing content, which R1 forbids. Nothing is lost from the site.
 - **R6 (M1)** The home page is `HR_Library_Overview.md`, lightly adapted: "Document 2" → "the Plan" with a link; the file-name mention of `HR_Roadmap_Library` becomes a download link. Do not rewrite the voice.
 - **R7 (M1)** Every content page renders the stamp: `Checked 20 October 2026` from `site.json.last_verified`. Legal pages also render `Not legal advice; current to the date checked.`
 - **R8 (M2)** A glossary view of Doc 1's 26 terms, searchable as you type, no external search library.

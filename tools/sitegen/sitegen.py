@@ -514,11 +514,11 @@ def build_templates():
     three re-render the same parsed markdown, so this is a second *rendering*
     of one source, not a second copy of the copy (R1).
 
-    R5 also names a 12-question intake template and a reference-check script.
-    Neither exists as copy anywhere in the five documents: doc2 lists them as
-    artefacts the learner writes in Weeks 13 and 12. Emitting them would mean
-    inventing content, which R1 and the no-new-content rule forbid. Flagged in
-    STATUS.md for the owner to write, or to drop from R5.
+    R5 originally also named a 12-question intake template and a
+    reference-check script. The owner dropped both on 2026-10-21: neither
+    exists as copy in any document — doc2 lists them as artefacts the learner
+    writes, in Weeks 13 and 12 — and they already render on those week pages
+    and in the tracker. See the amendment note under R5 in the PRD.
 
     The Copy button itself is roadmap step 2.4 and is not built yet.
     """

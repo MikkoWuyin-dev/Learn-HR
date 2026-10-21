@@ -47,22 +47,22 @@ Updated: 2026-10-21 by Buffy (Freebuff) — audit-and-fix pass
   Say so before claiming it "looks right".
 - **Copy buttons do not exist** (step 2.4); **`html-validate`** (task 1.6) is not wired in.
 
-## Blocked on an owner decision
-1. **R5 names two blocks that aren't copy.** The "12-question intake template" and the
-   "reference-check script" appear in doc2 only as *artefacts the learner writes* (Weeks 13
-   and 12). Rendering them means inventing content, which R1 forbids. Write them, or drop
-   them from R5. Everything else in R5 now renders.
-2. **Weeks 22–24 have no week tables** — doc2 hands them to doc5 in one paragraph, so there
+## Decided 2026-10-21
+- **R5 dropped two blocks.** The "12-question intake template" and "reference-check script"
+  weren't copy — doc2 lists them as artefacts the learner writes (Weeks 13, 12), and they
+  already render on those week pages and in the tracker. R5 is about blocks a reader copies.
+- **Glyph fallback accepted.** `·`, `—`, `→` and `☐` are absent from the body face and fall
+  back to a system font. Owner's call: fine as is. Not a defect to fix.
+
+## Blocked on an owner decision (deferred — we will deliberate)
+1. **Weeks 22–24 have no week tables** — doc2 hands them to doc5 in one paragraph, so there
    are 22 week pages, not the 25 the route map and the "/24" progress bar assume. Keep 22, or
    author three week blocks (new copy — needs your words).
-3. **`--wk-muted` is broken upstream.** `wakeout.css` declares it twice, the second time as a
+2. **`--wk-muted` is broken upstream.** `wakeout.css` declares it twice, the second time as a
    reference to itself; same for `--wk-muted-foreground`. The site uses `--wk-ink-70` and
    `--wk-sunrise`. The fix belongs in `tokens.json` — your call.
-4. **`·`, `—`, `→` and `☐` are absent from the body face** (Space Grotesk latin subset; `·`
-   and `—` are in Fredoka, so headings and body disagree). They fall back to a system font.
-   Found by reading the woff2 cmaps. Cosmetic — the ₦ problem in miniature.
-5. **Home copy**: "Six files, one plan" still reads as if six files are on the page.
-6. **`latin-ext` fonts ship but are never fetched** — no `unicode-range` on the `@font-face`,
+3. **Home copy**: "Six files, one plan" still reads as if six files are on the page.
+4. **`latin-ext` fonts ship but are never fetched** — no `unicode-range` on the `@font-face`,
    so the browser takes the first `src` only. 11 KB of dead deploy weight, and no fallback for
    a glyph outside latin. Fixing it means editing the checksummed `wakeout.css`.
 
