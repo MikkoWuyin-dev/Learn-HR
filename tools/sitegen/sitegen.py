@@ -109,7 +109,7 @@ def plain(s):
 
 
 def heading_text(b):
-    return plain(b["text"])
+    return plain_text(b["text"])
 
 
 def plain_text(s):
@@ -371,6 +371,13 @@ def render_blocks(bs, level=2, caption_from_heading=True, default_caption="",
     return "\n".join(out)
 
 
+def full_title(title):
+    """The site name is appended only while the title stays within 70 characters, the
+    length search results show. A long source heading is never cut short."""
+    suffixed = f"{title} — HR Library"
+    return suffixed if len(suffixed) <= 70 else title
+
+
 SITE_URL = ""          # production origin, e.g. https://example.org — set by --site-url
 WRITTEN = []           # (path, title) of every page, for the sitemap and the audit
 
@@ -387,7 +394,7 @@ def page(path, title, body, *, lead="", extra_head="", body_class="", detail=Fal
     root = "../" * depth
     nav = "".join(
         f'<a href="{root}{href.strip("/")}/"{" aria-current=\"page\"" if path.startswith(href.strip("/")) and href != "/" and path else ""}>{esc}</a>'
-        for href, esc in NAV)
+        for href, esc in ((h, html.escape(label)) for h, label in NAV))
     url_path = f"/{path.strip('/')}/" if path else "/"
     desc = html.escape(summary(lead), quote=True)
     meta = [f'<meta name="description" content="{desc}">',
@@ -406,7 +413,7 @@ def page(path, title, body, *, lead="", extra_head="", body_class="", detail=Fal
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{html.escape(title)} — HR Library</title>
+<title>{html.escape(full_title(title))}</title>
 {chr(10).join(meta)}
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="{root}wakeout.css">

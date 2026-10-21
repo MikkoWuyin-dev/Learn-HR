@@ -21,8 +21,9 @@ with no backend and no framework.
 - Preview: `python3 -m http.server 8000 --directory _site`. Internal links are root-absolute, so the
   site must be served from `/`, not opened as files.
 - **Gate:** `python3 tools/sitegen/check.py` must exit 0 before work is called done. It runs the build,
-  the output audit (`audit.py`), the Python tests, the Node tests, the .docx regression and the voice
-  audit on site-layer copy.
+  the output audit (`audit.py`), `html-validate` (rules in `.htmlvalidate.json`; reported as SKIP when
+  not installed: `npm i -g html-validate@9`), the Python and Node tests, the .docx regression, the voice
+  audit over every generated page, and a check that the build left `content/` and `downloads/` untouched.
 - Narrow tests: `python3 -m unittest discover -s tools/sitegen/tests -p test_site.py` ·
   `node --test tools/sitegen/tests/progress.test.js` (Node 22 wants a file, not a folder; build first).
 - Link sweep (by hand, needs internet): `python3 tools/sitegen/linkcheck.py [--dry-run] [--strict]`
@@ -157,6 +158,10 @@ copywriting pack, and `react-state-management` does not apply (there is no React
   `/c/Users/micha/AppData/Local/Python/bin/python3`.
 - Set `PYTHONIOENCODING=utf-8` before printing content: `₦` breaks a cp1252 console.
 - `/tmp` is not a path for Windows Python; use a folder in the workspace or `tempfile`.
+- Heading ids can start with a digit (`1-1-the-15-word-map-of-hr`). That is valid HTML5, and the same
+  slug feeds the row keys, so `.htmlvalidate.json` uses relaxed ids. Don't "fix" the slugs.
+- Voice hits that come from the documents themselves are listed in `KNOWN_SOURCE_HITS` in `check.py`.
+  Only the owner clears them, by deciding on the sentence; never by editing `content/` yourself.
 - The design system's `tools/build-tokens.mjs` shells out to `/bin/bash -c shasum` and dies on
   Windows. Copy the tree and patch the copy; never patch the checksummed original.
 - Fredoka has no `₦` glyph; `md()` wraps the sign in `.naira` so it renders in the body face.

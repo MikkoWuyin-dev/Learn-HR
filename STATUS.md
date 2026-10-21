@@ -3,11 +3,12 @@
 <!-- Overwrite this file at the end of each task. Don't append to it. Keep it under 80 lines.
      It is the only place that says "where we are". The commit log is the history. -->
 
-Updated: 2026-10-21 by Claude (R7 legal note; AGENTS.md filled; Phase 2 learner work)
+Updated: 2026-10-21 by Claude (gate: page voice audit, html-validate, sources untouched)
 
 ## Now
 - Phase 1 and most of Phase 2 are built. `python3 tools/sitegen/check.py` is the gate (Python 3.12+):
-  build · output audit · Python tests · Node tests · .docx regression · voice audit on site-layer copy.
+  build · output audit · html-validate · tests · .docx regression · voice audit on every page ·
+  sources untouched. html-validate is not a repo dependency: the gate says SKIP where it isn't installed.
 - Learner path: Week 0–21 blocks are tickable (`progress.js`, localStorage `hrsite:v1`); home and plan
   show the next block from the source table; footer resume line; two-step reset on the plan page.
 - Copy: every blockquote in docs 4 and 5 and the law card has a Copy button (`copy.js`).
@@ -37,13 +38,17 @@ Updated: 2026-10-21 by Claude (R7 legal note; AGENTS.md filled; Phase 2 learner 
 - JS budget: shipped JS is just under R24's 10 KB (`python3 tools/sitegen/audit.py`), so little room is left.
 
 ## Blocked on an owner decision
-1. **Weeks 22–24 have no week pages.** doc2 hands them to doc5 in one paragraph. The progress
+1. **Two voice-audit hits in the documents** (reported, not failed, by the gate): doc4 §4.4 "what
+   capability it **unlocks** for the team" (puffed-up list) and doc5 §5.6 "**Stakeholders** and
+   judgement" (consultant-speak list; it is an interview question group). Keep or reword; your call.
+   Also: should `html-validate` become a required dev dependency (a `package.json`), or stay optional?
+2. **Weeks 22–24 have no week pages.** doc2 hands them to doc5 in one paragraph. The progress
    meter therefore says "Weeks passed (Weeks 0–21)". Options unchanged: keep, or author week blocks.
-2. **Production domain** (D4): needed for canonical URLs, `og:url` and the sitemap.
-3. **`--wk-muted` is broken upstream** (self-referencing token); the site avoids it. Fix in `tokens.json`.
-4. **OFL licence text** must ship with the fonts before a public deploy.
-5. **Home copy**: "Six files, one plan" still reads as if six files are on the page.
-6. **CAC link** in doc5 Support A is written as "(https://…)", which the renderer leaves as plain
+3. **Production domain** (D4): needed for canonical URLs, `og:url` and the sitemap.
+4. **`--wk-muted` is broken upstream** (self-referencing token); the site avoids it. Fix in `tokens.json`.
+5. **OFL licence text** must ship with the fonts before a public deploy.
+6. **Home copy**: "Six files, one plan" still reads as if six files are on the page.
+7. **CAC link** in doc5 Support A is written as "(https://…)", which the renderer leaves as plain
    text. It is now checked by the sweep; making it clickable needs a markdown edit (your call).
 
 ## Next justified step

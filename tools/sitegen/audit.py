@@ -144,6 +144,13 @@ def main():
     check("every path block has a tick", keys and not untickable,
           f"{len(keys)} blocks" + (f", missing {untickable[:3]}" if untickable else ""))
 
+    # --- ids -----------------------------------------------------------------
+    dup_ids = []
+    for p in ps:
+        ids = Counter(re.findall(r'\sid="([^"]+)"', p.read_text(encoding="utf-8")))
+        dup_ids += [f"{p.relative_to(SITE).as_posix()}: {i}" for i, n in ids.items() if n > 1]
+    check("ids unique on each page", not dup_ids, str(dup_ids[:3]))
+
     # --- copy integrity ----------------------------------------------------
     leaks = []
     for p in ps:
@@ -151,6 +158,14 @@ def main():
         for pat in (r"\*\*[a-z]", r"\]\(http", r"\{\{", r"【"):
             if re.search(pat, h):
                 leaks.append(f"{p.relative_to(SITE).as_posix()}: {pat}")
+        # Text shown outside the page body (tab title, search snippet, share card)
+        # is never rendered as markdown, so a paired *…* there is a leaked emphasis
+        # mark. A lone * is real content (Week 14 teaches it as a search wildcard).
+        head = re.search(r"<head>(.*?)</head>", h, re.S).group(1)
+        for m in re.findall(r'<title>([^<]*)</title>|content="([^"]*)"', head):
+            if re.search(r"\*[^\s*][^*]*?[^\s*]\*", "".join(m)):
+                leaks.append(f"{p.relative_to(SITE).as_posix()}: * in <head>")
+                break
     check("no markdown or template leftovers", not leaks, str(leaks[:3]))
 
     width = max(len(n) for n, _, _ in CHECKS) + 2
