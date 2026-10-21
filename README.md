@@ -16,6 +16,15 @@ Unpack this first, then paste `site-plan/03-KICKOFF.md` into a fresh agent along
     downloads/HR_Doc1..5.docx        current outputs — regression baseline, must stay unchanged
     downloads/HR_Roadmap_Library.*   frozen research archive; download-only, do not rebuild
 
+## Commands (Python 3.12+)
+
+    python3 tools/sitegen/sitegen.py [--site-url=https://your.domain]   build _site/
+    python3 tools/sitegen/check.py                                    the gate: build + every check
+    python3 tools/sitegen/linkcheck.py [--dry-run] [--strict]          sweep external links → checks/links.json
+
+Run the link sweep by hand (quarterly, per the roadmap) on a machine with internet, commit
+`checks/links.json`, and rebuild; `/check/` then shows the recorded results. Visitors never trigger it.
+
 ## Path translation
 
 The specs were written inside the original workspace. In this tree:

@@ -16,6 +16,7 @@ Checks, each of which the roadmap makes an exit criterion:
 Exit 0 only if every check passes.
 """
 import gzip
+import json
 import pathlib
 import re
 import sys
@@ -97,7 +98,7 @@ def main():
     gz = len(gzip.compress(css.read_bytes(), 9)) + len(gzip.compress((SITE / "wakeout.css").read_bytes(), 9))
     check("CSS <= 45 KB gzipped", gz <= 45 * 1024, f"{gz:,} B gz (site.css + wakeout.css)")
     js = sum(p.stat().st_size for p in SITE.rglob("*.js"))
-    check("JS <= 10 KB", js <= 10 * 1024, f"{js:,} B (none written yet)")
+    check("JS <= 10 KB", js <= 10 * 1024, f"{js:,} B across {len(list(SITE.rglob('*.js')))} files")
 
     # --- design-system conformance ----------------------------------------
     css_text = css.read_text(encoding="utf-8")
@@ -112,6 +113,32 @@ def main():
         keys += re.findall(r'data-k="([^"]*)"', p.read_text(encoding="utf-8"))
     dupes = [k for k, n in Counter(keys).items() if n > 1]
     check("data-k unique", not dupes, f"{len(keys)} keys" + (f", dupes {dupes[:3]}" if dupes else ""))
+
+    # --- findability (R17) ---------------------------------------------------
+    titles, no_desc = Counter(), []
+    for p in ps:
+        h = p.read_text(encoding="utf-8")
+        m = re.search(r"<title>(.*?)</title>", h)
+        titles[m.group(1) if m else ""] += 1
+        d = re.search(r'<meta name="description" content="([^"]*)"', h)
+        if not d or not d.group(1).strip():
+            no_desc.append(p.relative_to(SITE).as_posix())
+    dup_titles = [t for t, n in titles.items() if n > 1 or not t]
+    check("titles unique", not dup_titles, f"{len(titles)} titles" + (f", dupes {dup_titles[:2]}" if dup_titles else ""))
+    check("every page has a description", not no_desc, str(no_desc[:3]))
+    check("robots.txt written", (SITE / "robots.txt").exists())
+
+    # --- progress controls (R10) --------------------------------------------
+    ticks = set()
+    for p in ps:
+        ticks |= set(re.findall(r'data-tick="([^"]+)"', p.read_text(encoding="utf-8")))
+    home = (SITE / "index.html").read_text(encoding="utf-8")
+    mf = re.search(r'id="hr-path">(.*?)</script>', home, re.S)
+    manifest = json.loads(mf.group(1)) if mf else {"weeks": []}
+    keys = {k for w in manifest["weeks"] for k in w[2]}
+    untickable = sorted(keys - ticks)
+    check("every path block has a tick", keys and not untickable,
+          f"{len(keys)} blocks" + (f", missing {untickable[:3]}" if untickable else ""))
 
     # --- copy integrity ----------------------------------------------------
     leaks = []
