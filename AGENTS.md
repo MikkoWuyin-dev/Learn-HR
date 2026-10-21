@@ -51,11 +51,13 @@ Read `STATUS.md` first, then only the rows your task needs.
 
 ```
 content/docs/src/   doc1–5.md: the source of truth for every word; also builds the .docx
+content/resource-verdicts.json   the owner's cost label per doc3 card, with the card wording it rests on
 scripts/            docx_render.py (shared parser + .docx renderer), validate_build.py, style_audit.py
 tools/sitegen/      sitegen.py (extract + render every route), audit.py (output gate),
                     check.py (the gate), linkcheck.py (link sweep), docx_regression.py,
                     tests/ (unittest + node:test)
-site/static/        site.css (token-only layer), progress.js, copy.js, glossary.js (squeezed at build)
+site/static/        site.css (token-only layer), progress.js, copy.js, glossary.js, library.js
+                    (all JS squeezed at build)
 design-system/      the owner's checksummed design system; wakeout.css is copied into _site/
 downloads/          the five .docx + the frozen research archive, served as files
 checks/links.json   the last link sweep (absent until linkcheck.py has run)
@@ -91,12 +93,15 @@ Technical:
 - The design system owns every visual value: `var(--wk-*)` only, no colour literal (audit fails),
   no blur, no gradients. A value with no token gets a `/* TODO no token: … */` and a question to the owner.
 - No Tailwind build and no Node toolchain for the site; Node is used only for tests.
-- Budgets (R24): ≤120 KB HTML per page, ≤45 KB CSS gzipped, ≤10 KB JS for the whole site.
+- Budgets (R24): ≤120 KB HTML per page, ≤45 KB CSS gzipped, ≤12 KB JS for the whole site (R24 said
+  10 KB; the owner raised it for the library filter).
 - Row keys (`data-k`, e.g. `w13-r2`) are a persistence contract: they come from the heading slug plus
   the row index. Renaming a week heading or reordering rows orphans learners' ticks.
 - Progress counts are derived from the build manifest, never stored. Controls ship `hidden` and the
   script reveals them, so the site reads fully with JavaScript off.
 - Every `<table>` has a `<caption>` and every `<th>` a `scope`. Toggles are real `<button>`s with `aria-pressed`.
+- Cost stickers come only from `content/resource-verdicts.json`, never from guessing at wording. A card
+  without an entry shows no sticker; a basis the card no longer says fails the build.
 - Link status shown on the site comes only from a recorded sweep. Only 404/410 count as "failed";
   403, 429, 5xx and network errors are "inconclusive".
 - Never hand-edit `design-system/artifacts/` or anything listed in its `SHA256SUMS.txt`.

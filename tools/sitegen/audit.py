@@ -102,7 +102,8 @@ def main():
     gz = len(gzip.compress(css.read_bytes(), 9)) + len(gzip.compress((SITE / "wakeout.css").read_bytes(), 9))
     check("CSS <= 45 KB gzipped", gz <= 45 * 1024, f"{gz:,} B gz (site.css + wakeout.css)")
     js = sum(p.stat().st_size for p in SITE.rglob("*.js"))
-    check("JS <= 10 KB", js <= 10 * 1024, f"{js:,} B across {len(list(SITE.rglob('*.js')))} files")
+    # R24 said 10 KB; the owner raised it to 12 KB on 2026-10-21 for the library filter.
+    check("JS <= 12 KB", js <= 12 * 1024, f"{js:,} B across {len(list(SITE.rglob('*.js')))} files")
 
     # --- design-system conformance ----------------------------------------
     css_text = css.read_text(encoding="utf-8")

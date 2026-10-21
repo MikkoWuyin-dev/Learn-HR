@@ -1,0 +1,24 @@
+{
+  "about": "Cost verdict for each Document 3 resource card, confirmed by the owner on 2026-10-21. 'basis' is the card's own wording the verdict rests on; the build fails if that wording no longer appears on the card, so a reworded card forces a fresh decision. A card missing here shows no sticker.",
+  "cards": {
+    "saylor-academy-prdv226-introduction-to-human-resource-manage": {"verdict": "free-to-finish", "basis": "free certificate of completion (no application, no fee; pass their exam at ≥70%)"},
+    "saylor-academy-bus301-human-resource-management": {"verdict": "free-to-finish", "basis": "free, including the final exam and certificate (≥70%)"},
+    "the-open-university-openlearn-human-resources-recruitment-an": {"verdict": "free-to-finish", "basis": "free Statement of Participation when you create a free OpenLearn account"},
+    "openlearn-three-more-hr-courses-same-provider-same-terms": {"verdict": "free-to-finish", "basis": "free to study, free Statement of Participation on completion"},
+    "cipd-the-three-free-moocs": {"verdict": "limited-access", "basis": "free with limited access"},
+    "cipd-the-free-factsheet-and-guide-hub": {"verdict": "free-to-use", "basis": "free (some items ask for a free CIPD account; a subset is members-only)"},
+    "alison-the-hr-and-talent-acquisition-courses-worth-your-time": {"verdict": "free-to-study-paid-cert", "basis": "the printed diploma/certificate sits behind a paid \"Certify Now\" package"},
+    "itcilo-free-self-guided-courses-from-the-un-s-training-arm": {"verdict": "free-to-finish", "basis": "A digital credential is issued once you complete the required activities"},
+    "aihr-free-courses-in-the-academy": {"verdict": "check-before-committing", "basis": "Verify each course page before committing a week"},
+    "workable-academy-their-ats-guide": {"verdict": "free-to-finish", "basis": "courses carry no additional fee"},
+    "greenhouse-learn": {"verdict": "free-to-finish", "basis": "free on-demand training and recorded sessions; no paid licence needed to learn the product"},
+    "cipm-nigeria-the-body-you-ll-eventually-pay": {"verdict": "paid", "basis": "membership and exams are paid"},
+    "cipm-nigeria-free-nigerian-labour-law-study-pack-pdf": {"verdict": "free-to-use", "basis": "free, published by the institute itself"},
+    "shrm-free-toolkits-and-templates-us-framed": {"verdict": "free-to-use", "basis": "toolkits and templates are free downloads"},
+    "federal-ministry-of-justice-the-labour-act-itself": {"verdict": "free-to-use", "basis": "free PDF, 80 pages, no account"},
+    "national-industrial-court-of-nigeria": {"verdict": "free-to-use", "basis": "(free; judgments published)"},
+    "jobberman-nigeria": {"verdict": "free-to-use", "basis": "free for jobseekers"},
+    "myjobmag": {"verdict": "free-to-use", "basis": "free for jobseekers"},
+    "linkedin-jobs-free-tier-is-enough": {"verdict": "free-to-use", "basis": "You do not need Premium to apply"}
+  }
+}

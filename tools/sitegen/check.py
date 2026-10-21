@@ -38,6 +38,9 @@ Week passed: every output exists. Tick a block only when its output exists.
 Last sweep. Inconclusive means the site refused or slowed an automated check (403, 429, a timeout, a network error); it does not mean the page is gone. A reachable link only proves the page answered, not that the course or its terms are unchanged.
 No sweep recorded yet. Not yet checked. Reachable after a redirect.
 Not legal advice; current to the date checked.
+Search the terms. 3 of 26 terms match. No term matches. Try fewer letters.
+Section. All sections. Cost. Any cost. 4 of 20 resources shown. Free to use. Paid.
+Each cost label sums up the card's own cost terms. Open the card for the full terms before you plan a week around it.
 """
 
 

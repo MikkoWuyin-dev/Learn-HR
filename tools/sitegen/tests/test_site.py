@@ -137,6 +137,80 @@ class GlossaryTest(SiteTest):
             self.assertEqual("glossary.js" in h, "data-glossary-table" in h, p)
 
 
+class LibraryTest(SiteTest):
+    def approved(self):
+        return json.loads(S.VERDICTS_FILE.read_text(encoding="utf-8"))["cards"]
+
+    def test_every_sticker_is_the_approved_verdict(self):
+        approved = self.approved()
+        for c in S.cards():
+            html = read(self.site, f"/3/library/{c['id']}/")
+            found = re.findall(r'class="sticker sticker-([a-z-]+)"', html)
+            want = [approved[c["id"]]["verdict"]] if c["id"] in approved else []
+            self.assertEqual(found, want, c["id"])
+
+    def test_a_card_without_a_verdict_gets_no_sticker_and_no_guess(self):
+        html = read(self.site, "/3/library/")
+        li = re.search(r'<li class="card res-card" data-section="3\.3" data-cost="">.*?</li>', html, re.S)
+        self.assertIsNotNone(li)
+        self.assertNotIn("sticker", li.group(0))
+
+    def test_every_basis_is_still_on_its_card(self):
+        by_id = {c["id"]: c for c in S.cards()}
+        for cid, v in self.approved().items():
+            self.assertIn(v["basis"], S.card_text(by_id[cid]), cid)
+
+    def test_cards_are_grouped_under_doc3_sections(self):
+        html = read(self.site, "/3/library/")
+        for key in ("3.1", "3.2", "3.3"):
+            self.assertIn(f'data-lib-section="{key}"', html)
+        self.assertEqual(html.count('class="card res-card"'), len(S.cards()))
+
+    def test_filter_ships_hidden_and_offers_only_used_labels(self):
+        html = read(self.site, "/3/library/")
+        self.assertRegex(html, r'<div class="lib-filter" data-lib-filter hidden role="group"')
+        used = set(self.approved()[k]["verdict"] for k in self.approved())
+        offered = set(re.findall(r'<select name="cost">(.*?)</select>', html, re.S)[0].split('value="')[2:])
+        self.assertEqual({o.split('"')[0] for o in offered}, used)
+
+    def test_script_loads_only_on_the_library(self):
+        for p in self.site.rglob("index.html"):
+            h = p.read_text(encoding="utf-8")
+            self.assertEqual("library.js" in h, "data-lib-filter" in h, p)
+
+
+class VerdictValidationTest(unittest.TestCase):
+    def check(self, cards):
+        orig = S.VERDICTS_FILE
+        with tempfile.TemporaryDirectory() as tmp:
+            f = pathlib.Path(tmp) / "v.json"
+            f.write_text(json.dumps({"cards": cards}), encoding="utf-8")
+            S.VERDICTS_FILE = f
+            S._verdicts.clear()
+            try:
+                return dict(S.verdicts())
+            finally:
+                S.VERDICTS_FILE = orig
+                S._verdicts.clear()
+
+    def test_unknown_card_fails_the_build(self):
+        with self.assertRaises(SystemExit):
+            self.check({"no-such-card": {"verdict": "paid", "basis": "x"}})
+
+    def test_unknown_verdict_fails_the_build(self):
+        with self.assertRaises(SystemExit):
+            self.check({"jobberman-nigeria": {"verdict": "cheap", "basis": "free for jobseekers"}})
+
+    def test_reworded_card_fails_the_build(self):
+        with self.assertRaises(SystemExit):
+            self.check({"jobberman-nigeria": {"verdict": "free-to-use", "basis": "free forever"}})
+
+    def test_valid_entry_loads(self):
+        self.assertEqual(self.check({"jobberman-nigeria": {"verdict": "free-to-use",
+                                                           "basis": "free for jobseekers"}}),
+                         {"jobberman-nigeria": "free-to-use"})
+
+
 class SqueezeTest(unittest.TestCase):
     def test_strings_survive_untouched(self):
         src = 'var a = "x  ,  y // not a comment /* nor this */";\nsay( \'it\\\'s  fine\' );\n'

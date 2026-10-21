@@ -61,6 +61,8 @@ VERDICTS = {
     "free-to-study-paid-cert": "Free to study · paid certificate",
     "limited-access": "Limited access",
     "check-before-committing": "Check before committing",
+    "free-to-use": "Free to use",     # not a course: boards, statutes, reference shelves
+    "paid": "Paid",
 }
 
 
@@ -161,10 +163,15 @@ def week_sections():
 
 
 def cards():
-    """doc3: one `####` heading per resource, with its bullet fields."""
+    """doc3: one `####` heading per resource, with its bullet fields and the `##`
+    section it sits under (3.1 the spine, 3.2 bodies and institutions, 3.3 jobs)."""
     bs = blocks("doc3")
     out = []
+    section = None
     for i, b in enumerate(bs):
+        if b["t"] == "h" and b["l"] == 2:
+            m = re.match(r"(\d+\.\d+)\s+(.*)", heading_text(b))
+            section = {"key": m.group(1), "title": m.group(2), "id": b["id"]} if m else None
         if b["t"] != "h" or b["l"] != 4:
             continue
         body = []
@@ -181,19 +188,50 @@ def cards():
                 if m:
                     fields.setdefault(m.group(1).strip().lower(), m.group(2).strip())
         out.append({"id": b["id"], "title": heading_text(b), "raw_title": b["text"],
-                    "fields": fields, "blocks": body})
+                    "fields": fields, "blocks": body, "section": section})
     return out
 
 
-def verdict_of(cost):
-    low = (cost or "").lower()
-    if "limited access" in low or "time-limited" in low or "no certificate" in low:
-        return "limited-access"
-    if "check before" in low or "verify" in low or "before you commit" in low:
-        return "check-before-committing"
-    if "free certificate" in low or "certificate of completion** (no application" in low:
-        return "free-to-finish"
-    return "free-to-study-paid-cert"
+def card_text(c):
+    """Everything a card says, as plain text, for checking a verdict's basis."""
+    parts = [c["title"]]
+    for b in c["blocks"]:
+        if b["t"] in ("p", "quote"):
+            parts.append(b["text"])
+        elif b["t"] == "list":
+            parts += [i["text"] for i in b["items"]]
+        elif b["t"] == "table":
+            parts += [" ".join(r) for r in b["rows"]]
+    return " ".join(plain_text(x) for x in parts)
+
+
+VERDICTS_FILE = CONTENT / "resource-verdicts.json"
+_verdicts = {}
+
+
+def verdicts():
+    """The owner's cost verdict per card, from content/resource-verdicts.json.
+
+    A wrong card id, an unknown verdict, or a basis the card no longer says is a
+    build error: the sticker must rest on words the learner can read on the card.
+    A card with no entry gets no sticker, never a guess.
+    """
+    if _verdicts:
+        return _verdicts
+    data = json.loads(VERDICTS_FILE.read_text(encoding="utf-8"))["cards"]
+    by_id = {c["id"]: c for c in cards()}
+    problems = []
+    for cid, v in data.items():
+        if cid not in by_id:
+            problems.append(f"{cid}: no such card in doc3")
+        elif v.get("verdict") not in VERDICTS:
+            problems.append(f"{cid}: unknown verdict {v.get('verdict')!r}")
+        elif not v.get("basis") or plain_text(v["basis"]) not in card_text(by_id[cid]):
+            problems.append(f"{cid}: basis no longer on the card: {v.get('basis')!r}")
+    if problems:
+        raise SystemExit("resource-verdicts.json needs the owner:\n  " + "\n  ".join(problems))
+    _verdicts.update({cid: v["verdict"] for cid, v in data.items()})
+    return _verdicts
 
 
 def section(name, pattern):
@@ -419,6 +457,8 @@ def page(path, title, body, *, lead="", extra_head="", body_class="", detail=Fal
     scripts = f'<script src="{root}static/progress.js" defer></script>'
     if "copy-btn" in body:
         scripts += f'\n<script src="{root}static/copy.js" defer></script>'
+    if "data-lib-filter" in body:
+        scripts += f'\n<script src="{root}static/library.js" defer></script>'
     if "data-glossary" in body:
         scripts += f'\n<script src="{root}static/glossary.js" defer></script>'
     doc = f"""<!doctype html>
@@ -476,6 +516,8 @@ def hero_stamp():
 
 
 def sticker(verdict):
+    if not verdict:
+        return ""
     return f'<span class="sticker sticker-{verdict}">{VERDICTS[verdict]}</span>'
 
 
@@ -632,26 +674,50 @@ def build_week(w):
          lead=lead)
 
 
+LIBRARY_FILTER = (
+    '<div class="lib-filter" data-lib-filter hidden role="group" aria-label="Filter the library">'
+    '<label>Section <select name="section">{sections}</select></label>'
+    '<label>Cost <select name="cost">{costs}</select></label>'
+    '<p class="note" data-lib-count aria-live="polite"></p></div>')
+
+
 def build_library_index():
     cs = cards()
-    items = []
+    vs = verdicts()
+    groups, order = {}, []
     for c in cs:
-        v = verdict_of(c["fields"].get("cost", ""))
-        items.append(
-            f'<li class="card res-card"><a href="/3/library/{c["id"]}/">'
-            f'<h3>{md(c["raw_title"])}</h3></a>{sticker(v)}'
+        sec = c["section"] or {"key": "", "title": "", "id": ""}
+        if sec["key"] not in groups:
+            groups[sec["key"]] = (sec, [])
+            order.append(sec["key"])
+        v = vs.get(c["id"], "")
+        groups[sec["key"]][1].append(
+            f'<li class="card res-card" data-section="{sec["key"]}" data-cost="{v}">'
+            f'<a href="/3/library/{c["id"]}/"><h3>{md(c["raw_title"])}</h3></a>{sticker(v)}'
             f'<p class="note">{md(c["fields"].get("why it matters") or c["fields"].get("why") or "")}</p>'
             f'</li>')
+    sections = '<option value="">All sections</option>' + "".join(
+        f'<option value="{k}">{html.escape(groups[k][0]["title"].capitalize())}</option>' for k in order if k)
+    used = [k for k in VERDICTS if k in set(vs.values())]
+    costs = '<option value="">Any cost</option>' + "".join(
+        f'<option value="{k}">{VERDICTS[k]}</option>' for k in used)
     body = [hero("The resource library", f"{len(cs)} resources, each with the link, "
                 f"what it really costs, and how long it takes.", "Document 3"),
-            f'<ul class="grid grid-3 res-grid">{"".join(items)}</ul>']
+            LIBRARY_FILTER.format(sections=sections, costs=costs)]
+    for k in order:
+        sec, items = groups[k]
+        head = f'<h2 id="{sec["id"]}">{html.escape(k + " " + sec["title"])}</h2>' if k else ""
+        body.append(f'<section class="lib-section" data-lib-section="{k}">{head}'
+                    f'<ul class="grid grid-3 res-grid">{"".join(items)}</ul></section>')
+    body.append('<p class="note">Each cost label sums up the card\'s own cost terms. '
+                'Open the card for the full terms before you plan a week around it.</p>')
     sub = next((b["text"] for b in blocks("doc3") if b["t"] == "h" and b["l"] == 3), "")
     page("3/library", "Free HR courses and professional resources", "\n".join(body),
          lead=plain_text(sub) or "Every course worth your time, with the link, the real cost and the hours.")
 
 
 def build_card(c):
-    v = verdict_of(c["fields"].get("cost", ""))
+    v = verdicts().get(c["id"], "")
     body = [f'<p class="eyebrow"><a href="/3/library/">Library</a> · resource</p>',
             f'<h1>{md(c["raw_title"])}</h1>{sticker(v)}', stamp_block()]
     if c["fields"].get("cost"):
@@ -904,7 +970,7 @@ def copy_assets():
     text = re.sub(r"\s*([{};:,])\s*", r"\1", text).strip()
     (SITE / "wakeout.css").write_text(text, encoding="utf-8")
     shutil.copy2(ROOT / "site/static/site.css", SITE / "static/site.css")
-    for f in ("progress.js", "copy.js", "glossary.js"):
+    for f in ("progress.js", "copy.js", "glossary.js", "library.js"):
         js = (ROOT / "site/static" / f).read_text(encoding="utf-8")
         (SITE / "static" / f).write_text(squeeze_js(js), encoding="utf-8")
     for f in (ROOT / "design-system/public/fonts").glob("*.woff2"):
