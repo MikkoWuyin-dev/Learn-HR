@@ -18,6 +18,7 @@ Exit 0 only if every check passes.
 import gzip
 import pathlib
 import re
+import subprocess
 import sys
 from collections import Counter
 
@@ -27,9 +28,25 @@ SITE = ROOT / "_site"
 CHECKS = []
 
 
-def check(name, ok, detail=""):
-    CHECKS.append((name, bool(ok), detail))
+def check(name, ok, detail="", skipped=False):
+    CHECKS.append((name, bool(ok), detail, bool(skipped)))
     return bool(ok)
+
+
+def git_diff_stat(paths):
+    """`git diff --stat` for `paths`, or None when git cannot answer.
+
+    R1's guard, and roadmap step 1.6's last item. The site is generated from
+    content/, so a build that also edits content/ has quietly made the
+    documents a second copy of the site — the one failure this project cannot
+    tolerate.
+    """
+    try:
+        out = subprocess.run(["git", "diff", "--stat", "--", *paths],
+                             cwd=ROOT, capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return out.stdout.strip() if out.returncode == 0 else None
 
 
 def pages():
@@ -122,11 +139,22 @@ def main():
                 leaks.append(f"{p.relative_to(SITE).as_posix()}: {pat}")
     check("no markdown or template leftovers", not leaks, str(leaks[:3]))
 
-    width = max(len(n) for n, _, _ in CHECKS) + 2
-    for name, ok, detail in CHECKS:
-        print(f"{'PASS' if ok else 'FAIL'}  {name:.<{width}} {detail}")
-    bad = sum(1 for _, ok, _ in CHECKS if not ok)
-    print(f"\nRESULT: {'all checks passed' if not bad else f'{bad} failing check(s)'}")
+    # --- no content fork (R1, roadmap 1.6) ----------------------------------
+    fork = git_diff_stat(["content/"])
+    if fork is None:
+        check("content/ unmodified (R1)", False,
+              "SKIPPED - git could not report here; check by hand", skipped=True)
+    else:
+        check("content/ unmodified (R1)", not fork, fork[:110] or "clean")
+
+    width = max(len(n) for n, *_ in CHECKS) + 2
+    for name, ok, detail, skipped in CHECKS:
+        state = "SKIP" if skipped else ("PASS" if ok else "FAIL")
+        print(f"{state}  {name:.<{width}} {detail}")
+    bad = sum(1 for _, ok, _, skipped in CHECKS if not ok and not skipped)
+    skipped_n = sum(1 for _, _, _, skipped in CHECKS if skipped)
+    tail = f", {skipped_n} skipped" if skipped_n else ""
+    print(f"\nRESULT: {'all checks passed' if not bad else f'{bad} failing check(s)'}{tail}")
     return 0 if not bad else 1
 
 

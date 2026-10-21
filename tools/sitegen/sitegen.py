@@ -54,6 +54,13 @@ NAV = [
     ("/5/getting-the-job/", "Getting the job"),
 ]
 
+# A bare URL wrapped in parentheses, e.g. "(https://search.cac.gov.ng/)" in
+# doc5's scam checklist. The shared renderer's URL_RE carries a (?<!\()
+# lookbehind so it cannot re-linkify a markdown (url) — which means these are
+# left as plain, unclickable text. Handled here, in the site layer only, so
+# docx_render.py and the frozen .docx baseline are untouched.
+PAREN_URL_RE = re.compile(r"\((https?://[^\s|)<>]+)\)")
+
 VERDICTS = {
     "free-to-finish": "Free to finish",
     "free-to-study-paid-cert": "Free to study · paid certificate",
@@ -93,6 +100,9 @@ def md(s):
     s = re.sub(r"`([^`]+)`", park_code, s)
     s = re.sub(r"\[([^\]]+)\]\((/[^)\s]*)\)", park_link, s)
     out = R.inline_html(s)
+    # Runs while both links and code spans are still placeholders, so
+    # neither can be linkified by mistake.
+    out = PAREN_URL_RE.sub(r'(<a href="\1">\1</a>)', out)
     out = re.sub(r"\x02(\d+)\x02", lambda m: links[int(m.group(1))], out)
     out = re.sub(r"\x01(\d+)\x01", lambda m: codes[int(m.group(1))], out)
     # Fredoka has no U+20A6 (verified: 217 glyphs, naira absent; Space Grotesk has
@@ -202,6 +212,18 @@ def tracker():
 
 
 def external_urls():
+    """Every distinct external URL in the five documents, first-seen order.
+
+    Three patterns are needed because the corpus spells links three ways: the
+    markdown form `[text](url)` (LINK_RE), the bare form `Link: https://…`
+    (URL_RE) and the parenthesised bare form `(https://…)` (PAREN_URL_RE).
+    The page linkifies all three, so the sweep has to cover all three.
+    Collecting only the markdown form found 12 of the 47 URLs.
+
+    No trailing-punctuation trimming, deliberately: the URL recorded here is
+    the exact string the page links to, so a bad href shows up as a bad sweep
+    result rather than being silently corrected in one place only.
+    """
     seen, out = set(), []
     for name in DOCS:
         for b in blocks(name):
@@ -215,19 +237,31 @@ def external_urls():
             elif b["t"] == "h":
                 texts.append(b["text"])
             for t in texts:
-                for m in R.LINK_RE.finditer(t):
-                    if m.group(2) not in seen:
-                        seen.add(m.group(2))
-                        out.append(m.group(2))
+                for regex, group in ((R.LINK_RE, 2), (R.URL_RE, 1),
+                                     (PAREN_URL_RE, 1)):
+                    for m in regex.finditer(t):
+                        url = m.group(group)
+                        if url not in seen:
+                            seen.add(url)
+                            out.append(url)
     return out
 
 
 # ---------------------------------------------------------------- rendering
-def render_table(b, caption=None):
+def render_table(b, caption=None, ns=None):
+    """`ns` renames the row keys, for a table that renders on a second page.
+
+    parse() mints each table's data-k once, so rendering one table on two
+    pages would emit the same key twice. That fails the site-wide uniqueness
+    check and would mean ticking one copy ticked the other (R9). Namespacing
+    keeps the keys distinct and still traceable to their source row.
+    """
     head = "".join(f'<th scope="col">{md(c)}</th>' for c in b["head"])
     rows = []
     for i, row in enumerate(b["rows"]):
         key = b["keys"][i] if i < len(b.get("keys", [])) else ""
+        if key and ns:
+            key = f"{ns}-{key}"
         cells = "".join(f"<td>{md(row[j] if j < len(row) else '')}</td>"
                         for j in range(len(b["head"])))
         rows.append(f'<tr data-k="{key}">{cells}</tr>')
@@ -236,7 +270,7 @@ def render_table(b, caption=None):
             f"<thead><tr>{head}</tr></thead><tbody>{''.join(rows)}</tbody></table></div></div>")
 
 
-def render_blocks(bs, level=2, caption_from_heading=True, default_caption=""):
+def render_blocks(bs, level=2, caption_from_heading=True, default_caption="", ns=None):
     out, current = [], default_caption
     for b in bs:
         t = b["t"]
@@ -260,7 +294,8 @@ def render_blocks(bs, level=2, caption_from_heading=True, default_caption=""):
                 for it in b["items"])
             out.append(f"<{tag}>{items}</{tag}>")
         elif t == "table":
-            out.append(render_table(b, caption=current if caption_from_heading else None))
+            out.append(render_table(b, caption=(current if caption_from_heading
+                                                else default_caption) or None, ns=ns))
     return "\n".join(out)
 
 
@@ -268,9 +303,16 @@ def page(path, title, body, *, lead="", extra_head="", body_class=""):
     """Write one page. `path` is the directory under _site, '' for the root."""
     depth = 0 if not path else path.strip("/").count("/") + 1
     root = "../" * depth
-    nav = "".join(
-        f'<a href="{root}{href.strip("/")}/"{" aria-current=\"page\"" if path.startswith(href.strip("/")) and href != "/" and path else ""}>{esc}</a>'
-        for href, esc in NAV)
+    # The attribute is built outside the f-string: an escaped quote inside an
+    # f-string expression is a SyntaxError before Python 3.12 (PEP 701), and
+    # this build has to run on 3.11.
+    nav = []
+    for href, esc in NAV:
+        here = (' aria-current="page"'
+                if path and href != "/" and path.startswith(href.strip("/"))
+                else "")
+        nav.append(f'<a href="{root}{href.strip("/")}/"{here}>{esc}</a>')
+    nav = "".join(nav)
     stamp = (f'<p class="stamp"><span class="stamp-dot" aria-hidden="true"></span>'
              f'{STAMP} · <a href="{root}check/">see every link checked</a></p>')
     doc = f"""<!doctype html>
@@ -465,11 +507,45 @@ def build_law_card():
 
 
 def build_templates():
-    _, body = section("doc5", r"SUPPORT C")
-    page("5/templates", "Templates to copy",
-         '<p class="eyebrow"><a href="/5/getting-the-job/">Getting the job</a> · copyable</p>'
-         '<h1>Templates to copy</h1>' + stamp_block() + render_blocks(body, level=2),
-         lead="The follow-up messages, kept in one place.")
+    """R5: doc5's copyable blocks on one page, no prose between them.
+
+    Three blocks exist as copy in the source: the 90-word note (5.5), the
+    weak/strong CV bullets (5.3) and the follow-up messages (SUPPORT C). All
+    three re-render the same parsed markdown, so this is a second *rendering*
+    of one source, not a second copy of the copy (R1).
+
+    R5 also names a 12-question intake template and a reference-check script.
+    Neither exists as copy anywhere in the five documents: doc2 lists them as
+    artefacts the learner writes in Weeks 13 and 12. Emitting them would mean
+    inventing content, which R1 and the no-new-content rule forbid. Flagged in
+    STATUS.md for the owner to write, or to drop from R5.
+
+    The Copy button itself is roadmap step 2.4 and is not built yet.
+    """
+    _, apply_bs = section("doc5", r"5\.5 THE APPLICATION")
+    note = [b for b in apply_bs if b["t"] == "quote"]
+    _, cv_bs = section("doc5", r"5\.3 THE CV")
+    bullets = [b for b in cv_bs if b["t"] == "table" and b["head"][:1] == ["Weak"]]
+    _, follow = section("doc5", r"SUPPORT C")
+
+    body = ['<p class="eyebrow"><a href="/5/getting-the-job/">Getting the job</a>'
+            ' · copyable</p>', '<h1>Templates to copy</h1>', stamp_block()]
+    if note:
+        body.append('<h2 id="note-90-word">The 90-word note</h2>')
+        body.append(render_blocks(note, level=3))
+    if bullets:
+        body.append('<h2 id="cv-bullets">CV bullets</h2>')
+        # Caption is the table's own column names, so it does not echo the
+        # heading above it; R26 still gets its <caption>.
+        body.append(render_blocks(bullets, level=3, ns="tpl-cv",
+                                  caption_from_heading=False,
+                                  default_caption="Weak and strong"))
+    body.append('<h2 id="follow-up">Follow-up messages</h2>')
+    body.append(render_blocks(follow, level=3, ns="tpl-follow"))
+
+    page("5/templates", "Templates to copy", "\n".join(body),
+         lead="The 90-word note, the CV bullet rewrites and the follow-up "
+              "messages, kept in one place.")
 
 
 def build_downloads():
@@ -516,8 +592,11 @@ def copy_assets():
     text = re.sub(r"\s*([{};:,])\s*", r"\1", text).strip()
     (SITE / "wakeout.css").write_text(text, encoding="utf-8")
     shutil.copy2(ROOT / "site/static/site.css", SITE / "static/site.css")
-    for f in (ROOT / "design-system/public/fonts").glob("*.woff2"):
-        shutil.copy2(f, SITE / "fonts" / f.name)
+    # The .woff2 files are SIL OFL 1.1, which requires the licence to travel
+    # with them, so the two OFL texts ship beside the fonts they cover.
+    for pat in ("*.woff2", "*.txt"):
+        for f in (ROOT / "design-system/public/fonts").glob(pat):
+            shutil.copy2(f, SITE / "fonts" / f.name)
     (SITE / "files").mkdir(exist_ok=True)
     for f in (ROOT / "downloads").glob("HR_*"):
         shutil.copy2(f, SITE / "files" / f.name)

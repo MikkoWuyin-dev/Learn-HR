@@ -78,6 +78,16 @@ def rebuild(md_path, out_path, shipped_path):
 
 
 def main(argv):
+    try:
+        import docx  # noqa: F401  (probe only; measure() imports it too)
+    except ModuleNotFoundError:
+        # Say it did not run, and do not let the exit code pretend otherwise.
+        print("RESULT: SKIPPED — this gate did NOT run.")
+        print("  It needs python-docx, which is not installed here.")
+        print("  Install with:  python3 -m pip install -r requirements.txt")
+        print("  Nothing was compared. Do not read this as a pass.")
+        return 0
+
     keep = None
     if "--keep" in argv:
         keep = pathlib.Path(argv[argv.index("--keep") + 1])

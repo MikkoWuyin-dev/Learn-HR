@@ -7,8 +7,14 @@ Sequenced build plan. Requirements are cited as `R#` from `01-PRODUCT-REQUIREMEN
 | Step | Do | Exit |
 |---|---|---|
 | 0.1 | Receive the design-system ZIP. Run its `tools/` generators to regenerate `artifacts/wakeout.css` and `wakeout.theme.css`. Read `DESIGN.md` and note the token group names, the table treatment, whether rotation is allowed, and the print guidance. | A written note: token groups, count of `--wk-*` vars actually used by the site, D1 and D5 answered |
-| 0.2 | `python3 skills/resource-learning-library/scripts/validate_build.py docs/… HR_Doc*.docx HR_Doc*.html` on the current artefacts, and re-run the 47-URL sweep to refresh `checks.json` | Baseline numbers in hand; any URL that has moved since 2026-10-20 reported to the owner **before** any page is built on it |
+| 0.2 | `python3 scripts/validate_build.py content/docs/src/doc*.md` on the current artefacts, and re-run the 47-URL sweep to refresh `checks.json` | Baseline numbers in hand; any URL that has moved since 2026-10-20 reported to the owner **before** any page is built on it |
 | 0.3 | Confirm the repo shape: `content/` (copies or symlinks of `docs/src/doc*.md` + the overview), `tools/sitegen/`, `templates/`, `site/static/`, `checks/` | `make check` runs green on content alone |
+
+**Phase 0 state, 2026-10-21:** 0.1 done (see `04-DESIGN-SYSTEM-NOTES.md`). **0.3 done** —
+`Makefile` added, and `make check` builds, runs the 14-check audit and the .docx gate, exiting 0.
+**0.2 half done** — `validate_build.py` passes on all five documents, but the network sweep has
+**not** run, so `checks.json` does not exist and `/check/` reads "not yet swept". This remains
+the highest-value outstanding job in the plan.
 
 **Rule for this phase:** no styling decisions until 0.1 is done. If the ZIP is late, start Phase 1 with unstyled semantic HTML — the markup is the deliverable, not the look.
 
@@ -48,9 +54,13 @@ Route map and rough content sizes, so the budget work is honest up front:
 
 **1.6 Budgets and gates.** `tools/sitegen/audit.py`: internal href resolution against `site.json`; page weight (R24); `html-validate` on every file; table structure check for `caption` + `scope` (R26); assertion that `git diff --stat content/` is empty.
 
+> **2026-10-21:** all of the above are implemented and green except `html-validate`, which is
+> still not wired in. The `git diff -- content/` assertion was missing and has been added —
+> it is R1's guard and the last item in this step; it fails the build when `content/` moves.
+
 **1.7 Regression on the documents.** Rebuild the five .docx with `docs/build_docs.py` and compare: same paragraph counts (51/100/142/87/118), same word counts (1,268 / 4,171 / 3,101 / 2,874 / 3,128), same hyperlink rels (0/0/43/8/0). This is the check that the parser change didn't damage the source of truth.
 
-**Exit:** 32 routes built by one command, every `M1` requirement demonstrably met, `make check` green, .docx unchanged.
+**Exit:** 52 routes built by one command, every `M1` requirement demonstrably met, `make check` green, .docx unchanged.
 
 ## Phase 2 — Progress, copy, filters · 2 days · `M2`
 
@@ -69,7 +79,7 @@ Sitemap with `lastmod`, robots, OG/Twitter meta, per-page canonical (R17, R18) �
 
 ## Phase 4 — Pre-launch checks · 1 day
 
-Lighthouse mobile on the four heaviest routes, throttled (R25) · 3G cold load of `/2/plan/week/13/` and `/4/nigeria/law-card/` measured from a real device if available · keyboard-only run of the R26 flow · print to PDF from Chrome and from an Android phone and measure the law card against one A4 page · colour audit of 9pt table text on the cream background · JS-disabled crawl · `curl -I` on all 32 routes after deploy to catch a host rewriting trailing slashes · a plain-language README in the repo telling the owner how to change a course's cost line and rebuild.
+Lighthouse mobile on the four heaviest routes, throttled (R25) · 3G cold load of `/2/plan/week/13/` and `/4/nigeria/law-card/` measured from a real device if available · keyboard-only run of the R26 flow · print to PDF from Chrome and from an Android phone and measure the law card against one A4 page · colour audit of 9pt table text on the cream background · JS-disabled crawl · `curl -I` on all 52 routes after deploy to catch a host rewriting trailing slashes · a plain-language README in the repo telling the owner how to change a course's cost line and rebuild.
 
 ## Phase 5 — Launch and the maintenance contract · 0.5 day
 

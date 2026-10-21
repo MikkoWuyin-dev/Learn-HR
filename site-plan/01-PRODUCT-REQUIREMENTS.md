@@ -22,7 +22,11 @@ Make the same path easier to follow than the documents are, by adding only what 
 
 ## 4. In scope / out of scope
 
-**In:** static site generated from the existing markdown; 32 routes; progress in `localStorage`; copy buttons; library filter; glossary search; print stylesheets; `/check/` link-status page; downloads of the five .docx and the archive; SEO metadata and JSON-LD; service worker.
+**In:** static site generated from the existing markdown; 52 routes (see §6 — the route map
+there sums to 52 with the 22 week pages that exist, not the 25 the plan assumes); progress in
+`localStorage`; copy buttons; library filter; glossary search; print stylesheets; `/check/`
+link-status page; downloads of the five .docx and the archive; SEO metadata and JSON-LD;
+service worker.
 
 **Out (do not build):** accounts, sign-in, passwords; a backend or database; comments, forums, "community"; email capture, newsletters, popups; paid plans, coupons, affiliate links; a course player or video hosting; quizzes; dark mode; i18n; analytics of people; a redesign of the .docx files; AI chat; any new factual content; changing the five documents' substance to fit the site.
 

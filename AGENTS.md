@@ -13,17 +13,29 @@ TEMPLATE NOTES (delete this block once filled)
 
 ## What this is
 
-[2–3 sentences: what the product does, who it's for, and the one outcome that matters.]
+A free, 24-week learn-HR-and-get-a-job course for someone in Nigeria starting from zero,
+turned from five finished documents into a static website. The documents are the product;
+the site is a rendering of them. The one outcome that matters: a reader follows the site
+for four weeks without opening a .docx.
 
-Project class: [prototype | product | critical]. This sets how much documentation is required (see Knowledge upkeep).
+Project class: product.
 
 ## Commands
 
-- Install: `[ ]`
-- Dev server: `[ ]`
-- **Gate:** `[e.g. npm run verify]`. It must exit 0 before any work is called done. It runs: [typecheck, tests, lint, build, ...].
-- Narrow test: `[e.g. npx vitest run path/to/file]`
-- Environment: [OS, runtime version, quirks such as "Windows: file names are case-insensitive"]
+- Install: `python3 -m pip install -r requirements.txt` (dev only — `python-docx`, needed by
+  exactly one gate. Nothing is needed to build or view the site.)
+- Dev server: none needed while the site is static. `python3 -m http.server -d _site 8000`
+  to look at a build.
+- **Gate:** `make check`. It must exit 0 before any work is called done. It runs:
+  `sitegen.py` (build), `audit.py` (14 checks: links, budgets, table structure, stamp,
+  tokens, `data-k` uniqueness, copy integrity, `content/` unmodified), then
+  `docx_regression.py` (the five .docx are unchanged).
+- Without `make`: `python3 tools/sitegen/sitegen.py && python3 tools/sitegen/audit.py && python3 tools/sitegen/docx_regression.py`
+- Narrow test: `python3 scripts/validate_build.py content/docs/src/doc*.md`
+- Environment: **Python 3.11 or newer** (the build must not use PEP 701 f-strings — see
+  Gotchas). Linux and Windows are both in play; the owner's machine is Windows with a
+  cp1252 console, so set `PYTHONIOENCODING=utf-8` before printing content. Windows has no
+  `make` by default; use the three commands above.
 
 ## Where things live
 
@@ -32,31 +44,46 @@ Read only the rows your task needs.
 | You need | Read |
 |---|---|
 | Current state, next step, open risks | `STATUS.md` (read it first, every session) |
-| Product behaviour, scope, non-goals | `docs/PRD.md` |
-| Architecture, contracts, schemas | `docs/MCD.md` |
-| One feature's requirements and acceptance criteria | `docs/specs/NNNN-<feature>.md` |
-| Planned order of work | `docs/ROADMAP.md` |
-| Why a significant decision was made | the spec's Decisions section, or `docs/decisions/` |
+| Product behaviour, scope, non-goals | `site-plan/01-PRODUCT-REQUIREMENTS.md` (R1–R28) |
+| Facts, voice rules, hard constraints | `site-plan/00-CONTEXT.md` |
+| Planned order of work, exit criteria | `site-plan/02-BUILD-ROADMAP.md` (phases 0–5) |
+| How the design system was read, owner decisions | `site-plan/04-DESIGN-SYSTEM-NOTES.md` |
+| Visual values (colours, type, spacing, shadow) | `design-system/artifacts/wakeout.css` |
 | History | `git log` |
 
 ## Code map
 
 ```
-[src/app/      UI and orchestration]
-[src/engine/   pure logic. No DOM, React, or storage. Enforced by engine/purity.test.ts]
-[src/state/    persistence]
-[scripts/      tooling]
+content/docs/src/doc1..5.md   the only source of copy. Never edit to suit a layout.
+content/HR_Library_Overview.md  the home page copy.
+scripts/docx_render.py        shared markdown parser. Extend parse(); do not fork it.
+                              Also renders the .docx — changes here move the .docx gate.
+tools/sitegen/sitegen.py      the site generator: extract + render, writes _site/.
+tools/sitegen/audit.py        the gate for generated output.
+tools/sitegen/docx_regression.py  the 1.7 gate: the five .docx must not change.
+site/static/site.css          the site layer. Every value a var(--wk-*). No colour literals.
+design-system/                the Lego box. Checksummed — see Gotchas.
+downloads/                    frozen outputs, shipped as files. Never regenerate.
+_site/                        generated. Throwaway. Never dist/ or build/.
 ```
 
 ## Invariants (owner approval needed to change)
 
 Product:
-- [e.g. No accounts, no backend in V1]
-- [ ]
+- No accounts, no backend, no cookies, no third-party requests, no analytics of people.
+  Progress lives in `localStorage` and never leaves the device (R27).
+- No new content. Every word on the site traces to `content/` (R1). Nothing hedged in the
+  source may be stated flat on the site.
 
 Technical:
-- [e.g. engine imports nothing from app/state/world (purity.test.ts)]
-- [ ]
+- One source of copy. `content/` is never edited by a build; `audit.py` fails the build if
+  `git diff -- content/` is non-empty.
+- The design system owns every visual value. `site.css` carries no colour literal
+  (enforced in `audit.py`).
+- `downloads/*.docx` and `HR_Roadmap_Library.*` are byte-frozen. `docx_regression.py` fails
+  if a parser change moves them.
+- `data-k` values are unique site-wide (R9): they are the future progress keys, so a
+  duplicate would make one tick tick two rows.
 
 ## When sources disagree
 
@@ -97,14 +124,29 @@ Everything else (reading, local edits, running tests and builds) needs no approv
 - Let commit messages carry the history. Don't keep changelog paragraphs in docs.
 - If you hit a trap the next agent would also hit, add one line under Gotchas.
 
-## Skills
-
-Workflow skills live in `[.claude/skills/]`: [architect (spec), develop (build from spec), check (review), debug, remember (STATUS.md)]. Use a skill when the task matches its description, and read its SKILL.md before using it.
-Reference packs ([e.g. threejs-*]) are for lookup only. Check which library version they target against ours.
-
 ## Gotchas
 
-- [one line per trap, e.g. "Don't name a .ts file the same as a .tsx beside it: Windows treats them as one file"]
+- **No PEP 701 f-strings.** An escaped quote inside an f-string *expression*
+  (`f"{'x' if a else ''}"` written with backslashes) is a SyntaxError before Python 3.12.
+  Build the attribute into a variable first. `sitegen.py` broke this way once.
+- **The .docx path is shared.** `scripts/docx_render.py` feeds both the site and the five
+  downloads. A change there moves `downloads/`, and `docx_regression.py` will fail. To make
+  the site behave differently without touching the .docx, do it in `tools/sitegen/` (see
+  `PAREN_URL_RE` for the pattern).
+- **URLs appear three ways** in the corpus: `[text](url)`, bare `https://…`, and
+  `(https://…)`. Any new pass over content has to handle all three or it will silently miss
+  some — the sweep missed 35 of 47 this way.
+- **Rendering one block on two pages duplicates its `data-k`.** Keys are minted once per
+  parse. Pass `ns=` to `render_blocks` on the second rendering.
+- **Never edit the checksummed design-system files.** To patch `design-system/tools/*.mjs`
+  or an artifact, copy the tree, patch the copy, diff. `SHA256SUMS.txt` is the record.
+- **The naira sign needs a face.** Fredoka's subset has no U+20A6; Space Grotesk's does.
+  `md()` wraps every `₦` in `<span class="naira">` so it never falls back mid-word.
+  `·`, `—`, `→` and `☐` are absent from the body face and do fall back — known, see STATUS.
+- `python3`/`python` on the owner's PATH are Microsoft Store stubs that exit 49. Real
+  interpreter: `/c/Users/micha/AppData/Local/Python/bin/python3`.
+- `/tmp` is not a path for Windows Python — use a workspace dir or `tempfile`.
+- Generated output goes to `_site/`, never `dist/` or `build/` — those names are dropped.
 
 ## Finish with
 
