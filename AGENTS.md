@@ -55,7 +55,7 @@ scripts/            docx_render.py (shared parser + .docx renderer), validate_bu
 tools/sitegen/      sitegen.py (extract + render every route), audit.py (output gate),
                     check.py (the gate), linkcheck.py (link sweep), docx_regression.py,
                     tests/ (unittest + node:test)
-site/static/        site.css (token-only layer), progress.js, copy.js (squeezed at build)
+site/static/        site.css (token-only layer), progress.js, copy.js, glossary.js (squeezed at build)
 design-system/      the owner's checksummed design system; wakeout.css is copied into _site/
 downloads/          the five .docx + the frozen research archive, served as files
 checks/links.json   the last link sweep (absent until linkcheck.py has run)
@@ -167,8 +167,9 @@ copywriting pack, and `react-state-management` does not apply (there is no React
 - Fredoka has no `₦` glyph; `md()` wraps the sign in `.naira` so it renders in the body face.
 - `docx_render.URL_RE` skips a URL written as "(https://…)", so it renders as plain text.
   `link_sources()` still checks it.
-- `progress.js` and `copy.js` are minified at build by dropping comments and indentation: keep
-  `/*` and `//` out of their strings and end every statement with a semicolon.
+- The site's JS is squeezed at build (`squeeze_js`): comments and spaces go, strings are kept. It has
+  no regex-literal or template-string support, so use neither, keep `//` comments on their own line
+  (an inline one fails the build), and end every statement with a semicolon.
 - Output goes to `_site/` only, never `dist/` or `build/`.
 
 ## Finish with

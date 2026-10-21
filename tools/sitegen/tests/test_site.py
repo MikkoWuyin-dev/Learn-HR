@@ -122,6 +122,40 @@ class LearningPathTest(SiteTest):
             self.assertIn(f'data-tick="{k}"', html)
 
 
+class GlossaryTest(SiteTest):
+    def test_search_box_ships_hidden_above_the_full_term_table(self):
+        html = read(self.site, "/1/start-here/")
+        self.assertRegex(html, r'<div class="glossary-search" data-glossary hidden>')
+        table = re.search(r'data-glossary-table>(.*?)</table>', html, re.S).group(1)
+        rows = next(b["rows"] for b in S.blocks("doc1") if b["t"] == "table" and b["head"][0] == "Term")
+        self.assertEqual(table.count("<tr"), len(rows) + 1)  # + the header row
+        self.assertIn('<label for="glossary-q">', html)
+
+    def test_script_loads_only_where_the_glossary_is(self):
+        for p in self.site.rglob("index.html"):
+            h = p.read_text(encoding="utf-8")
+            self.assertEqual("glossary.js" in h, "data-glossary-table" in h, p)
+
+
+class SqueezeTest(unittest.TestCase):
+    def test_strings_survive_untouched(self):
+        src = 'var a = "x  ,  y // not a comment /* nor this */";\nsay( \'it\\\'s  fine\' );\n'
+        out = S.squeeze_js(src)
+        self.assertIn('"x  ,  y // not a comment /* nor this */"', out)
+        self.assertIn("'it\\'s  fine'", out)
+
+    def test_comments_and_spaces_go_but_words_stay_apart(self):
+        out = S.squeeze_js("/* head */\n// line\nvar  total = a + b;\nreturn x;\n")
+        self.assertEqual(out, "var total=a+b;return x;\n")
+
+    def test_line_break_after_a_closing_brace_is_kept(self):
+        self.assertIn("}\n(", S.squeeze_js("function f() {}\n(g)();\n"))
+
+    def test_inline_comment_is_a_build_error(self):
+        with self.assertRaises(ValueError):
+            S.squeeze_js("var a = 1; // trailing\n")
+
+
 class CopyTest(SiteTest):
     def payloads(self, route):
         html = read(self.site, route)

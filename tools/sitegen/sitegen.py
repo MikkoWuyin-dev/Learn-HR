@@ -333,8 +333,14 @@ def render_quote(b, copyable):
             f'</blockquote>{copy_button(payload, "this text")}</figure>')
 
 
+GLOSSARY_SEARCH = (
+    '<div class="glossary-search" data-glossary hidden><label for="glossary-q">Search the terms</label>'
+    '<input id="glossary-q" type="search" autocomplete="off" spellcheck="false">'
+    '<p class="note" data-glossary-count aria-live="polite"></p></div>')
+
+
 def render_blocks(bs, level=2, caption_from_heading=True, default_caption="",
-                  copyable=False, ticks=False):
+                  copyable=False, ticks=False, glossary=False):
     """`copyable`: blockquotes are reusable scripts and templates (docs 4 and 5), so
     they get a Copy button; elsewhere they are callouts. `ticks`: block tables get a
     progress toggle in their Output cell."""
@@ -366,8 +372,13 @@ def render_blocks(bs, level=2, caption_from_heading=True, default_caption="",
             out.append(f"<{tag}>{items}</{tag}>")
         elif t == "table":
             tick = 2 if ticks and [h.lower() for h in b["head"]] == BLOCK_HEAD else None
-            out.append(render_table(b, caption=current if caption_from_heading else None,
-                                    tick_col=tick, tick_label="Output done"))
+            table = render_table(b, caption=current if caption_from_heading else None,
+                                 tick_col=tick, tick_label="Output done")
+            if glossary and b["head"][0].strip().lower() == "term":
+                # R8: the search box ships hidden; glossary.js reveals it and filters rows.
+                table = GLOSSARY_SEARCH + table.replace('<div class="card table-card">',
+                                                        '<div class="card table-card" data-glossary-table>', 1)
+            out.append(table)
     return "\n".join(out)
 
 
@@ -408,6 +419,8 @@ def page(path, title, body, *, lead="", extra_head="", body_class="", detail=Fal
     scripts = f'<script src="{root}static/progress.js" defer></script>'
     if "copy-btn" in body:
         scripts += f'\n<script src="{root}static/copy.js" defer></script>'
+    if "data-glossary" in body:
+        scripts += f'\n<script src="{root}static/glossary.js" defer></script>'
     doc = f"""<!doctype html>
 <html lang="en-GB">
 <head>
@@ -520,12 +533,12 @@ def start_actions():
 
 
 def build_doc(name, path, title, lead="", kicker="", copyable=False, seo_title=None,
-              legal=False):
+              legal=False, glossary=False):
     bs = blocks(name)
     body = [hero(md(title), md(lead) if lead else "", kicker)]
     if kicker:
         body.append(stamp_block(legal))
-    body.append(render_blocks(bs, level=2, copyable=copyable))
+    body.append(render_blocks(bs, level=2, copyable=copyable, glossary=glossary))
     # The meta description is the document's own first paragraph (R17), which says
     # what the page answers better than the one-line subtitle does.
     first_p = next((b["text"] for b in bs if b["t"] == "p" and not re.match(r"\*[^*]", b["text"])), lead)
@@ -833,17 +846,51 @@ def write_crawl_files():
 
 
 # ---------------------------------------------------------------- main
+WORD = re.compile(r"[A-Za-z0-9_$]")
+
+
 def squeeze_js(src):
-    """Drop comments and indentation so the shipped JS fits R24's 10 KB. Deliberately
-    simple: the sources keep `/*` and `//` out of strings, and every statement ends
-    with a semicolon, so removing whole comment lines and leading space is safe."""
-    src = re.sub(r"/\*.*?\*/", "", src, flags=re.S)
-    out = []
-    for line in src.split("\n"):
-        t = line.strip()
-        if t and not t.startswith("//"):
-            out.append(t)
-    return "\n".join(out) + "\n"
+    """Shrink the site's JS to fit R24's 10 KB without a minifier dependency.
+
+    Comments go. Outside string literals, a run of spaces is dropped unless it sits
+    between two word characters (`var a`, `return x`). A line break is kept unless
+    it follows ; { or , so automatic semicolon insertion means what it meant.
+    The sources contain no regex literals or template strings; a `//` or `/*` left
+    outside a string after comment removal is a build error, not a guess.
+    """
+    src = re.sub(r"(?m)^\s*//.*$", "", src)
+    out, i, n = [], 0, len(src)
+    while i < n:
+        c = src[i]
+        if c in "\"'":
+            j = i + 1
+            while j < n and src[j] != c:
+                j += 2 if src[j] == "\\" else 1
+            out.append(src[i:j + 1])
+            i = j + 1
+        elif src.startswith("/*", i):
+            i = src.index("*/", i) + 2
+        elif src.startswith("//", i):
+            raise ValueError(f"inline // comment at offset {i}: keep comments on their own line")
+        elif c.isspace():
+            j = i
+            while j < n and src[j].isspace():
+                j += 1
+            run = src[i:j]
+            prev = out[-1][-1:] if out else ""
+            nxt = src[j:j + 1]
+            if "\n" in run:
+                # After ; { or , the next line can only start a new statement or item,
+                # so the break carries no meaning. Elsewhere (after } especially) it stays.
+                if out and prev not in "\n;{,":
+                    out.append("\n")
+            elif prev and nxt and WORD.match(prev) and WORD.match(nxt):
+                out.append(" ")
+            i = j
+        else:
+            out.append(c)
+            i += 1
+    return "".join(out).strip() + "\n"
 
 
 def copy_assets():
@@ -857,7 +904,7 @@ def copy_assets():
     text = re.sub(r"\s*([{};:,])\s*", r"\1", text).strip()
     (SITE / "wakeout.css").write_text(text, encoding="utf-8")
     shutil.copy2(ROOT / "site/static/site.css", SITE / "static/site.css")
-    for f in ("progress.js", "copy.js"):
+    for f in ("progress.js", "copy.js", "glossary.js"):
         js = (ROOT / "site/static" / f).read_text(encoding="utf-8")
         (SITE / "static" / f).write_text(squeeze_js(js), encoding="utf-8")
     for f in (ROOT / "design-system/public/fonts").glob("*.woff2"):
@@ -882,7 +929,7 @@ def main(argv):
     copy_assets()
     build_home()
     build_doc("doc1", "1/start-here", "Start here",
-              "The beginner's guide to learning HR from zero, for free.", "Document 1")
+              "The beginner's guide to learning HR from zero, for free.", "Document 1", glossary=True)
     build_plan()
     weeks = week_sections()
     for w in weeks:

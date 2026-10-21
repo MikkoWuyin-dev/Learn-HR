@@ -3,7 +3,7 @@
 <!-- Overwrite this file at the end of each task. Don't append to it. Keep it under 80 lines.
      It is the only place that says "where we are". The commit log is the history. -->
 
-Updated: 2026-10-21 by Claude (gate: page voice audit, html-validate, sources untouched)
+Updated: 2026-10-21 by Claude (2.5: glossary search; library filter waiting on decisions)
 
 ## Now
 - Phase 1 and most of Phase 2 are built. `python3 tools/sitegen/check.py` is the gate (Python 3.12+):
@@ -12,6 +12,7 @@ Updated: 2026-10-21 by Claude (gate: page voice audit, html-validate, sources un
 - Learner path: Week 0–21 blocks are tickable (`progress.js`, localStorage `hrsite:v1`); home and plan
   show the next block from the source table; footer resume line; two-step reset on the plan page.
 - Copy: every blockquote in docs 4 and 5 and the law card has a Copy button (`copy.js`).
+- Glossary search (R8) on `/1/start-here/`: filters doc1's term table as you type (`glossary.js`).
 - `/check/` lists all external links (was 12, now every bare and parenthesised URL) and reads
   `checks/links.json` when `tools/sitegen/linkcheck.py` has written one. No sweep has run yet.
 - SEO: unique titles, descriptions from each page's own text, Open Graph, `robots.txt`; canonical and
@@ -35,25 +36,32 @@ Updated: 2026-10-21 by Claude (gate: page voice audit, html-validate, sources un
   Chromium's print-to-PDF; a real printer and Android print are untested. Browser checks were headless
   Chromium at 360 px: journey, reload, reset, corrupt/blocked storage, copy + denied clipboard,
   keyboard, JS off.
-- JS budget: shipped JS is just under R24's 10 KB (`python3 tools/sitegen/audit.py`), so little room is left.
+- JS budget: shipped JS is just under R24's 10 KB (`python3 tools/sitegen/audit.py`); the library filter
+  will not fit without raising the budget or cutting elsewhere.
 
 ## Blocked on an owner decision
-1. **Two voice-audit hits in the documents** (reported, not failed, by the gate): doc4 §4.4 "what
+1. **Library filter (R19) and the cost stickers.** doc3 has no phase, hours or credential fields to
+   filter on (time is stated on 6 of 20 cards, phase nowhere), so R19 as written needs a
+   classification the documents don't contain. Separately, the sticker on 18 of 20 cards says
+   "Free to study · paid certificate", including cards whose text says the certificate is free
+   (Saylor BUS301, OpenLearn) and cards with no certificate (job boards, the Labour Act). The
+   sticker is guessed from cost wording in `verdict_of()`; it needs a source for each verdict.
+2. **Two voice-audit hits in the documents** (reported, not failed, by the gate): doc4 §4.4 "what
    capability it **unlocks** for the team" (puffed-up list) and doc5 §5.6 "**Stakeholders** and
    judgement" (consultant-speak list; it is an interview question group). Keep or reword; your call.
    Also: should `html-validate` become a required dev dependency (a `package.json`), or stay optional?
-2. **Weeks 22–24 have no week pages.** doc2 hands them to doc5 in one paragraph. The progress
+3. **Weeks 22–24 have no week pages.** doc2 hands them to doc5 in one paragraph. The progress
    meter therefore says "Weeks passed (Weeks 0–21)". Options unchanged: keep, or author week blocks.
-3. **Production domain** (D4): needed for canonical URLs, `og:url` and the sitemap.
-4. **`--wk-muted` is broken upstream** (self-referencing token); the site avoids it. Fix in `tokens.json`.
-5. **OFL licence text** must ship with the fonts before a public deploy.
-6. **Home copy**: "Six files, one plan" still reads as if six files are on the page.
-7. **CAC link** in doc5 Support A is written as "(https://…)", which the renderer leaves as plain
+4. **Production domain** (D4): needed for canonical URLs, `og:url` and the sitemap.
+5. **`--wk-muted` is broken upstream** (self-referencing token); the site avoids it. Fix in `tokens.json`.
+6. **OFL licence text** must ship with the fonts before a public deploy.
+7. **Home copy**: "Six files, one plan" still reads as if six files are on the page.
+8. **CAC link** in doc5 Support A is written as "(https://…)", which the renderer leaves as plain
    text. It is now checked by the sweep; making it clickable needs a markdown edit (your call).
 
 ## Next justified step
-Run the link sweep from a connected machine, then Phase 2.5 (library filter, glossary search) and
-course-card ticks (R10 lists them; course progress is currently ticked in the Support A tracker).
+Decide decision 1, then finish 2.5 (library filter) and the course-card ticks; then the link sweep
+and the service worker (R28).
 
 ## Session traps
 - `python3`/`python` on the owner's PC are Microsoft Store stubs; real interpreter:
