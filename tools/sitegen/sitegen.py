@@ -45,6 +45,8 @@ DOCS = {
 }
 LAST_VERIFIED = "2026-10-20"
 STAMP = "Checked 20 October 2026"
+# R7: legal pages say this beside the stamp. Interface wording fixed by the PRD.
+LEGAL_NOTE = "Not legal advice; current to the date checked."
 
 NAV = [
     ("/1/start-here/", "Start here"),
@@ -510,11 +512,12 @@ def start_actions():
             'Start with Week 0</a> <a class="btn btn-paper" href="/2/plan/">See the whole plan</a></p>')
 
 
-def build_doc(name, path, title, lead="", kicker="", copyable=False, seo_title=None):
+def build_doc(name, path, title, lead="", kicker="", copyable=False, seo_title=None,
+              legal=False):
     bs = blocks(name)
     body = [hero(md(title), md(lead) if lead else "", kicker)]
     if kicker:
-        body.append(stamp_block())
+        body.append(stamp_block(legal))
     body.append(render_blocks(bs, level=2, copyable=copyable))
     # The meta description is the document's own first paragraph (R17), which says
     # what the page answers better than the one-line subtitle does.
@@ -522,9 +525,10 @@ def build_doc(name, path, title, lead="", kicker="", copyable=False, seo_title=N
     page(path, seo_title or plain(title), "\n".join(body), lead=plain_text(first_p))
 
 
-def stamp_block():
+def stamp_block(legal=False):
+    note = f'<p class="legal-note">{LEGAL_NOTE}</p>' if legal else ""
     return (f'<p class="stamp stamp-block"><span class="stamp-dot" aria-hidden="true"></span>'
-            f"{STAMP}</p>")
+            f"{STAMP}</p>{note}")
 
 
 # Filled by progress.js; hidden on a first visit so nobody sees "0% complete" (R11).
@@ -648,7 +652,7 @@ def build_law_card():
     inner = render_blocks(body, level=2, copyable=True)
     page("4/nigeria/law-card", "The one-page law card",
          '<p class="eyebrow"><a href="/4/nigeria/">Nigeria &amp; law</a> · one page</p>'
-         '<h1>Your one-page law card</h1>' + stamp_block() + inner,
+         '<h1>Your one-page law card</h1>' + stamp_block(legal=True) + inner,
          lead="Every section you must be able to state, on one page.", body_class="law-card")
 
 
@@ -881,7 +885,7 @@ def main(argv):
         build_card(c)
     build_doc("doc4", "4/nigeria", "Nigeria: labour law & CIPM",
               "The law and the profession you will actually be hired into.", "Document 4",
-              copyable=True,
+              copyable=True, legal=True,
               seo_title="Nigerian Labour Act & CIPM: the provisions you must be able to state")
     build_doc("doc5", "5/getting-the-job", "Getting the job",
               "Positioning, CV, LinkedIn, applications, interviews — weeks 22 to 24.", "Document 5",

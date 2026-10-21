@@ -34,6 +34,7 @@ Marked done. Unmarked. Progress cleared on this device.
 Week passed: every output exists. Tick a block only when its output exists.
 Last sweep. Inconclusive means the site refused or slowed an automated check (403, 429, a timeout, a network error); it does not mean the page is gone. A reachable link only proves the page answered, not that the course or its terms are unchanged.
 No sweep recorded yet. Not yet checked. Reachable after a redirect.
+Not legal advice; current to the date checked.
 """
 
 

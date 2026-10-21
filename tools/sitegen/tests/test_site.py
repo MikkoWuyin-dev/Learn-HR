@@ -182,6 +182,12 @@ class MetadataTest(SiteTest):
         self.assertFalse((self.site / "sitemap.xml").exists())
         self.assertNotIn("Sitemap:", (self.site / "robots.txt").read_text())
 
+    def test_legal_pages_carry_the_r7_note_and_others_do_not(self):
+        for route in ("/4/nigeria/", "/4/nigeria/law-card/"):
+            self.assertIn(S.LEGAL_NOTE, read(self.site, route), route)
+        for route in ("/", "/2/plan/week/10/", "/5/getting-the-job/", "/3/library/"):
+            self.assertNotIn(S.LEGAL_NOTE, read(self.site, route), route)
+
     def test_priority_questions_have_substantive_pages(self):
         law = read(self.site, "/4/nigeria/")
         self.assertIn("section 11", law)

@@ -3,7 +3,7 @@
 <!-- Overwrite this file at the end of each task. Don't append to it. Keep it under 80 lines.
      It is the only place that says "where we are". The commit log is the history. -->
 
-Updated: 2026-10-21 by Claude (AGENTS.md filled; Phase 2 learner experience, link checker, SEO)
+Updated: 2026-10-21 by Claude (R7 legal note; AGENTS.md filled; Phase 2 learner work)
 
 ## Now
 - Phase 1 and most of Phase 2 are built. `python3 tools/sitegen/check.py` is the gate (Python 3.12+):
@@ -30,7 +30,8 @@ Updated: 2026-10-21 by Claude (AGENTS.md filled; Phase 2 learner experience, lin
 - **Link sweep**: neither the build workspace nor the owner's PC shell could reach external sites.
   The checker is tested against a local server only. Run `python3 tools/sitegen/linkcheck.py` on a
   machine with internet, commit `checks/links.json`, rebuild.
-- Real phone, iOS Safari, Lighthouse/3G, print to A4 (Phase 4). Browser checks were headless
+- Real phone, iOS Safari, Lighthouse/3G (Phase 4). The law card fits one A4 page in headless
+  Chromium's print-to-PDF; a real printer and Android print are untested. Browser checks were headless
   Chromium at 360 px: journey, reload, reset, corrupt/blocked storage, copy + denied clipboard,
   keyboard, JS off.
 - JS budget: shipped JS is just under R24's 10 KB (`python3 tools/sitegen/audit.py`), so little room is left.
@@ -44,8 +45,6 @@ Updated: 2026-10-21 by Claude (AGENTS.md filled; Phase 2 learner experience, lin
 5. **Home copy**: "Six files, one plan" still reads as if six files are on the page.
 6. **CAC link** in doc5 Support A is written as "(https://…)", which the renderer leaves as plain
    text. It is now checked by the sweep; making it clickable needs a markdown edit (your call).
-7. **R7 gap**: the legal pages (`/4/nigeria/`, the law card) do not yet show "Not legal advice;
-   current to the date checked." It is a build-template line, not new content; add it when approved.
 
 ## Next justified step
 Run the link sweep from a connected machine, then Phase 2.5 (library filter, glossary search) and

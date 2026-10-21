@@ -152,6 +152,7 @@ main > .wide, main > .grid, main > .table-card, main > .res-grid { max-width: no
   margin: 0 0 var(--wk-space-4);
 }
 .stamp-block { display: flex; }
+.legal-note { font-size: var(--wk-text-small); font-weight: var(--wk-weight-bold); margin: 0 0 var(--wk-space-6); }
 .stamp-dot {
   width: var(--wk-space-2); height: var(--wk-space-2); border-radius: var(--wk-radius-full);
   background: var(--wk-lime); border: var(--wk-border-thin) solid var(--wk-ink);

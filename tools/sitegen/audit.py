@@ -89,6 +89,10 @@ def main():
         if "Checked 20 October 2026" not in p.read_text(encoding="utf-8"):
             missing_stamp.append(rel)
     check("stamp on every content page", not missing_stamp, str(missing_stamp[:4]))
+    legal_pages = ("4/nigeria/index.html", "4/nigeria/law-card/index.html")
+    no_note = [r for r in legal_pages
+               if "Not legal advice; current to the date checked." not in (SITE / r).read_text(encoding="utf-8")]
+    check("legal pages say not legal advice", not no_note, str(no_note))
 
     # --- budget ------------------------------------------------------------
     big = [(p.relative_to(SITE).as_posix(), p.stat().st_size)
