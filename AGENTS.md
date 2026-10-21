@@ -52,6 +52,7 @@ Read `STATUS.md` first, then only the rows your task needs.
 ```
 content/docs/src/   doc1–5.md: the source of truth for every word; also builds the .docx
 content/resource-verdicts.json   the owner's cost label per doc3 card, with the card wording it rests on
+content/course-cards.json        which doc3 card shows each tracker course (shared tick keys)
 scripts/            docx_render.py (shared parser + .docx renderer), validate_build.py, style_audit.py
 tools/sitegen/      sitegen.py (extract + render every route), audit.py (output gate),
                     check.py (the gate), linkcheck.py (link sweep), docx_regression.py,

@@ -3,10 +3,10 @@
 <!-- Overwrite this file at the end of each task. Don't append to it. Keep it under 80 lines.
      It is the only place that says "where we are". The commit log is the history. -->
 
-Updated: 2026-10-21 by Claude (2.5 done: glossary search, library filter, owner-set cost labels)
+Updated: 2026-10-21 by Claude (Phase 2 done: course-card ticks; 2.5 glossary + library filter)
 
 ## Now
-- Phase 1 and most of Phase 2 are built. `python3 tools/sitegen/check.py` is the gate (Python 3.12+):
+- Phases 1 and 2 are built. `python3 tools/sitegen/check.py` is the gate (Python 3.12+):
   build · output audit · html-validate · tests · .docx regression · voice audit on every page ·
   sources untouched. html-validate is not a repo dependency: the gate says SKIP where it isn't installed.
 - Learner path: Week 0–21 blocks are tickable (`progress.js`, localStorage `hrsite:v1`); home and plan
@@ -15,6 +15,8 @@ Updated: 2026-10-21 by Claude (2.5 done: glossary search, library filter, owner-
 - Glossary search (R8) on `/1/start-here/`: filters doc1's term table as you type (`glossary.js`).
 - Library (R19 as decided): cards grouped under doc3's three sections; filter by section and cost
   label, kept in the URL (`library.js`). Cost labels come from `content/resource-verdicts.json`.
+- Course cards (R10): each of the 10 course cards lists its Support A tracker courses with ticks that
+  share the tracker's keys (`content/course-cards.json`, owner-approved). Non-course cards have none.
 - `/check/` lists all external links (was 12, now every bare and parenthesised URL) and reads
   `checks/links.json` when `tools/sitegen/linkcheck.py` has written one. No sweep has run yet.
 - SEO: unique titles, descriptions from each page's own text, Open Graph, `robots.txt`; canonical and
@@ -59,7 +61,7 @@ Updated: 2026-10-21 by Claude (2.5 done: glossary search, library filter, owner-
    takes", but only some cards state a time. Site copy, not source; reword or drop "how long".
 
 ## Next justified step
-Course-card ticks (R10), then the link sweep from a connected machine, then the service worker (R28).
+The link sweep from a connected machine (closes 0.2 and R14), then Phase 3: the service worker (R28).
 
 ## Session traps
 - `python3`/`python` on the owner's PC are Microsoft Store stubs; real interpreter:

@@ -179,6 +179,48 @@ class LibraryTest(SiteTest):
             self.assertEqual("library.js" in h, "data-lib-filter" in h, p)
 
 
+class CourseCardTest(SiteTest):
+    def mapping(self):
+        return json.loads(S.COURSE_CARDS_FILE.read_text(encoding="utf-8"))["courses"]
+
+    def test_every_tracker_course_is_on_its_approved_cards(self):
+        courses = S.tracker()["courses"]
+        key = {row[0].strip(): k for k, row in zip(courses["keys"], courses["rows"])}
+        self.assertEqual(set(self.mapping()), set(key))
+        for num, where in self.mapping().items():
+            for cid in where:
+                self.assertIn(f'data-tick="{key[num]}"', read(self.site, f"/3/library/{cid}/"), (num, cid))
+
+    def test_cards_without_courses_have_no_ticks(self):
+        mapped = {cid for where in self.mapping().values() for cid in where}
+        for c in S.cards():
+            if c["id"] not in mapped:
+                self.assertNotIn("data-tick=", read(self.site, f"/3/library/{c['id']}/"), c["id"])
+
+    def test_card_ticks_share_the_tracker_keys(self):
+        on_cards = set()
+        for c in S.cards():
+            on_cards |= set(re.findall(r'data-tick="([^"]+)"', read(self.site, f"/3/library/{c['id']}/")))
+        self.assertEqual(on_cards, set(S.tracker()["courses"]["keys"]))
+
+    def test_bad_mapping_fails_the_build(self):
+        orig = S.COURSE_CARDS_FILE
+        for bad in ({"99": {"greenhouse-learn": "Greenhouse Learn"}},
+                    {"17": {"no-such-card": "x"}},
+                    {"17": {"greenhouse-learn": "Greenhouse Academy"}}):
+            with tempfile.TemporaryDirectory() as tmp:
+                f = pathlib.Path(tmp) / "c.json"
+                f.write_text(json.dumps({"courses": bad}), encoding="utf-8")
+                S.COURSE_CARDS_FILE = f
+                S._course_cards.clear()
+                try:
+                    with self.assertRaises(SystemExit, msg=str(bad)):
+                        S.course_cards()
+                finally:
+                    S.COURSE_CARDS_FILE = orig
+                    S._course_cards.clear()
+
+
 class VerdictValidationTest(unittest.TestCase):
     def check(self, cards):
         orig = S.VERDICTS_FILE

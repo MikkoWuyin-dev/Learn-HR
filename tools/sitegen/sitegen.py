@@ -205,6 +205,41 @@ def card_text(c):
     return " ".join(plain_text(x) for x in parts)
 
 
+COURSE_CARDS_FILE = CONTENT / "course-cards.json"
+_course_cards = {}
+
+
+def course_cards():
+    """Card id -> [(tracker key, course name)], from content/course-cards.json (R10).
+
+    The tracker row keys are reused, so a tick on a card and a tick in the plan's
+    tracker are one tick. A row number the tracker doesn't have, an unknown card,
+    or wording the card no longer says is a build error.
+    """
+    if _course_cards:
+        return _course_cards
+    courses = tracker()["courses"]
+    by_num = {row[0].strip(): (k, plain_text(row[1])) for k, row in zip(courses["keys"], courses["rows"])}
+    by_id = {c["id"]: c for c in cards()}
+    data = json.loads(COURSE_CARDS_FILE.read_text(encoding="utf-8"))["courses"]
+    problems, out = [], {}
+    for num, where in data.items():
+        if num not in by_num:
+            problems.append(f"#{num}: no such row in the doc2 tracker")
+            continue
+        for cid, basis in where.items():
+            if cid not in by_id:
+                problems.append(f"#{num}: no such card {cid}")
+            elif plain_text(basis) not in card_text(by_id[cid]):
+                problems.append(f"#{num}: {cid} no longer says {basis!r}")
+            else:
+                out.setdefault(cid, []).append(by_num[num])
+    if problems:
+        raise SystemExit("course-cards.json needs the owner:\n  " + "\n  ".join(problems))
+    _course_cards.update(out)
+    return _course_cards
+
+
 VERDICTS_FILE = CONTENT / "resource-verdicts.json"
 _verdicts = {}
 
@@ -728,6 +763,14 @@ def build_card(c):
             body.append(f'<section class="field"><h2>{label.capitalize()}</h2>'
                         f'<p>{md(c["fields"][label])}</p></section>')
     body.append(render_blocks(c["blocks"], level=2, default_caption=c["title"]))
+    tracked = course_cards().get(c["id"], [])
+    if tracked:
+        items = "".join(f'<li id="{k}"><span class="cell-text">{html.escape(name)}</span> '
+                        f'{tick_button(k, "Done", name)}</li>' for k, name in tracked)
+        body.append(f'<section class="card" aria-labelledby="card-courses"><h2 id="card-courses">'
+                    f'On your tracker</h2><p class="note">From the plan\'s progress tracker (Support A). '
+                    f'A tick here is the same tick as in <a href="/2/plan/#tracker-courses-and-credentials">'
+                    f'the plan</a>.</p><ul class="tick-list">{items}</ul></section>')
     what = c["fields"].get("what it is") or c["fields"].get("why it matters") or ""
     page(f"3/library/{c['id']}", c["title"], "\n".join(body),
          lead=f"{c['title']}: {plain_text(what)}" if what else c["title"])
