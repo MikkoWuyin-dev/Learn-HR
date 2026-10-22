@@ -416,5 +416,46 @@ class CheckPageTest(unittest.TestCase):
                     self.assertTrue((site / route.strip("/") / "index.html").exists(), (url, route))
 
 
+class StaleOutputTest(unittest.TestCase):
+    """The build must not leave behind a page it no longer writes.
+
+    Deleting a resource card used to leave its index.html sitting in _site/, where
+    it kept inflating the route count and would still have been served from a
+    deploy — a deleted card, live on the site, after the content behind it was gone.
+    """
+
+    def test_a_page_the_build_no_longer_writes_is_removed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            site = build(tmp)
+            stale = site / "3" / "library" / "a-card-that-no-longer-exists" / "index.html"
+            stale.parent.mkdir(parents=True, exist_ok=True)
+            stale.write_text("<p>a card that was deleted</p>", encoding="utf-8")
+            self.assertTrue(stale.exists())
+            build(tmp)
+            self.assertFalse(stale.exists(), "a deleted page survived a rebuild")
+
+    def test_stray_files_go_too_not_just_stale_pages(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            build(tmp)
+            names = ("leftover.html", "static/old.js", "fonts/old.woff2")
+            for name in names:
+                f = pathlib.Path(tmp) / name
+                f.parent.mkdir(parents=True, exist_ok=True)
+                f.write_text("x", encoding="utf-8")
+            build(tmp)
+            for name in names:
+                self.assertFalse((pathlib.Path(tmp) / name).exists(), name)
+
+    def test_a_fresh_build_has_nothing_but_what_it_wrote(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            build(tmp)
+            before = sorted(p.relative_to(tmp).as_posix()
+                            for p in pathlib.Path(tmp).rglob("*"))
+            build(tmp)
+            after = sorted(p.relative_to(tmp).as_posix()
+                           for p in pathlib.Path(tmp).rglob("*"))
+            self.assertEqual(before, after, "a rebuild changed what is on disk")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1063,8 +1063,31 @@ def squeeze_js(src):
     return "".join(out).strip() + "\n"
 
 
+def clean_site():
+    """Delete any earlier build, so a page that stops being generated cannot survive.
+
+    The build writes files but never removes them, so a deleted route keeps its old
+    index.html and would still be counted, served and deployed — a deleted resource
+    card can stay live after the content that produced it is gone.
+
+    _site/ is generated output: never edited, never committed, so clearing it costs
+    nothing. The guards are narrow on purpose, because the tests reassign S.SITE to
+    a temporary directory: this must refuse anything that could take the repository
+    with it, and never touch a relative or filesystem-root path.
+    """
+    if not SITE.is_absolute():
+        raise SystemExit(f"refusing to clear {SITE!r}: not an absolute path")
+    # Dangerous only when SITE is the repo or holds it. SITE being *inside* the
+    # repo (ROOT in SITE.parents) is the normal case and must be allowed.
+    if SITE == SITE.parent or SITE == ROOT or SITE in ROOT.parents:
+        raise SystemExit(f"refusing to clear {SITE!r}: it is, or contains, the repository")
+    if SITE.exists():
+        shutil.rmtree(SITE)
+    SITE.mkdir(parents=True)
+
+
 def copy_assets():
-    SITE.mkdir(exist_ok=True)
+    SITE.mkdir(parents=True, exist_ok=True)
     (SITE / "static").mkdir(parents=True, exist_ok=True)
     (SITE / "fonts").mkdir(exist_ok=True)
     src = ROOT / "design-system/artifacts/wakeout.css"
@@ -1099,6 +1122,7 @@ def main(argv):
         print(f"--site-url must be an https origin with no path, got {SITE_URL!r}")
         return 2
     WRITTEN.clear()
+    clean_site()
     copy_assets()
     build_home()
     build_doc("doc1", "1/start-here", "Start here",
