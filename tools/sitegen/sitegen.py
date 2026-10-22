@@ -522,7 +522,8 @@ def page(path, title, body, *, lead="", extra_head="", body_class="", detail=Fal
     if SITE_URL:
         meta += [f'<link rel="canonical" href="{SITE_URL}{url_path}">',
                  f'<meta property="og:url" content="{SITE_URL}{url_path}">']
-    scripts = f'<script src="{root}static/progress.js" defer></script>'
+    scripts = (f'<script src="{root}static/progress.js" defer></script>'
+               f'\n<script src="{root}static/offline.js" defer></script>')
     if "copy-btn" in body:
         scripts += f'\n<script src="{root}static/copy.js" defer></script>'
     if "data-lib-filter" in body:
@@ -1010,6 +1011,45 @@ def write_crawl_files():
     (SITE / "robots.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def write_service_worker(weeks):
+    """Emit _site/sw.js carrying this build's cache name and R28's precache list.
+
+    The cache name is a hash of everything else the build wrote, so any change to
+    any page gives the next build a new name; the worker's activate step then
+    deletes every cache that is not that one, which is what retires the old
+    version. Nothing has to be told to invalidate anything by hand.
+
+    R28 asks for the shell, the week pages, the glossary and the law card. Fonts
+    are deliberately absent: the fetch handler caches every same-origin response
+    it sees, so the fonts arrive with the very first page and are cached then,
+    without adding 60 KB to the install that a first-time reader is paying for.
+    """
+    import hashlib
+    import json
+
+    shell = ["/", "/1/start-here/", "/2/plan/", "/4/nigeria/law-card/",
+             "/wakeout.css", "/static/site.css", "/static/progress.js",
+             "/static/copy.js", "/static/glossary.js", "/static/library.js",
+             "/static/offline.js"]
+    precache = shell + [f"/2/plan/week/{w['n']}/" for w in weeks]
+    missing = [u for u in precache if not (SITE / u.strip("/") / "index.html").exists()
+               and not (SITE / u.lstrip("/")).is_file()]
+    if missing:
+        raise SystemExit(f"service worker would precache missing routes: {missing}")
+
+    h = hashlib.sha256()
+    for p in sorted(SITE.rglob("*")):
+        # sw.js hashes itself, so it must stay out of its own digest.
+        if p.is_file() and p.name != "sw.js":
+            h.update(p.relative_to(SITE).as_posix().encode("utf-8"))
+            h.update(p.read_bytes())
+    src = (ROOT / "site/static/sw.js").read_text(encoding="utf-8")
+    out = (src.replace("__CACHE__", "hrsite-" + h.hexdigest()[:12])
+              .replace("__PRECACHE__", json.dumps(precache, separators=(",", ":"))))
+    (SITE / "sw.js").write_text(squeeze_js(out), encoding="utf-8")
+    return len(precache)
+
+
 # ---------------------------------------------------------------- main
 WORD = re.compile(r"[A-Za-z0-9_$]")
 
@@ -1092,7 +1132,7 @@ def copy_assets():
     text = re.sub(r"\s*([{};:,])\s*", r"\1", text).strip()
     (SITE / "wakeout.css").write_text(text, encoding="utf-8")
     shutil.copy2(ROOT / "site/static/site.css", SITE / "static/site.css")
-    for f in ("progress.js", "copy.js", "glossary.js", "library.js"):
+    for f in ("progress.js", "copy.js", "glossary.js", "library.js", "offline.js"):
         js = (ROOT / "site/static" / f).read_text(encoding="utf-8")
         (SITE / "static" / f).write_text(squeeze_js(js), encoding="utf-8")
     # The .woff2 files are SIL OFL 1.1, which requires the licence to travel
@@ -1141,8 +1181,10 @@ def main(argv):
     build_downloads()
     build_check()
     write_crawl_files()
+    precached = write_service_worker(weeks)
     pages = sorted(p.relative_to(SITE).as_posix() for p in SITE.rglob("index.html"))
-    print(f"built {len(pages)} routes; weeks={len(weeks)} cards={len(cards())}")
+    print(f"built {len(pages)} routes; weeks={len(weeks)} cards={len(cards())} "
+          f"precached={precached}")
     return 0
 
 
