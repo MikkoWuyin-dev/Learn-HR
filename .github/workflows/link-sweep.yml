@@ -1,0 +1,70 @@
+name: Link sweep
+
+# Monthly, plus a button. The schedule is what makes this worth having: link rot
+# caught within a month is a five-minute fix, where the same rot found a year
+# later is a content decision. workflow_dispatch is how it gets tested, and how
+# a sweep gets run the day something is suspected.
+on:
+  schedule:
+    - cron: "0 6 1 * *"   # 06:00 UTC on the 1st
+  workflow_dispatch:
+
+permissions:
+  contents: write   # commit checks/links.json
+  issues: write     # open an issue when a link gets worse
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"   # sitegen.py needs 3.11+; linkcheck.py imports it
+
+      # One request at a time, 2s apart, 20s timeout, no retries: the checker
+      # identifies itself and is deliberately slow. --strict is absent on
+      # purpose — a dead link must not fail the run before the result has been
+      # committed and reported.
+      - name: Sweep every external link
+        run: python3 tools/sitegen/linkcheck.py
+
+      - name: Commit the record
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add checks/links.json
+          if git diff --quiet --cached; then
+            echo "sweep is byte-identical; nothing to commit"
+          else
+            git commit -m "Link sweep, $(date -u +%F)"
+            git push
+          fi
+
+      - name: Find anything that got worse
+        id: report
+        run: python3 tools/sitegen/report_worsened.py --out "$RUNNER_TEMP/issue.md"
+
+      - name: Open or update an issue
+        if: steps.report.outputs.worsened == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # One open issue at a time: a link that stays broken gets the same
+          # issue updated, not a new one every month.
+          gh label create "link rot" \
+            --description "A link in the five documents stopped working" \
+            --color d73a4a 2>/dev/null || true
+          open_issue=$(gh issue list --label "link rot" --state open \
+                         --json number --jq '.[0].number // empty')
+          title="Link sweep: ${{ steps.report.outputs.count }} link(s) got worse ($(date -u +%F))"
+          if [ -n "$open_issue" ]; then
+            gh issue comment "$open_issue" --body-file "$RUNNER_TEMP/issue.md"
+            echo "updated issue #$open_issue"
+          else
+            gh issue create --title "$title" \
+              --body-file "$RUNNER_TEMP/issue.md" --label "link rot"
+            echo "opened a new issue"
+          fi

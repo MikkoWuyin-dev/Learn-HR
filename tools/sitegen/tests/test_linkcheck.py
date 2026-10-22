@@ -6,6 +6,7 @@ No request leaves the machine: the server is 127.0.0.1 on a random port.
 """
 import http.server
 import json
+import os
 import pathlib
 import socket
 import sys
@@ -16,6 +17,7 @@ import unittest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 import linkcheck as L  # noqa: E402
+import report_worsened as W  # noqa: E402
 
 
 class ClassifyTest(unittest.TestCase):
@@ -138,6 +140,88 @@ class LiveTest(unittest.TestCase):
             self.assertEqual(gone["previous"]["outcome"], "ok")
             self.assertEqual(gone["sources"], src)
             self.assertTrue(gone["checked_at"])
+
+
+class WorsenedTest(unittest.TestCase):
+    """What counts as a link getting worse, for the monthly issue."""
+
+    def found(self, was, now, **extra):
+        rec = {"url": "https://example.org/x", "outcome": now, "status": None,
+               "sources": [{"doc": "doc3", "section": "A card"}]}
+        rec.update(extra)
+        if was is not None:
+            rec["previous"] = {"outcome": was, "status": 200, "checked_at": "2026-10-01T06:00:00+00:00"}
+        return W.worsened([rec])
+
+    def test_a_link_that_answered_and_now_does_not_is_worse(self):
+        for now in ("failed", "inconclusive"):
+            for was in ("ok", "redirected"):
+                with self.subTest(was=was, now=now):
+                    self.assertEqual(len(self.found(was, now)), 1)
+
+    def test_a_block_that_turned_out_to_be_a_real_404_is_worse(self):
+        self.assertEqual(len(self.found("inconclusive", "failed")), 1)
+
+    def test_a_redirect_is_not_worse_than_a_direct_answer(self):
+        self.assertEqual(self.found("ok", "redirected"), [])
+
+    def test_a_link_that_was_already_unreachable_is_not_new_bad_news(self):
+        self.assertEqual(self.found("inconclusive", "inconclusive"), [])
+        self.assertEqual(self.found("failed", "failed"), [])
+
+    def test_a_link_coming_back_is_not_reported(self):
+        self.assertEqual(self.found("failed", "ok"), [])
+        self.assertEqual(self.found("inconclusive", "ok"), [])
+
+    def test_a_brand_new_link_has_nothing_to_compare(self):
+        self.assertEqual(self.found(None, "failed"), [])
+
+    def test_the_report_names_every_link_and_counts_them(self):
+        links = [{"url": "https://example.org/a", "outcome": "failed", "status": 404,
+                  "sources": [{"doc": "doc3", "section": "A card"}],
+                  "previous": {"outcome": "ok", "status": 200, "checked_at": "x"}}]
+        text = W.body(W.worsened(links), {"started": "2026-11-01T06:00:00+00:00"})
+        self.assertIn("1 link got worse", text)
+        self.assertIn("https://example.org/a", text)
+        self.assertIn("2026-11-01", text)
+        self.assertIn("doc3 \u203a A card", text)
+
+    def test_a_pipe_in_a_section_name_cannot_break_the_table(self):
+        links = [{"url": "https://example.org/b", "outcome": "failed", "status": 410,
+                  "sources": [{"doc": "doc3", "section": "A | B"}],
+                  "previous": {"outcome": "ok", "status": 200, "checked_at": "x"}}]
+        row = [ln for ln in W.body(W.worsened(links), {}).splitlines() if "example.org/b" in ln]
+        self.assertEqual(len(row), 1)
+        self.assertIn(r"A \| B", row[0])            # the literal pipe is escaped
+        unescaped = row[0].replace(r"\|", "")       # remove it, then count delimiters
+        self.assertEqual(unescaped.count("|"), 6, row[0])   # 5 columns, 6 pipes
+
+    def test_no_sweep_file_is_not_a_failure(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            rc = W.main(["--checks", str(pathlib.Path(tmp) / "nope.json")])
+        self.assertEqual(rc, 0)
+
+    def test_github_output_is_written_for_the_workflow(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = pathlib.Path(tmp) / "gh_out"
+            checks = pathlib.Path(tmp) / "links.json"
+            checks.write_text(json.dumps({"run": {"started": "2026-11-01T06:00:00+00:00"},
+                                          "links": [{"url": "https://example.org/c",
+                                                     "outcome": "failed", "status": 404,
+                                                     "sources": [],
+                                                     "previous": {"outcome": "ok", "status": 200}}]}),
+                              encoding="utf-8")
+            prev, new = os.environ.get("GITHUB_OUTPUT"), str(out)
+            os.environ["GITHUB_OUTPUT"] = new
+            try:
+                W.main(["--checks", str(checks), "--out", str(pathlib.Path(tmp) / "issue.md")])
+            finally:
+                if prev is None:
+                    del os.environ["GITHUB_OUTPUT"]
+                else:
+                    os.environ["GITHUB_OUTPUT"] = prev
+            self.assertIn("worsened=true", out.read_text(encoding="utf-8"))
+            self.assertIn("count=1", out.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

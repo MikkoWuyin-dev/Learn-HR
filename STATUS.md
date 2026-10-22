@@ -61,6 +61,9 @@ Updated: 2026-10-22 by Claude (sweep clean at 43 links, 0 failed; fixed a silent
   the audit passed while auditing nothing. Now decodes as UTF-8 at all four call sites.
 - **The build now clears `_site` before writing.** It only ever wrote, so a deleted page stayed on
   disk and would be served from a deploy. Guarded: refuses to clear the repo or anything holding it.
+- **The link sweep runs itself** (`.github/workflows/link-sweep.yml`, the repo's first CI): monthly at
+  06:00 UTC, or by hand. It commits `checks/links.json` and opens — or updates — one issue when a
+  link that answered before stops answering. `report_worsened.py` decides what "worse" means.
 
 ## Blocked on an owner decision
 1. **Two voice-audit hits in the documents** (reported, not failed): doc4 §4.4 "what capability it
@@ -75,9 +78,8 @@ Updated: 2026-10-22 by Claude (sweep clean at 43 links, 0 failed; fixed a silent
    takes", but only some cards state a time. Site copy, not source; reword or drop "how long".
 
 ## Next justified step
-0.2 and R14 are closed, and the build now clears `_site`. Next is Phase 3, the service worker (R28).
-One thing stays offered but not started: a cron workflow to sweep monthly and open an issue when a
-link's outcome changes.
+Phase 3: the service worker (R28). The link sweep looks after itself now, so nothing about it needs
+doing by hand unless it opens an issue.
 
 ## Session traps
 - `python3`/`python` on the owner's PC are Microsoft Store stubs; real interpreter:
@@ -92,8 +94,6 @@ link's outcome changes.
   content change first, then the gate can pass.
 - **Both `content/*.json` files are keyed by card slug.** Deleting or retitling a doc3 card leaves a
   key pointing at a card that no longer exists, and the build fails. Update both files with the card.
-- `python-docx` is not installed here by default; `python3 -m pip install --break-system-packages
-  python-docx` is needed before the .docx regression will do anything but report SKIP.
+- `python-docx` isn't installed here by default; `pip install --break-system-packages python-docx` first.
 - **Never rely on `subprocess.run(..., text=True)` without `encoding="utf-8"`.** It decodes with the
-  console code page, so non-ASCII output silently rots on Windows. `PYTHONIOENCODING` only fixes the
-  child, never how the parent reads it.
+  console code page, so non-ASCII rots silently on Windows; PYTHONIOENCODING only fixes the child.
