@@ -44,7 +44,8 @@ def git_diff_stat(paths):
     """
     try:
         out = subprocess.run(["git", "diff", "--stat", "--", *paths],
-                             cwd=ROOT, capture_output=True, text=True, timeout=30)
+                             cwd=ROOT, capture_output=True, text=True,
+                             encoding="utf-8", timeout=30)
     except (OSError, subprocess.SubprocessError):
         return None
     return out.stdout.strip() if out.returncode == 0 else None

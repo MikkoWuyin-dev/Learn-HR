@@ -45,7 +45,11 @@ Each cost label sums up the card's own cost terms. Open the card for the full te
 
 
 def run(name, cmd, cwd=ROOT):
+    # encoding= matters: without it the parent decodes the child's UTF-8 output
+    # with the console's code page, so on a cp1252 Windows console any non-ASCII
+    # byte arrives already mangled. PYTHONIOENCODING alone only fixes the child.
     r = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True,
+                       encoding="utf-8",
                        env={**os.environ, "PYTHONIOENCODING": "utf-8"})
     ok = r.returncode == 0
     tail = (r.stdout + r.stderr).strip().splitlines()[-3:]
@@ -91,8 +95,12 @@ class _Text(HTMLParser):
 
 def voice_hits(paths):
     """Run style_audit.py; return (mechanical_ok, [(category, snippet)])."""
+    # Decoding must be UTF-8, not the console code page: style_audit marks each
+    # hit with "…" (U+2026), and decoded as cp1252 that never matches, so every
+    # hit is dropped and the audit passes without having audited anything.
     r = subprocess.run([PY, "style_audit.py", *map(str, paths)], cwd=ROOT / "scripts",
-                       capture_output=True, text=True, env={**os.environ, "PYTHONIOENCODING": "utf-8"})
+                       capture_output=True, text=True, encoding="utf-8",
+                       env={**os.environ, "PYTHONIOENCODING": "utf-8"})
     hits, current = [], None
     for ln in r.stdout.splitlines():
         m = re.match(r"\s*([a-z -]+): (\d+)", ln)
@@ -166,7 +174,8 @@ def main():
     results.append(same)
     if shutil.which("git"):
         dirty = subprocess.run(["git", "status", "--porcelain", "--", "content", "downloads"],
-                               cwd=ROOT, capture_output=True, text=True).stdout.strip()
+                               cwd=ROOT, capture_output=True, text=True,
+                               encoding="utf-8").stdout.strip()
         if dirty:
             print("NOTE  uncommitted edits under content/ or downloads/ (fine if intended):")
             print("      " + dirty.replace("\n", "\n      "))

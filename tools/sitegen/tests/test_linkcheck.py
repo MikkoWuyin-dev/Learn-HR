@@ -80,6 +80,7 @@ class LiveTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.server.shutdown()
+        cls.server.server_close()  # shutdown() stops serving; only this frees the socket
 
     def check(self, path, timeout=5.0):
         return L.check_one(self.base + path, timeout)
