@@ -59,6 +59,8 @@ Updated: 2026-10-22 by Claude (sweep clean at 43 links, 0 failed; fixed a silent
 - **Fixed a silently blind gate.** `check.py` decoded child output with the console's code page, so on
   a cp1252 Windows console style_audit's "…" marker arrived as "â€¦" and every voice hit was dropped:
   the audit passed while auditing nothing. Now decodes as UTF-8 at all four call sites.
+- **The build now clears `_site` before writing.** It only ever wrote, so a deleted page stayed on
+  disk and would be served from a deploy. Guarded: refuses to clear the repo or anything holding it.
 
 ## Blocked on an owner decision
 1. **Two voice-audit hits in the documents** (reported, not failed): doc4 §4.4 "what capability it
@@ -73,15 +75,15 @@ Updated: 2026-10-22 by Claude (sweep clean at 43 links, 0 failed; fixed a silent
    takes", but only some cards state a time. Site copy, not source; reword or drop "how long".
 
 ## Next justified step
-0.2 and R14 are closed. Next is Phase 3, the service worker (R28). Two things are offered but not
-started: a cron workflow to sweep monthly and open an issue on a changed outcome, and making the
-build clear `_site` so deleted pages cannot be served.
+0.2 and R14 are closed, and the build now clears `_site`. Next is Phase 3, the service worker (R28).
+One thing stays offered but not started: a cron workflow to sweep monthly and open an issue when a
+link's outcome changes.
 
 ## Session traps
 - `python3`/`python` on the owner's PC are Microsoft Store stubs; real interpreter:
   `/c/Users/micha/AppData/Local/Python/bin/python3`. Set `PYTHONIOENCODING=utf-8` (`₦` breaks cp1252).
-- **The build never clears `_site`.** Deleted pages persist in the output and get counted and served.
-  Clear it first: `Remove-Item _site -Recurse -Force`, then build.
+- The build clears `_site` itself (`clean_site()`), so a deleted page cannot survive into a deploy.
+  Its guard refuses to clear anything that is, or contains, the repo — keep that guard.
 - sitegen.py needs Python 3.11+; 3.10 fails on the parser. Check `check.py` before assuming a 3.10
   user can build. `node --test` takes a file path, not a directory, on Node 22.
 - The design system's `tools/build-tokens.mjs` shells out to `/bin/bash -c shasum`; never patch the
