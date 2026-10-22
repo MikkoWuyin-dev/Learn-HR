@@ -75,7 +75,7 @@ It works because it is specific, dated, verifiable, and ends with what you want.
 3. **About** — the 5-line story.
 4. **Featured** — your portfolio link and your two best artefacts (sourcing library, dashboard screenshot).
 5. **Experience** — include the volunteer requisition from Week 21 as a real entry with bullets, if it happened.
-6. **Certifications** — every free one you earned (Open University Statements, Saylor certificates, ITCILO credentials, AIHR). Under each, one line on what you can *do* because of it.
+6. **Certifications** — every free one you earned (Open University Statements, Saylor certificates, ITCILO credentials, Alison Learner Records). Under each, one line on what you can *do* because of it.
 7. **Skills** — pin the top five from your 15-skill sheet: Sourcing, Screening, Boolean Search, ATS, Interviewing. Ask five people for a recommendation; a polite specific ask ("could you say something about how I ran the screening for your event?") gets a far better response than "please endorse."
 8. **Activity** — one post every two weeks: a sourcing lesson, a before/after job ad, a fix you'd make to a careers page. Comment substantively on five recruiters' posts a week.
 9. **Set Open to Work** (recruiters-only is fine) and stop treating visibility as embarrassing.
