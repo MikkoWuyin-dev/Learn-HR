@@ -3,7 +3,7 @@
 <!-- Overwrite this file at the end of each task. Don't append to it. Keep it under 100 lines.
      It is the only place that says "where we are". The commit log is the history. -->
 
-Updated: 2026-10-21 by Claude (Phase 2 done: course-card ticks; 2.5 glossary + library filter)
+Updated: 2026-10-22 by Claude (link sweep acted on: 4 links removed, AIHR paywall, 3 .docx re-shipped)
 
 ## Now
 - Phases 1 and 2 are built. `python3 tools/sitegen/check.py` is the gate (Python 3.11+):
@@ -15,10 +15,10 @@ Updated: 2026-10-21 by Claude (Phase 2 done: course-card ticks; 2.5 glossary + l
 - Glossary search (R8) on `/1/start-here/`: filters doc1's term table as you type (`glossary.js`).
 - Library (R19 as decided): cards grouped under doc3's three sections; filter by section and cost
   label, kept in the URL (`library.js`). Cost labels come from `content/resource-verdicts.json`.
-- Course cards (R10): each of the 10 course cards lists its Support A tracker courses with ticks that
+- Course cards (R10): each course card lists its Support A tracker courses with ticks that
   share the tracker's keys (`content/course-cards.json`, owner-approved). Non-course cards have none.
 - `/check/` lists all external links (was 12, now every bare and parenthesised URL) and reads
-  `checks/links.json` when `tools/sitegen/linkcheck.py` has written one. No sweep has run yet.
+  `checks/links.json` when `tools/sitegen/linkcheck.py` has written one. **There are 43 links now.**
 - SEO: unique titles, descriptions from each page's own text, Open Graph, `robots.txt`; canonical and
   `sitemap.xml` only with `--site-url=https://…` (or `HR_SITE_URL`), because the domain (D4) is open.
 
@@ -36,28 +36,30 @@ Updated: 2026-10-21 by Claude (Phase 2 done: course-card ticks; 2.5 glossary + l
 - **R18 JSON-LD** not added: `offers.price: 0` would be false for paid-certificate resources.
 
 ## Not verified, and why
-- **Link sweep**: neither the build workspace nor the owner's PC shell could reach external sites.
-  The checker is tested against a local server only. Run `python3 tools/sitegen/linkcheck.py` on a
-  machine with internet, commit `checks/links.json`, rebuild.
+- **`checks/links.json` is still not committed.** The sweep was run on the owner's PC (2026-10-21,
+  47 links: failed 3, inconclusive 5, ok 23, redirected 16), but four of those links have since been
+  deleted, so that file is already stale. **Re-run it on a connected machine, commit the result and
+  rebuild** — only then does `/check/` show a sweep. This sandbox cannot reach the hosts.
 - Real phone, iOS Safari, Lighthouse/3G (Phase 4). The law card fits one A4 page in headless
   Chromium's print-to-PDF; a real printer and Android print are untested. Browser checks were headless
   Chromium at 360 px: journey, reload, reset, corrupt/blocked storage, copy + denied clipboard,
   keyboard, JS off.
 
-## Closed this round (audit pass, 2026-10-21)
-- **Python 3.11+**: `sitegen.py`'s nav f-string no longer needs PEP 701, so the build and the link
-  sweep run on 3.11. `check.py` and these docs said 3.12+; all updated.
-- **OFL licence text** (was blocked #5): `OFL-Fredoka.txt` and `OFL-Space-Grotesk.txt`, taken from
-  google/fonts, now ship to `_site/fonts/` beside the woff2 files. Public-deploy blocker cleared.
-- **CAC link** (was blocked #7): the site layer now linkifies a URL written as "(https://…)", so
-  doc5 Support A's scam-check link is clickable. No markdown edit was needed, and `docx_render.py`
-  is untouched, so the frozen .docx are unaffected.
-- **R1 guard**: `audit.py` fails the build when `git diff -- content/` is non-empty (roadmap 1.6's
-  last item, previously missing). Verified it can fail.
-- **`/5/templates/`** renders three of R5's blocks - the 90-word note, the CV bullet table and the
-  follow-up messages - each with the Copy button from `copy.js`.
-- **Glyph fallback accepted**: `·`, `—`, `→`, `☐` are absent from the body face and fall back to a
-  system font. Recorded as a decision, not a defect; don't "fix" it unasked.
+## Closed this round (link sweep acted on, 2026-10-22)
+- **Three hard 404s removed**: CIPD's guides-and-resources and podcasts-and-webinars pages, and
+  SHRM's charts page. The CIPD card was retitled "the free factsheet hub" and its "plus podcasts and
+  open webinars" claim dropped, so the card stops promising what it no longer links to.
+- **AIHR removed — it went paid, not dead.** The sweep only ever said *inconclusive* (its certificate
+  does not cover `aihr.academy`); checking the working host showed the real problem: no free courses
+  are left. AIHR was Credential #7 and Week 18's main block, so the hole ran through doc2, doc3 and
+  doc5. Week 18 now uses **Alison's "HRIS in the Cloud and the Social Enterprise"** — already in the
+  library, already mapped to Week 18, free to study with a free Learner Record. Nothing new sourced.
+- **AIHR is recorded, not deleted silently**: it joins the paid-only list (doc3 §1) and the record of
+  what was left out (Support A), each with its reason, so a reader who finds an old "AIHR is free"
+  post is not misled.
+- **Three .docx re-shipped** (Doc2, Doc3, Doc5), rebuilt from the edited markdown. Doc1 and Doc4 are
+  unchanged; `HR_Roadmap_Library.*` stayed frozen. The regression baseline moved with them: Doc3 is
+  now **137 paragraphs / 39 hyperlink rels** (was 142/43). Re-shipping downloads was owner-approved.
 
 ## Blocked on an owner decision
 1. **Two voice-audit hits in the documents** (reported, not failed, by the gate): doc4 §4.4 "what
@@ -73,7 +75,9 @@ Updated: 2026-10-21 by Claude (Phase 2 done: course-card ticks; 2.5 glossary + l
    takes", but only some cards state a time. Site copy, not source; reword or drop "how long".
 
 ## Next justified step
-The link sweep from a connected machine (closes 0.2 and R14), then Phase 3: the service worker (R28).
+Re-run `python3 tools/sitegen/linkcheck.py` on a connected machine (43 links now), commit
+`checks/links.json`, rebuild — that closes 0.2 and R14. Then Phase 3: the service worker (R28).
+A cron workflow to run the sweep and open an issue on a changed outcome is offered, not started.
 
 ## Session traps
 - `python3`/`python` on the owner's PC are Microsoft Store stubs; real interpreter:
@@ -84,3 +88,9 @@ The link sweep from a connected machine (closes 0.2 and R14), then Phase 3: the 
 - The design system's `tools/build-tokens.mjs` shells out to `/bin/bash -c shasum`; never patch the
   checksummed copy.
 - Generated output goes to `_site/`, never `dist/` or `build/`.
+- **The R1 guard in `audit.py` fails while `content/` has uncommitted edits.** Commit the approved
+  content change first, then the gate can pass.
+- **Both `content/*.json` files are keyed by card slug.** Deleting or retitling a doc3 card leaves a
+  key pointing at a card that no longer exists, and the build fails. Update both files with the card.
+- `python-docx` is not installed here by default; `python3 -m pip install --break-system-packages
+  python-docx` is needed before the .docx regression will do anything but report SKIP.
