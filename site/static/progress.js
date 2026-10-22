@@ -45,6 +45,7 @@
       artefacts: count(m.artefacts), artefactsTotal: m.artefacts.length,
       courses: count(m.courses), coursesTotal: m.courses.length
     };
+    r.lastWeek = m.weeks.length ? m.weeks[m.weeks.length - 1][0] : 0;
     r.any = r.blocks + r.artefacts + r.courses > 0;
     return r;
   }
@@ -125,7 +126,7 @@
     $("[data-start]").forEach(function (a) {
       if (!a.getAttribute("data-label")) a.setAttribute("data-label", a.textContent);
       if (nx && nx.k) { a.textContent = "Resume: Week " + m.weeks[nx.w][0]; a.href = resumeHref; }
-      else if (nx && nx.done) { a.textContent = "Weeks 22–24: Getting the job"; a.href = "/5/getting-the-job/"; }
+      else if (nx && nx.done) { a.textContent = "Getting the job"; a.href = "/5/getting-the-job/"; }
       else { a.textContent = a.getAttribute("data-label"); a.href = "/2/plan/week/0/"; }
     });
     $("[data-next]").forEach(function (sec) {
@@ -134,7 +135,7 @@
       if (!nx || !body) return;
       body.textContent = "";
       if (nx.done) {
-        body.appendChild(el("p", {}, "Every block in Weeks 0–21 is ticked. Weeks 22–24 live in Getting the job."));
+        body.appendChild(el("p", {}, "Every block in Weeks 0–" + sum.lastWeek + " is ticked."));
         body.appendChild(el("a", { href: "/5/getting-the-job/", "class": "btn btn-primary" }, "Open Getting the job"));
         return;
       }
@@ -156,7 +157,7 @@
         "This browser is not saving progress (private browsing or storage turned off). Ticks last until you leave the page."));
       if (!sum.any) return;
       [["Blocks done", sum.blocks, sum.blocksTotal],
-       ["Weeks passed (Weeks 0–21)", sum.weeksDone, sum.weeksTotal],
+       ["Weeks passed (Weeks 0–" + sum.lastWeek + ")", sum.weeksDone, sum.weeksTotal],
        ["Portfolio artefacts", sum.artefacts, sum.artefactsTotal],
        ["Courses and credentials", sum.courses, sum.coursesTotal]].forEach(function (r) {
         var p = el("p", { "class": "meter" });

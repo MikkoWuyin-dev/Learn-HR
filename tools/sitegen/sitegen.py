@@ -319,7 +319,8 @@ def learning_path():
     Output), keyed by the row's data-k. Weeks 20 and 21 have no block table; their
     outputs are the Support A artefacts dated to that week, so those tracker rows are
     the week's activities (same key as the tracker, so a tick in either place is one
-    tick). Weeks 22-24 have no activities here: doc2 hands them to doc5.
+    tick). Weeks 22-24 do carry block tables: doc2 gives them the sequence, doc5
+    §5.3-§5.8 carries the detail behind each row.
     """
     art = tracker()["artefacts"]
     dated = {}
@@ -689,12 +690,6 @@ def build_plan():
     body.append(f'<section class="card"><h2 id="weeks">The weeks</h2>'
                 f'<p class="note">Each week is a table of blocks. If the week\'s output exists, '
                 f'the week counts as passed.</p><ol class="week-list">{rows}</ol></section>')
-    if weeks:
-        last = weeks[-1]["n"]
-        body.append(f'<aside class="callout"><p><strong>Weeks {last + 1}–24 are in '
-                    f'<a href="/5/getting-the-job/">Getting the job</a>.</strong> Document 2 hands '
-                    f'those three weeks to Document 5 in one paragraph, so they are not week pages '
-                    f'here. The reading is still complete — it just lives in the other document.</p></aside>')
     t = tracker()
     for label, table in (("Courses and credentials", t["courses"]),
                          ("Portfolio artefacts", t["artefacts"])):
@@ -721,7 +716,7 @@ def build_week(w):
     if nxt in available:
         links.append(f'<a href="/2/plan/week/{nxt}/">Week {nxt} →</a>')
     else:
-        links.append('<a href="/5/getting-the-job/">Weeks 22–24 →</a>')
+        links.append('<a href="/5/getting-the-job/">Getting the job →</a>')
     pager = f'<nav class="pager" aria-label="Weeks">{"".join(links)}</nav>'
     body.append(pager)
     body.append(render_blocks(w["blocks"], level=2, ticks=True,
@@ -769,7 +764,7 @@ def build_library_index():
     costs = '<option value="">Any cost</option>' + "".join(
         f'<option value="{k}">{VERDICTS[k]}</option>' for k in used)
     body = [hero("The resource library", f"{len(cs)} resources, each with the link, "
-                f"what it really costs, and how long it takes.", "Document 3"),
+                f"what it really costs, and what to make of it.", "Document 3"),
             LIBRARY_FILTER.format(sections=sections, costs=costs)]
     for k in order:
         sec, items = groups[k]

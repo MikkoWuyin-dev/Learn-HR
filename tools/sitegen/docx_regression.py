@@ -34,7 +34,7 @@ import docx_render as R  # noqa: E402
 # The gate numbers from site-plan/02-BUILD-ROADMAP.md task 1.7 and the handoff README.
 DOCS = [
     ("content/docs/src/doc1.md", "HR_Doc1_Start_Here.docx", 51, 0),
-    ("content/docs/src/doc2.md", "HR_Doc2_The_24_Week_Plan.docx", 100, 0),
+    ("content/docs/src/doc2.md", "HR_Doc2_The_24_Week_Plan.docx", 106, 0),
     ("content/docs/src/doc3.md", "HR_Doc3_Resource_Library.docx", 137, 39),
     ("content/docs/src/doc4.md", "HR_Doc4_Nigeria_Labour_Law_CIPM.docx", 87, 8),
     ("content/docs/src/doc5.md", "HR_Doc5_Getting_The_Job.docx", 118, 0),
@@ -126,7 +126,7 @@ def main(argv):
         print(f"RESULT: {failures} document(s) differ — the parser change touched the .docx path")
         return 1
     print("RESULT: all five documents unchanged "
-          "(paras 51/100/137/87/118, hyperlink rels 0/0/39/8/0)")
+          "(paras 51/106/137/87/118, hyperlink rels 0/0/39/8/0)")
     if not keep:
         print(f"rebuilds: {tmp}")
     return 0
