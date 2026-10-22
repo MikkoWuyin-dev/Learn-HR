@@ -1,0 +1,853 @@
+{
+  "run": {
+    "started": "2026-10-21T11:33:08+00:00",
+    "finished": "2026-10-22T09:17:36+00:00",
+    "tool": "tools/sitegen/linkcheck.py",
+    "user_agent": "HRLibrary-linkcheck/1.0 (static-site maintenance; one request per link)",
+    "delay_seconds": 2.0,
+    "timeout_seconds": 20.0,
+    "counts": {
+      "ok": 23,
+      "inconclusive": 5,
+      "failed": 3,
+      "redirected": 16
+    }
+  },
+  "links": [
+    {
+      "url": "https://learn.saylor.org/course/PRDV226",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-21T11:33:10+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Saylor Academy — PRDV226 Introduction to Human Resource Management",
+          "page": "/3/library/saylor-academy-prdv226-introduction-to-human-resource-manage/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://learn.saylor.org/course/BUS301",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-21T11:33:15+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Saylor Academy — BUS301 Human Resource Management",
+          "page": "/3/library/saylor-academy-bus301-human-resource-management/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.open.edu/openlearn/",
+      "outcome": "inconclusive",
+      "status": null,
+      "final_url": null,
+      "error": "gaierror: [Errno 11001] getaddrinfo failed",
+      "checked_at": "2026-10-22T09:10:48+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "The Open University — OpenLearn Human resources: recruitment and selection",
+          "page": "/3/library/the-open-university-openlearn-human-resources-recruitment-an/"
+        },
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "OpenLearn — three more HR courses (same provider, same terms)",
+          "page": "/3/library/openlearn-three-more-hr-courses-same-provider-same-terms/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.cipd.org/en/learning/mooc/",
+      "outcome": "inconclusive",
+      "status": null,
+      "final_url": null,
+      "error": "gaierror: [Errno 11001] getaddrinfo failed",
+      "checked_at": "2026-10-22T09:10:53+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "CIPD — the three free MOOCs",
+          "page": "/3/library/cipd-the-three-free-moocs/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.cipd.org/en/knowledge/factsheets/",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:10:59+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "CIPD — the free factsheet and guide hub",
+          "page": "/3/library/cipd-the-free-factsheet-and-guide-hub/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.cipd.org/en/knowledge/guides-and-resources/",
+      "outcome": "failed",
+      "status": 404,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:11:10+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "CIPD — the free factsheet and guide hub",
+          "page": "/3/library/cipd-the-free-factsheet-and-guide-hub/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.cipd.org/en/learning/podcasts-and-webinars/",
+      "outcome": "failed",
+      "status": 404,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:11:15+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "CIPD — the free factsheet and guide hub",
+          "page": "/3/library/cipd-the-free-factsheet-and-guide-hub/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.alison.com/course/fundamentals-of-human-resources",
+      "outcome": "redirected",
+      "status": 200,
+      "final_url": "https://alison.com/course/fundamentals-of-human-resources",
+      "error": null,
+      "checked_at": "2026-10-22T09:11:19+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Alison — the HR and talent-acquisition courses worth your time",
+          "page": "/3/library/alison-the-hr-and-talent-acquisition-courses-worth-your-time/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.alison.com/course/diploma-in-human-resources-hr",
+      "outcome": "redirected",
+      "status": 200,
+      "final_url": "https://alison.com/course/diploma-in-human-resources-hr",
+      "error": null,
+      "checked_at": "2026-10-22T09:11:24+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Alison — the HR and talent-acquisition courses worth your time",
+          "page": "/3/library/alison-the-hr-and-talent-acquisition-courses-worth-your-time/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.alison.com/course/recruitment-and-selection",
+      "outcome": "redirected",
+      "status": 200,
+      "final_url": "https://alison.com/courses",
+      "error": null,
+      "checked_at": "2026-10-22T09:11:28+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Alison — the HR and talent-acquisition courses worth your time",
+          "page": "/3/library/alison-the-hr-and-talent-acquisition-courses-worth-your-time/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.alison.com/course/diploma-in-recruitment-and-selection",
+      "outcome": "redirected",
+      "status": 200,
+      "final_url": "https://alison.com/courses",
+      "error": null,
+      "checked_at": "2026-10-22T09:11:32+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Alison — the HR and talent-acquisition courses worth your time",
+          "page": "/3/library/alison-the-hr-and-talent-acquisition-courses-worth-your-time/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.alison.com/course/talent-acquisition-practices",
+      "outcome": "redirected",
+      "status": 200,
+      "final_url": "https://alison.com/course/talent-acquisition-practices",
+      "error": null,
+      "checked_at": "2026-10-22T09:11:36+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Alison — the HR and talent-acquisition courses worth your time",
+          "page": "/3/library/alison-the-hr-and-talent-acquisition-courses-worth-your-time/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.alison.com/course/onboarding-and-recruitment",
+      "outcome": "redirected",
+      "status": 200,
+      "final_url": "https://alison.com/courses",
+      "error": null,
+      "checked_at": "2026-10-22T09:11:41+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Alison — the HR and talent-acquisition courses worth your time",
+          "page": "/3/library/alison-the-hr-and-talent-acquisition-courses-worth-your-time/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.alison.com/course/human-resources-behaviour-and-diversity-in-the-workplace",
+      "outcome": "redirected",
+      "status": 200,
+      "final_url": "https://alison.com/courses",
+      "error": null,
+      "checked_at": "2026-10-22T09:11:46+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Alison — the HR and talent-acquisition courses worth your time",
+          "page": "/3/library/alison-the-hr-and-talent-acquisition-courses-worth-your-time/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.alison.com/course/human-resources-and-industrial-relations",
+      "outcome": "redirected",
+      "status": 200,
+      "final_url": "https://alison.com/courses",
+      "error": null,
+      "checked_at": "2026-10-22T09:11:53+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Alison — the HR and talent-acquisition courses worth your time",
+          "page": "/3/library/alison-the-hr-and-talent-acquisition-courses-worth-your-time/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.alison.com/course/employment-law",
+      "outcome": "redirected",
+      "status": 200,
+      "final_url": "https://alison.com/courses",
+      "error": null,
+      "checked_at": "2026-10-22T09:11:58+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Alison — the HR and talent-acquisition courses worth your time",
+          "page": "/3/library/alison-the-hr-and-talent-acquisition-courses-worth-your-time/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.alison.com/course/modern-human-resource-management",
+      "outcome": "redirected",
+      "status": 200,
+      "final_url": "https://alison.com/courses",
+      "error": null,
+      "checked_at": "2026-10-22T09:12:03+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Alison — the HR and talent-acquisition courses worth your time",
+          "page": "/3/library/alison-the-hr-and-talent-acquisition-courses-worth-your-time/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.alison.com/course/diploma-in-modern-human-resource-management",
+      "outcome": "redirected",
+      "status": 200,
+      "final_url": "https://alison.com/courses",
+      "error": null,
+      "checked_at": "2026-10-22T09:12:08+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Alison — the HR and talent-acquisition courses worth your time",
+          "page": "/3/library/alison-the-hr-and-talent-acquisition-courses-worth-your-time/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.alison.com/course/hris-in-the-cloud-and-the-social-enterprise",
+      "outcome": "redirected",
+      "status": 200,
+      "final_url": "https://alison.com/courses",
+      "error": null,
+      "checked_at": "2026-10-22T09:12:13+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Alison — the HR and talent-acquisition courses worth your time",
+          "page": "/3/library/alison-the-hr-and-talent-acquisition-courses-worth-your-time/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.alison.com/search?query=human%20resources",
+      "outcome": "redirected",
+      "status": 200,
+      "final_url": "https://alison.com/search?query=human%20resources",
+      "error": null,
+      "checked_at": "2026-10-22T09:12:17+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Alison — the HR and talent-acquisition courses worth your time",
+          "page": "/3/library/alison-the-hr-and-talent-acquisition-courses-worth-your-time/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.itcilo.org/courses",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:12:21+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "ITCILO — free self-guided courses from the UN's training arm",
+          "page": "/3/library/itcilo-free-self-guided-courses-from-the-un-s-training-arm/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.itcilo.org/training",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:12:24+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "ITCILO — free self-guided courses from the UN's training arm",
+          "page": "/3/library/itcilo-free-self-guided-courses-from-the-un-s-training-arm/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://aihr.academy/courses",
+      "outcome": "inconclusive",
+      "status": null,
+      "final_url": null,
+      "error": "SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'aihr.academy'. (_ssl.c:10",
+      "checked_at": "2026-10-22T09:12:27+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "AIHR — free courses in the Academy",
+          "page": "/3/library/aihr-free-courses-in-the-academy/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://academy.workable.com/",
+      "outcome": "redirected",
+      "status": 200,
+      "final_url": "https://www.workableacademy.com/",
+      "error": null,
+      "checked_at": "2026-10-22T09:12:32+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Workable Academy + their ATS guide",
+          "page": "/3/library/workable-academy-their-ats-guide/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://resources.workable.com/tutorial/applicant-tracking-systems-atoz",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:12:35+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Workable Academy + their ATS guide",
+          "page": "/3/library/workable-academy-their-ats-guide/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://learn.greenhouse.io/",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:12:41+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Greenhouse Learn",
+          "page": "/3/library/greenhouse-learn/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://learn.greenhouse.io/page/all-courses",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:12:48+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Greenhouse Learn",
+          "page": "/3/library/greenhouse-learn/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.cipmnigeria.org/",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:12:54+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "CIPM Nigeria — the body you'll eventually pay",
+          "page": "/3/library/cipm-nigeria-the-body-you-ll-eventually-pay/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.cipmnigeria.org/membership/membership-routes/",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:13:16+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "CIPM Nigeria — the body you'll eventually pay",
+          "page": "/3/library/cipm-nigeria-the-body-you-ll-eventually-pay/"
+        },
+        {
+          "doc": "doc4",
+          "file": "content/docs/src/doc4.md",
+          "section": "4.4 CIPM: THE CREDENTIAL PATH, HANDLED SENSIBLY",
+          "page": "/4/nigeria/#4-4-cipm-the-credential-path-handled-sensibly"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.cipmnigeria.org/learning/",
+      "outcome": "redirected",
+      "status": 200,
+      "final_url": "https://cipmnigeria.org/learning/learning-and-development-administration/",
+      "error": null,
+      "checked_at": "2026-10-22T09:13:32+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "CIPM Nigeria — the body you'll eventually pay",
+          "page": "/3/library/cipm-nigeria-the-body-you-ll-eventually-pay/"
+        },
+        {
+          "doc": "doc4",
+          "file": "content/docs/src/doc4.md",
+          "section": "4.4 CIPM: THE CREDENTIAL PATH, HANDLED SENSIBLY",
+          "page": "/4/nigeria/#4-4-cipm-the-credential-path-handled-sensibly"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.cipmnigeria.org/wp-content/uploads/2024/07/NIGERIAN-LABOUR-LAW.pdf",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:13:43+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "CIPM Nigeria — free Nigerian Labour Law study pack (PDF)",
+          "page": "/3/library/cipm-nigeria-free-nigerian-labour-law-study-pack-pdf/"
+        },
+        {
+          "doc": "doc4",
+          "file": "content/docs/src/doc4.md",
+          "section": "4.1 THE SOURCES, IN ORDER OF AUTHORITY",
+          "page": "/4/nigeria/#4-1-the-sources-in-order-of-authority"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.shrm.org/topics-tools/tools/toolkits",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:14:03+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "SHRM — free toolkits and templates (US-framed)",
+          "page": "/3/library/shrm-free-toolkits-and-templates-us-framed/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.shrm.org/topics-tools/tools/charts",
+      "outcome": "failed",
+      "status": 404,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:14:15+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "SHRM — free toolkits and templates (US-framed)",
+          "page": "/3/library/shrm-free-toolkits-and-templates-us-framed/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.shrm.org/credentials",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:14:49+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "SHRM — free toolkits and templates (US-framed)",
+          "page": "/3/library/shrm-free-toolkits-and-templates-us-framed/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://lawsofnigeria.placng.org/laws/L1.pdf",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:15:19+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Federal Ministry of Justice — the Labour Act itself",
+          "page": "/3/library/federal-ministry-of-justice-the-labour-act-itself/"
+        },
+        {
+          "doc": "doc4",
+          "file": "content/docs/src/doc4.md",
+          "section": "4.1 THE SOURCES, IN ORDER OF AUTHORITY",
+          "page": "/4/nigeria/#4-1-the-sources-in-order-of-authority"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://nicn.gov.ng/",
+      "outcome": "redirected",
+      "status": 200,
+      "final_url": "https://www.nicn.gov.ng/",
+      "error": null,
+      "checked_at": "2026-10-22T09:16:44+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "National Industrial Court of Nigeria",
+          "page": "/3/library/national-industrial-court-of-nigeria/"
+        },
+        {
+          "doc": "doc4",
+          "file": "content/docs/src/doc4.md",
+          "section": "4.1 THE SOURCES, IN ORDER OF AUTHORITY",
+          "page": "/4/nigeria/#4-1-the-sources-in-order-of-authority"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.jobberman.com/job-seeker",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:16:48+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Jobberman Nigeria",
+          "page": "/3/library/jobberman-nigeria/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.jobberman.com/account/cv-services",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:16:51+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Jobberman Nigeria",
+          "page": "/3/library/jobberman-nigeria/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.jobberman.com/learning/courses",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:16:54+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Jobberman Nigeria",
+          "page": "/3/library/jobberman-nigeria/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.myjobmag.com/",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:16:57+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "MyJobMag",
+          "page": "/3/library/myjobmag/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.linkedin.com/jobs/",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:17:00+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "LinkedIn Jobs (free tier is enough)",
+          "page": "/3/library/linkedin-jobs-free-tier-is-enough/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.hotnigerianjobs.com/",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:17:03+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Other Nigerian boards worth one alert each",
+          "page": "/3/library/other-nigerian-boards-worth-one-alert-each/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.nigerianjobs.com/",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:17:07+00:00",
+      "sources": [
+        {
+          "doc": "doc3",
+          "file": "content/docs/src/doc3.md",
+          "section": "Other Nigerian boards worth one alert each",
+          "page": "/3/library/other-nigerian-boards-worth-one-alert-each/"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://labour.gov.ng/",
+      "outcome": "inconclusive",
+      "status": 503,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:17:18+00:00",
+      "sources": [
+        {
+          "doc": "doc4",
+          "file": "content/docs/src/doc4.md",
+          "section": "4.1 THE SOURCES, IN ORDER OF AUTHORITY",
+          "page": "/4/nigeria/#4-1-the-sources-in-order-of-authority"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://ndpc.gov.ng/",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:17:25+00:00",
+      "sources": [
+        {
+          "doc": "doc4",
+          "file": "content/docs/src/doc4.md",
+          "section": "4.1 THE SOURCES, IN ORDER OF AUTHORITY",
+          "page": "/4/nigeria/#4-1-the-sources-in-order-of-authority"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://www.pencom.gov.ng/",
+      "outcome": "ok",
+      "status": 200,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:17:29+00:00",
+      "sources": [
+        {
+          "doc": "doc4",
+          "file": "content/docs/src/doc4.md",
+          "section": "4.1 THE SOURCES, IN ORDER OF AUTHORITY",
+          "page": "/4/nigeria/#4-1-the-sources-in-order-of-authority"
+        }
+      ],
+      "previous": null
+    },
+    {
+      "url": "https://search.cac.gov.ng/",
+      "outcome": "inconclusive",
+      "status": 403,
+      "final_url": null,
+      "error": null,
+      "checked_at": "2026-10-22T09:17:36+00:00",
+      "sources": [
+        {
+          "doc": "doc5",
+          "file": "content/docs/src/doc5.md",
+          "section": "SUPPORT A — SCAMS, AND THE FIVE RED FLAGS",
+          "page": "/5/getting-the-job/#support-a-scams-and-the-five-red-flags"
+        }
+      ],
+      "previous": null
+    }
+  ]
+}
