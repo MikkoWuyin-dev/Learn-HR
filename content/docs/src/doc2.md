@@ -137,7 +137,7 @@ One domain per week: one main course + one CIPD/Saylor read + one artefact. You 
 |---|---|---|
 | 75 min | **Alison — Talent Acquisition Practices** (metrics and reporting content). | Notes |
 | 60 min | Write the **formula** for the 8 metrics that matter: time-to-fill, cost-per-hire, source of hire, offer acceptance, stage conversion, new-hire attrition, headcount vs budget, engagement score. | Metrics cheat sheet |
-| 75 min | **AIHR — free Talent Acquisition analytics / data course** if listed free that week; otherwise **Alison Diploma in Modern HRM** reporting modules. | Notes |
+| 75 min | **Alison — Diploma in Modern Human Resource Management**, reporting modules. | Notes |
 | 60 min | Read one CIPD factsheet on people analytics; write: the question, the data, what changed. | Case summary |
 | 45 min | Phase 2 review: for each of the six domains, one sentence on what is currently changing it. | 6 sentences — interview gold |
 
@@ -256,7 +256,7 @@ Your specialism. Go deeper here than anywhere else; every output becomes portfol
 | 90 min | Workable Academy and/or Greenhouse Learn: job setup, pipeline stages, scorecards, disqualifying reasons, standard reports, report builder. | Screenshot walkthrough |
 | 60 min | **Tool literacy, not certification:** learn the object model shared by every ATS/HRIS — employee record, position, requisition, pipeline stage, effective-dated change. There is no legitimate public free Workday/SAP/Oracle/ADP certification; don't chase one. | 1-page landscape note |
 | 60 min | Spreadsheet skills that matter for hiring data only: `XLOOKUP`/`VLOOKUP`, `IF`/`IFS`, `COUNTIFS`, `SUMIFS`, pivot tables, conditional formatting, filtering/cleanup. Practise on your own artefact-12 data. | Dashboard v2 |
-| 60 min | **AIHR's free Generative AI Prompt Design for HR** course (≈3.5 hrs, free with certificate). | Credential #7 |
+| 60 min | **Alison — HRIS in the Cloud and the Social Enterprise** (1–2 hrs, free to study, free Learner Record). | Credential #7 |
 | 45 min | Write a **data-hygiene SOP**: dedupe, retention, deletion, tag and note standards. | **Artefact 13** |
 
 ### Week 19 · AI in hiring, done responsibly + your memo
@@ -265,7 +265,7 @@ Your specialism. Go deeper here than anywhere else; every output becomes portfol
 |---|---|---|
 | 60 min | Build a **10-prompt HR pack**: JD drafting, boolean generation, screening questions from a JD, interview-note summarising, rejection email, outreach, candidate summary, market research, data cleanup, memo drafting. Test each; keep what works. | **Artefact 14** |
 | 60 min | Write your **AI guardrails** page: no candidate personal data in consumer tools without policy; human review before any AI-assisted rejection; check generated JDs for biased framing; verify every fact; disclose AI use internally. | One-pager |
-| 60 min | Read CIPD's and AIHR's free material on AI in recruitment; note the two things you'd tell a hiring manager who wants to "automate screening." | 2 recommendations |
+| 60 min | Read CIPD's free material on AI in recruitment; note the two things you'd tell a hiring manager who wants to "automate screening." | 2 recommendations |
 | 60 min | Write a 400-word memo to a fictional hiring manager: *"This role is 40 days from filling; here are your three options."* Data, prioritisation, tone. | **Artefact 15** |
 | 60 min | Close out every incomplete course and claim every credential you earned. | Credentials filed |
 
@@ -334,7 +334,7 @@ Copy into a sheet or print. Tick only when the **output** exists.
 | 15 | Alison — Talent Acquisition Practices | 9 | ☐ | ☐ Learner Record |
 | 16 | Alison — Diploma in Recruitment and Selection | 13–17 | ☐ | ☐ Learner Record |
 | 17 | Workable Academy (ATS) and/or Greenhouse Learn | 18 | ☐ | ☐ Completion |
-| 18 | AIHR free GenAI Prompt Design for HR | 18 | ☐ | ☐ Certificate |
+| 18 | Alison — HRIS in the Cloud and the Social Enterprise | 18 | ☐ | ☐ Learner Record |
 | 19 | CIPD People Management Skills MOOC (optional, if ahead) | any | ☐ | n/a |
 
 **Portfolio artefacts**

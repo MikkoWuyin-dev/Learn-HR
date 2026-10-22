@@ -14,9 +14,9 @@ That means the following are deliberately absent, and you shouldn't go looking f
 
 - **Anything gated behind financial aid.** Coursera removed free auditing in August 2025; the full-course route is now a per-course written application with a ~16-day wait. Not worth your stress when Saylor and OpenLearn give you the same ground immediately.
 - **General-skills platforms with no HR content** (IBM SkillsBuild, Microsoft Learn, Google Skillshop, OpenAI Academy, Anthropic, HubSpot, Trailhead, Cursa, Kaggle), **open textbooks** (OpenStax), **generic Excel courses**, and **HR news/podcast feeds**. Useful in a broad sense; none of them will teach you recruitment or get you an HR job. If you later want them, the wider research version of this library is kept in `HR_Roadmap_Library.html`.
-- **Paid-only or trial-only provider academies** (TA Institute, Skill India, Great Learning's certificate, NextInHR, Workday/SAP/Oracle/ADP — no public free certification exists for any of them).
+- **Paid-only or trial-only provider academies** (TA Institute, Skill India, Great Learning's certificate, NextInHR, Workday/SAP/Oracle/ADP — no public free certification exists for any of them) **and AIHR, whose free tier ended: its whole catalogue now sits behind the paid Academy**.
 
-**The one AI exception** is AIHR's free Generative AI for HR course: it is HR-specific, self-paced and immediately free, so it stays. Everything else about "learning AI" is optional for your first role.
+**AI was the one exception, and it no longer has a free course behind it.** AIHR's Generative AI course was the only free, HR-specific AI course that cleared this bar; AIHR has since moved its whole catalogue behind its paid Academy. You still cover the skill, through the prompt pack and the guardrails page you write in Week 19 — better evidence than a certificate anyway. Everything else about "learning AI" is optional for your first role.
 
 ---
 
@@ -64,10 +64,10 @@ That means the following are deliberately absent, and you shouldn't go looking f
 - **Why it matters:** the Chartered Institute of Personnel and Development is the UK's professional body for HR and the profession's de facto standard-setter. You get the profession's *own framing* of the job — the language multinational HR teams, NGOs and banks use, including in Lagos.
 - **Do this with it:** enrol in HR Fundamentals in Week 1 so the questions you can't answer shape your syllabus. Note the access window when you join and finish inside it. Do **not** buy a FutureLearn upgrade to "keep access."
 
-#### CIPD — the free factsheet and guide hub
-- **Links:** https://www.cipd.org/en/knowledge/factsheets/ · https://www.cipd.org/en/knowledge/guides-and-resources/ · https://www.cipd.org/en/learning/podcasts-and-webinars/
+#### CIPD — the free factsheet hub
+- **Link:** https://www.cipd.org/en/knowledge/factsheets/
 - **Cost:** free (some items ask for a free CIPD account; a subset is members-only)
-- **What it is:** ~100 regularly updated factsheets and guides — recruitment and selection, reward, ER, L&D, employment law, HR technology — plus podcasts and open webinars.
+- **What it is:** ~100 regularly updated factsheets — recruitment and selection, reward, ER, L&D, employment law, HR technology.
 - **Why it matters:** the reference shelf I'd hand any new HR officer. Concise, cited, updated. Better interview preparation than any YouTube channel.
 - **Do this with it:** one factsheet per Phase 2 week, before you study that domain. Keep the 12 you use most in one folder and quote them in your artefacts.
 
@@ -102,12 +102,6 @@ That means the following are deliberately absent, and you shouldn't go looking f
 - **Why it matters:** a UN-agency credential on an entry-level CV is a genuine differentiator, and it's the only free source here that gives you the *labour-market* framing private HR courses skip.
 - **Do this with it:** **Introduction to Labour Administration** (Week 10) and **Business and Decent Work** (Week 11). Register on their eLearning platform; if a course shows as closed for now, note the next run rather than forcing it.
 
-#### AIHR — free courses in the Academy
-- **Link:** https://aihr.academy/courses (filter for what's free this month)
-- **Cost:** the full Academy is a paid subscription (~US$1,125/yr), but AIHR publishes free courses — currently *Generative AI Prompt Design for HR* (~3.5 hrs, free, with certificate), and historically a free "Essentials" tier of ~10 courses
-- **Why it matters:** AIHR is the specialist school for talent acquisition and people analytics — exactly your target role — so its free material is usually the most current TA teaching available at ₦0.
-- **Do this with it:** the GenAI course in Week 18, paired with building your prompt library. **Verify each course page before committing a week**; this is the one platform in the library whose free offer changes often. Never buy their certifications for a junior role.
-
 #### Workable Academy + their ATS guide
 - **Links:** https://academy.workable.com/ · https://resources.workable.com/tutorial/applicant-tracking-systems-atoz
 - **Cost:** free — their own FAQ says courses carry no additional fee; you do need to create an account (normally a Workable workspace)
@@ -140,7 +134,7 @@ That means the following are deliberately absent, and you shouldn't go looking f
 - **Do this with it:** Weeks 10–11, Part 1 only, slowly. Cross-check every figure against the statute text below. Then write your own 2-page "Nigerian employment law for recruiters" — that document is worth attaching to applications.
 
 #### SHRM — free toolkits and templates (US-framed)
-- **Links:** https://www.shrm.org/topics-tools/tools/toolkits · https://www.shrm.org/topics-tools/tools/charts · https://www.shrm.org/credentials
+- **Links:** https://www.shrm.org/topics-tools/tools/toolkits · https://www.shrm.org/credentials
 - **Cost:** toolkits and templates are free downloads; articles are metered for non-members (~2/month); SHRM-CP itself is paid (~US$240–340 exam plus study materials) — a later, funded step, not now
 - **Why it matters:** US-framed employers, multinationals and remote US-facing TA teams hire against SHRM language. Their free interview-question banks, job-description templates and onboarding checklists are directly reusable in your artefacts, and their competency model is interview currency.
 - **Do this with it:** one toolkit per Phase 4 week. Steal the structure, not the wording. If an article is metered, move on — you are not signing up for anything.
@@ -193,9 +187,9 @@ Five categories were removed on your rules, so you don't go re-finding them:
 2. **General-skills platforms with no HR course, HR credential or HR listings** — IBM SkillsBuild, Microsoft Learn, Google Skillshop, OpenAI Academy, Anthropic, HubSpot Academy, Trailhead, Cursa, Kaggle, OpenStax, and every generic Excel course.
 3. **HR news, podcasts and newsletters** — Recruiting Brainfood, HR Brew, HR Dive, Workology, Josh Bersin, HBR's podcast, People Managing People, Chad & Cheese. Useful later; none of them teaches recruitment or hires you.
 4. **Non-HR job boards, sourcing utilities, interview-practice and CV-scan tools** — We Work Remotely, Working Nomads, Remotive, Remote OK, Wellfound, The Muse; FreeSourcingTools, hireEZ, Recruiting Gym, r/recruiting; Huru, Exponent Practice, Yoodli, Big Interview, Jobscan, Class Central. Their value is now inside the plan itself: sourcing is taught directly in Doc 2 Week 14, ATS craft in Weeks 17–18, CV formatting and interview rehearsal in Doc 5.
-5. **Paid, trial-only or closed** — TA Institute, Skill India, NextInHR, Great Learning's certificate, Workday/SAP/Oracle/ADP certification (no public free route exists), Google Interview Warmup and HubSpot's Inbound Recruiting (both retired), Talentis and the OEV HRM textbook (unreachable when verified), the ILO e-learning page (404).
+5. **Paid, trial-only or closed** — TA Institute, Skill India, NextInHR, Great Learning's certificate, Workday/SAP/Oracle/ADP certification (no public free route exists), AIHR (its free tier ended; the Academy is paywalled), Google Interview Warmup and HubSpot's Inbound Recruiting (both retired), Talentis and the OEV HRM textbook (unreachable when verified), the ILO e-learning page, CIPD's guides-and-resources and podcasts-and-webinars pages, and SHRM's charts page (all 404).
 
-**One judgement call you should know about:** deleting all AI and Excel training leaves a small hole, since some HR adverts ask for them. My answer: Excel is covered by artefacts you actually build (the dashboard in Weeks 17–18 teaches more than a certificate), and AI by one HR-specific free course (AIHR's). If an employer later funds a general tool course, take it then.
+**One judgement call you should know about:** deleting all AI and Excel training leaves a small hole, since some HR adverts ask for them. My answer: Excel is covered by artefacts you actually build (the dashboard in Weeks 17–18 teaches more than a certificate), and AI by the prompt pack and the guardrails page you write in Week 19. There is no free HR-specific AI course left to point you at — AIHR's, the last of them, is now behind its paywall. If an employer later funds a general tool course, take it then.
 
 ## SUPPORT B — HOW TO READ A RESOURCE CARD (and check it yourself)
 
