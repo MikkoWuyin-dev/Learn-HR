@@ -79,7 +79,7 @@ One sentence each, in your glossary. You are not examined on these; you are noti
 
 **What to do about it, at your stage:** nothing, except read the routes page in Week 1 and keep the **free labour-law study pack** open on your desk for Weeks 10–12. You do not need CIPM to be hired as an HR Assistant, Officer, Recruitment Associate or in an agency — you need competence, artefacts and availability.
 
-**The funding play (this is the actual plan).** Around 6–18 months into the job, after you've delivered something measurable, write a one-page case to your manager: cost, what capability it unlocks for the team (compliance confidence, fewer mis-hires, better documented processes), a retention/bond offer, and the note that the organisation already contributes to the ITF and therefore has training machinery. Ask in the second quarter of the year, not the first. If you're at an SME with no budget, CIPM also runs its own events and free webinars — attendance keeps you visible in the profession, which is its own return.
+**The funding play (this is the actual plan).** Around 6–18 months into the job, after you've delivered something measurable, write a one-page case to your manager: cost, what capability it gives the team (compliance confidence, fewer mis-hires, better documented processes), a retention/bond offer, and the note that the organisation already contributes to the ITF and therefore has training machinery. Ask in the second quarter of the year, not the first. If you're at an SME with no budget, CIPM also runs its own events and free webinars — attendance keeps you visible in the profession, which is its own return.
 
 ---
 

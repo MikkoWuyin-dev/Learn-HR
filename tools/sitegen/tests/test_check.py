@@ -42,8 +42,9 @@ class VoiceTest(unittest.TestCase):
         # If the owner edits one of these sentences, the entry must be removed here.
         root = C.ROOT / "content/docs/src"
         text = "".join(p.read_text(encoding="utf-8") for p in root.glob("doc*.md"))
-        for _, needle, where in C.KNOWN_SOURCE_HITS:
+        for _, needle, where, status in C.KNOWN_SOURCE_HITS:
             self.assertIn(needle, text, where)
+            self.assertIn(status, ("accepted", "open"), where)
 
 
 class DigestTest(unittest.TestCase):

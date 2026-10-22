@@ -50,7 +50,7 @@ class SiteTest(unittest.TestCase):
 class LearningPathTest(SiteTest):
     def test_weeks_follow_the_documented_order(self):
         path = S.learning_path()
-        self.assertEqual([w["n"] for w in path], list(range(0, 22)))
+        self.assertEqual([w["n"] for w in path], list(range(0, 25)))
 
     def test_first_four_weeks_are_complete_blocks(self):
         # AC-2: Week 0 plus Weeks 1-4 can be followed from the site alone.
@@ -71,6 +71,21 @@ class LearningPathTest(SiteTest):
             self.assertEqual(path[n]["source"], "tracker")
             for a in path[n]["acts"]:
                 self.assertIn(a["k"], art["keys"])
+
+    def test_weeks_22_to_24_point_at_doc5_rather_than_restating_it(self):
+        # These three weeks used to be one paragraph in doc2 that handed the
+        # reader to doc5. They are now real week pages. Their rows must name the
+        # doc5 section they come from: a row that describes the work without
+        # citing it is the site growing a second copy of doc5, which is the one
+        # thing the source-of-truth rule forbids.
+        path = {w["n"]: w for w in S.learning_path()}
+        for n in (22, 23, 24):
+            w = path[n]
+            self.assertEqual(w["source"], "blocks", n)
+            for a in w["acts"]:
+                self.assertTrue(a["time"] and a["do"] and a["out"], a)
+                self.assertTrue(re.search(r"(Document 5|§5\.\d)", a["do"]),
+                                f"week {n} row does not cite doc5: {a['do'][:70]}")
 
     def test_keys_are_unique_and_traceable_to_a_doc2_row(self):
         path = S.learning_path()

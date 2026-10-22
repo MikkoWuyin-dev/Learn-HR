@@ -293,7 +293,38 @@ Your specialism. Go deeper here than anywhere else; every output becomes portfol
 
 ## PHASE 7 · WEEKS 22–24 — POSITION, APPLY, INTERVIEW
 
-Everything in this phase is in **Document 5**. Week 22: CV and LinkedIn. Week 23: the application machine (10 tailored applications, alerts, tracker, 5 direct approaches). Week 24: interview rehearsal — story bank, mock interviews, question set, salary script. Don't start applying before your portfolio link works, and don't start interviewing before you've said your four career-changer answers out loud five times.
+Everything in this phase comes from **Document 5** (§5.3 to §5.8). The blocks below are the sequence; the document carries the full detail behind each one. Don't start applying before your portfolio link works, and don't start interviewing before you've said your four career-changer answers out loud five times.
+
+### Week 22 · The CV and the LinkedIn profile
+
+| Time | Do this | Output |
+|---|---|---|
+| 60 min | CV v1 in Document 5 §5.3's order — profile, Selected HR Projects, grouped Skills, Certifications, Education & NYSC. One page. | CV v1 |
+| 45 min | The ATS-safety checklist in §5.3. | ATS-safe CV |
+| 45 min | Every bullet rewritten as Action → Method → Result, against §5.3's table. | Rewritten bullets |
+| 60 min | LinkedIn end to end: §5.4's ten steps. | Live profile |
+| 45 min | Twenty connection notes in §5.4's wording. | 20 notes sent |
+
+### Week 23 · The application machine
+
+| Time | Do this | Output |
+|---|---|---|
+| 60 min | The application tracker, §5.5's eleven columns. | Application tracker |
+| 60 min | The 90-word cover note from §5.5. | Cover note template |
+| 90 min | Ten tailored applications, §5.5's rule — portfolio link in every one. | 10 applications |
+| 60 min | Alerts on the boards in Document 3 §3.3; 3–5 agencies registered, §5.5. | Alerts live, 3–5 agencies |
+| 60 min | Five direct approaches, §5.5's six-line note. | 5 direct notes |
+| 45 min | The documents folder, §5.5 — so you can answer a request within the hour. | Documents folder |
+
+### Week 24 · Interview rehearsal
+
+| Time | Do this | Output |
+|---|---|---|
+| 60 min | The story bank: four answers, three bullets each, §5.6. | Story bank |
+| 75 min | All fifteen questions in §5.6 rehearsed out loud, twice, with a timer. | 15 answers rehearsed |
+| 60 min | Two mock interviews, §5.6's method. | Two mocks done |
+| 45 min | The salary script from §5.8 — range from the Jobberman report and ten live adverts. | Salary script |
+| 45 min | The offer checklist from §5.8 — nothing stops until it is in writing. | Offer checklist |
 
 ---
 

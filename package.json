@@ -1,0 +1,13 @@
+{
+  "name": "learn-hr",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Free HR learning library. Python builds the site; this file declares the one JavaScript tool the quality gate needs.",
+  "license": "CC-BY-4.0",
+  "devDependencies": {
+    "html-validate": "^9.7.1"
+  },
+  "scripts": {
+    "validate": "html-validate \"_site/**/index.html\""
+  }
+}

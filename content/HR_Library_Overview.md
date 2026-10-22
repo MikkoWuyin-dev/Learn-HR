@@ -1,6 +1,6 @@
 # Your HR Library — A Friendly Overview
 
-Six files, one plan. Here's what you're holding and how to live with it.
+Five documents, one plan — plus the full research archive. Here's what you're holding and how to live with it.
 
 ## The short version
 
@@ -14,7 +14,7 @@ If you read only one thing today, make it Document 1; it takes ten minutes. Then
 
 **Document 2 — The 24-Week Plan.** This is the one you'll open most. Each week is a table of short blocks — forty-five to seventy-five minutes each — and every block ends with something you produce: a summary, a template, a script, a spreadsheet. Nothing in it needs a payment card or an application form, and if a week's output exists the week counts as passed even if you didn't finish the videos. At the back you'll find a tracker of nineteen courses and sixteen pieces of work, along with a page on what to do when you fall behind (you will, twice, and that's fine).
 
-**Document 3 — The Resource Library.** One place where every course lives: the link, what it really costs, how long it takes, and what to make of it. The rule for being in here is simple: the platform has to offer HR courses, HR qualifications, or HR job listings, and the free part has to be free all the way through. That's why you'll find Saylor, the Open University, CIPD, Alison, the ILO training centre and the two big ATS academies here — and why plenty of well-known names are missing. A short list at the back records what was left out and the reason for each, so you don't have to go and rediscover it.
+**Document 3 — The Resource Library.** One place where every course lives: the link, what it really costs, and what to make of it. The rule for being in here is simple: the platform has to offer HR courses, HR qualifications, or HR job listings, and the free part has to be free all the way through. That's why you'll find Saylor, the Open University, CIPD, Alison, the ILO training centre and the two big ATS academies here — and why plenty of well-known names are missing. A short list at the back records what was left out and the reason for each, so you don't have to go and rediscover it.
 
 **Document 4 — Nigeria: Labour Law & CIPM.** Weeks ten to twelve, plus something to keep. It covers what the Labour Act actually says about written terms, notice periods, hours, sick leave, annual leave, redundancy and maternity — read from the government's own copy of the law, with each section number given, so you can check it yourself. It then covers the professional body, CIPM: what it costs and when it starts to be worth your money. You'll also find the twenty tasks a junior HR person is actually handed, a page of common sayings about Nigerian law that turn out to be wrong, and a one-page card worth copying out by hand.
 
