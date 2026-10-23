@@ -195,6 +195,22 @@ def main():
                 break
     check("no markdown or template leftovers", not leaks, str(leaks[:3]))
 
+    # --- share cards (R28) --------------------------------------------------
+    og_dir = SITE / "og"
+    cards = sorted(og_dir.glob("*.svg")) if og_dir.exists() else []
+    want = {"home", "1-start-here", "2-plan", "3-library", "4-nigeria", "5-getting-the-job"}
+    got = {p.stem for p in cards}
+    check("share cards written", got == want,
+          f"{len(cards)} cards" if got == want else f"missing {sorted(want - got)}")
+    # R28: no photography, no AI imagery. A card must be drawn, so there is
+    # nothing to embed - no <image>, no data URI, no remote reference.
+    embedded = [p.name for p in cards
+                if re.search(r"<image|base64|xlink:href", p.read_text(encoding="utf-8"))]
+    check("share cards are drawn, not photographic", not embedded, str(embedded[:3]))
+    check("share cards are 1200x630",
+          all('width="1200"' in p.read_text(encoding="utf-8") for p in cards),
+          f"{len(cards)} checked")
+
     # --- no content fork (R1, roadmap 1.6) ----------------------------------
     fork = git_diff_stat(["content/"])
     if fork is None:
