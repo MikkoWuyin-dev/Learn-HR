@@ -127,7 +127,10 @@ def main():
         return 1
     before = source_digest()
     results = [run("build", [PY, "tools/sitegen/sitegen.py"]),
-               run("output audit", [PY, "tools/sitegen/audit.py"])]
+               run("output audit", [PY, "tools/sitegen/audit.py"]),
+               # Phase 4's contrast check, run on every build rather than once:
+               # a palette edit is exactly when a ratio is most likely to slip.
+               run("contrast audit", [PY, "tools/sitegen/contrast.py"])]
 
     # html-validate (roadmap 1.6), rules in .htmlvalidate.json; the frozen archive under
     # files/ is not ours to change, so only generated pages are checked.
