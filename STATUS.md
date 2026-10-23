@@ -1,6 +1,6 @@
 # STATUS
 
-<!-- Overwrite this file at the end of each task. Don't append to it. Keep it under 100 lines.
+<!-- Overwrite this file at the end of each task. Don't append to it. Keep it under 160 lines.
      It is the only place that says "where we are". The commit log is the history. -->
 
 Updated: 2026-10-22 by Claude (sweep clean at 43 links, 0 failed; fixed a silently blind gate)

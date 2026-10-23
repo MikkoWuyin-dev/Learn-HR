@@ -130,6 +130,8 @@ Technical:
 6. For UI work, check it in a browser at 360 px wide, by keyboard and with JavaScript off, and say
    what you could not observe.
 7. Re-read the full diff before finishing.
+8. Cut taglines, helper text and secondary labels. If a screen needs them to make sense, fix the layout.
+9. Make the best decision that will elevate all three: the user experience (UX), developer experience (DX), and agent experience (AX) always, without breaking anything.
 
 ## Approval gates: ask first
 
