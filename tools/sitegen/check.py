@@ -31,7 +31,7 @@ Clear my progress. Clear every tick on this device? Yes, clear it. Keep it.
 Output done. This week's output. From the plan's progress tracker (Support A). Tick only when the output exists.
 Copy. Copied. Couldn't copy automatically. The text is selected: press and hold it, then choose Copy.
 You left off at Week 4. Resume: Week 4. Open Week 4. Output: Notes.
-Every block in Weeks 0–21 is ticked. Weeks 22–24 live in Getting the job.
+Every block in Weeks 0–24 is ticked.
 This browser is not saving progress (private browsing or storage turned off). Ticks last until you leave the page.
 Marked done. Unmarked. Progress cleared on this device.
 Week passed: every output exists. Tick a block only when its output exists.
@@ -61,10 +61,11 @@ def run(name, cmd, cwd=ROOT):
 
 # Banned-pattern hits that come from the documents themselves, not from the site.
 # Content edits need the owner, so these are reported, not failed; any other hit
-# fails. Remove an entry once the owner has decided about that sentence.
+# fails. Each entry is (category, snippet, where, status) and status is either
+# "accepted" — the owner has read the sentence and chosen to keep it, so stop
+# asking — or "open", still waiting on a decision.
 KNOWN_SOURCE_HITS = [
-    ("puffed-up", "capability it unlocks", "doc4 §4.4, the funding play"),
-    ("consultant speak", "Stakeholders and judgement", "doc5 §5.6, interview question group"),
+    ("consultant speak", "Stakeholders and judgement", "doc5 §5.6, interview question group", "accepted"),
 ]
 BANNED = ("throat-clearing", "puffed-up", "negative framing", "consultant speak")
 
@@ -135,11 +136,19 @@ def main():
     if hv:
         results.append(run("html-validate", [hv, "_site/**/index.html"]))
     else:
-        print("SKIP  html-validate (not installed; `npm i -g html-validate@9` to enable)")
+        # Required, not optional: the owner decided on 2026-10-22 that a missing
+        # binary must fail the gate rather than silently skip a check. Install
+        # with `npm install` (declared in package.json) or `npm i -g html-validate@9`.
+        print("FAIL  html-validate is required but not installed")
+        print("      run `npm install` in the repo root, or `npm i -g html-validate@9`")
+        results.append(False)
 
     results.append(run("python tests", [PY, "-m", "unittest", "discover", "-s", "tools/sitegen/tests"]))
     if shutil.which("node"):
-        results.append(run("javascript tests", ["node", "--test", "tools/sitegen/tests/progress.test.js"]))
+        # Named one by one: `node --test` takes file paths, not a directory.
+        results.append(run("javascript tests", ["node", "--test",
+                                                "tools/sitegen/tests/progress.test.js",
+                                                "tools/sitegen/tests/sw.test.js"]))
     else:
         print("SKIP  javascript tests (node not installed)")
     results.append(run(".docx regression", [PY, "tools/sitegen/docx_regression.py"]))
@@ -158,14 +167,16 @@ def main():
         ui = pathlib.Path(tmp) / "zz-runtime-ui.md"
         ui.write_text(UI_STRINGS, encoding="utf-8")
         mechanical_ok, hits = voice_hits(files + [ui])
-    known = [h for h in hits if any(c == h[0] and n in h[1] for c, n, _ in KNOWN_SOURCE_HITS)]
+    known = [h for h in hits if any(c == h[0] and n in h[1] for c, n, _, _ in KNOWN_SOURCE_HITS)]
     new = [h for h in hits if h not in known]
     ok = mechanical_ok and not new
     print(f"{'PASS' if ok else 'FAIL'}  voice audit on every page" +
           (f"  new hits: {new[:3]}" if new else "") + ("" if mechanical_ok else "  mechanical problems"))
-    for c, n, where in KNOWN_SOURCE_HITS:
+    for c, n, where, status in KNOWN_SOURCE_HITS:
         if any(c == h[0] and n in h[1] for h in known):
-            print(f"      known, in the source, owner to decide: {c} \"{n}\" ({where})")
+            note = ("accepted by the owner, kept as written" if status == "accepted"
+                    else "owner to decide")
+            print(f"      known, in the source, {note}: {c} \"{n}\" ({where})")
     results.append(ok)
 
     after = source_digest()

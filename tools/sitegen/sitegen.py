@@ -319,7 +319,8 @@ def learning_path():
     Output), keyed by the row's data-k. Weeks 20 and 21 have no block table; their
     outputs are the Support A artefacts dated to that week, so those tracker rows are
     the week's activities (same key as the tracker, so a tick in either place is one
-    tick). Weeks 22-24 have no activities here: doc2 hands them to doc5.
+    tick). Weeks 22-24 do carry block tables: doc2 gives them the sequence, doc5
+    §5.3-§5.8 carries the detail behind each row.
     """
     art = tracker()["artefacts"]
     dated = {}
@@ -521,7 +522,8 @@ def page(path, title, body, *, lead="", extra_head="", body_class="", detail=Fal
     if SITE_URL:
         meta += [f'<link rel="canonical" href="{SITE_URL}{url_path}">',
                  f'<meta property="og:url" content="{SITE_URL}{url_path}">']
-    scripts = f'<script src="{root}static/progress.js" defer></script>'
+    scripts = (f'<script src="{root}static/progress.js" defer></script>'
+               f'\n<script src="{root}static/offline.js" defer></script>')
     if "copy-btn" in body:
         scripts += f'\n<script src="{root}static/copy.js" defer></script>'
     if "data-lib-filter" in body:
@@ -689,12 +691,6 @@ def build_plan():
     body.append(f'<section class="card"><h2 id="weeks">The weeks</h2>'
                 f'<p class="note">Each week is a table of blocks. If the week\'s output exists, '
                 f'the week counts as passed.</p><ol class="week-list">{rows}</ol></section>')
-    if weeks:
-        last = weeks[-1]["n"]
-        body.append(f'<aside class="callout"><p><strong>Weeks {last + 1}–24 are in '
-                    f'<a href="/5/getting-the-job/">Getting the job</a>.</strong> Document 2 hands '
-                    f'those three weeks to Document 5 in one paragraph, so they are not week pages '
-                    f'here. The reading is still complete — it just lives in the other document.</p></aside>')
     t = tracker()
     for label, table in (("Courses and credentials", t["courses"]),
                          ("Portfolio artefacts", t["artefacts"])):
@@ -721,7 +717,7 @@ def build_week(w):
     if nxt in available:
         links.append(f'<a href="/2/plan/week/{nxt}/">Week {nxt} →</a>')
     else:
-        links.append('<a href="/5/getting-the-job/">Weeks 22–24 →</a>')
+        links.append('<a href="/5/getting-the-job/">Getting the job →</a>')
     pager = f'<nav class="pager" aria-label="Weeks">{"".join(links)}</nav>'
     body.append(pager)
     body.append(render_blocks(w["blocks"], level=2, ticks=True,
@@ -769,7 +765,7 @@ def build_library_index():
     costs = '<option value="">Any cost</option>' + "".join(
         f'<option value="{k}">{VERDICTS[k]}</option>' for k in used)
     body = [hero("The resource library", f"{len(cs)} resources, each with the link, "
-                f"what it really costs, and how long it takes.", "Document 3"),
+                f"what it really costs, and what to make of it.", "Document 3"),
             LIBRARY_FILTER.format(sections=sections, costs=costs)]
     for k in order:
         sec, items = groups[k]
@@ -1015,6 +1011,45 @@ def write_crawl_files():
     (SITE / "robots.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def write_service_worker(weeks):
+    """Emit _site/sw.js carrying this build's cache name and R28's precache list.
+
+    The cache name is a hash of everything else the build wrote, so any change to
+    any page gives the next build a new name; the worker's activate step then
+    deletes every cache that is not that one, which is what retires the old
+    version. Nothing has to be told to invalidate anything by hand.
+
+    R28 asks for the shell, the week pages, the glossary and the law card. Fonts
+    are deliberately absent: the fetch handler caches every same-origin response
+    it sees, so the fonts arrive with the very first page and are cached then,
+    without adding 60 KB to the install that a first-time reader is paying for.
+    """
+    import hashlib
+    import json
+
+    shell = ["/", "/1/start-here/", "/2/plan/", "/4/nigeria/law-card/",
+             "/wakeout.css", "/static/site.css", "/static/progress.js",
+             "/static/copy.js", "/static/glossary.js", "/static/library.js",
+             "/static/offline.js"]
+    precache = shell + [f"/2/plan/week/{w['n']}/" for w in weeks]
+    missing = [u for u in precache if not (SITE / u.strip("/") / "index.html").exists()
+               and not (SITE / u.lstrip("/")).is_file()]
+    if missing:
+        raise SystemExit(f"service worker would precache missing routes: {missing}")
+
+    h = hashlib.sha256()
+    for p in sorted(SITE.rglob("*")):
+        # sw.js hashes itself, so it must stay out of its own digest.
+        if p.is_file() and p.name != "sw.js":
+            h.update(p.relative_to(SITE).as_posix().encode("utf-8"))
+            h.update(p.read_bytes())
+    src = (ROOT / "site/static/sw.js").read_text(encoding="utf-8")
+    out = (src.replace("__CACHE__", "hrsite-" + h.hexdigest()[:12])
+              .replace("__PRECACHE__", json.dumps(precache, separators=(",", ":"))))
+    (SITE / "sw.js").write_text(squeeze_js(out), encoding="utf-8")
+    return len(precache)
+
+
 # ---------------------------------------------------------------- main
 WORD = re.compile(r"[A-Za-z0-9_$]")
 
@@ -1097,7 +1132,7 @@ def copy_assets():
     text = re.sub(r"\s*([{};:,])\s*", r"\1", text).strip()
     (SITE / "wakeout.css").write_text(text, encoding="utf-8")
     shutil.copy2(ROOT / "site/static/site.css", SITE / "static/site.css")
-    for f in ("progress.js", "copy.js", "glossary.js", "library.js"):
+    for f in ("progress.js", "copy.js", "glossary.js", "library.js", "offline.js"):
         js = (ROOT / "site/static" / f).read_text(encoding="utf-8")
         (SITE / "static" / f).write_text(squeeze_js(js), encoding="utf-8")
     # The .woff2 files are SIL OFL 1.1, which requires the licence to travel
@@ -1146,8 +1181,10 @@ def main(argv):
     build_downloads()
     build_check()
     write_crawl_files()
+    precached = write_service_worker(weeks)
     pages = sorted(p.relative_to(SITE).as_posix() for p in SITE.rglob("index.html"))
-    print(f"built {len(pages)} routes; weeks={len(weeks)} cards={len(cards())}")
+    print(f"built {len(pages)} routes; weeks={len(weeks)} cards={len(cards())} "
+          f"precached={precached}")
     return 0
 
 

@@ -400,3 +400,39 @@ tr[hidden] { display: none; }
   .week-list { columns: 1; }
   .site-head .wrap { justify-content: flex-start; }
 }
+
+/* ------------------------------------------------- offline / new-version note */
+/* Fixed to the bottom of the window and never in the flow, so R28's nudge cannot
+   shift text out from under someone who is reading. It covers the last line or
+   two of the page, which is why it is dismissible and never appears by choice. */
+.sw-note {
+  position: fixed;
+  left: var(--wk-space-3);
+  right: var(--wk-space-3);
+  bottom: var(--wk-space-3);
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wk-space-3);
+  align-items: center;
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: var(--wk-space-3);
+  background: var(--wk-accent);
+  color: var(--wk-accent-foreground);
+  border: var(--wk-border-base) solid var(--wk-ink);
+  border-radius: var(--wk-radius-2xl);
+  box-shadow: var(--wk-shadow-sticker);
+  font-size: var(--wk-text-caption);
+}
+.sw-note-x {
+  margin-left: auto;
+  padding: 0 var(--wk-space-2);
+  background: none;
+  border: 0;
+  color: inherit;
+  font-size: var(--wk-text-headline);
+  line-height: 1;
+  cursor: pointer;
+}
+@media print { .sw-note { display: none; } }

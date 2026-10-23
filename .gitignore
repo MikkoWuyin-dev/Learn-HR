@@ -3,3 +3,6 @@ _site/
 _audit_text/
 __pycache__/
 *.pyc
+
+# javascript tools (declared in package.json)
+node_modules/

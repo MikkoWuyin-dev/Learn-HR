@@ -50,7 +50,7 @@ class SiteTest(unittest.TestCase):
 class LearningPathTest(SiteTest):
     def test_weeks_follow_the_documented_order(self):
         path = S.learning_path()
-        self.assertEqual([w["n"] for w in path], list(range(0, 22)))
+        self.assertEqual([w["n"] for w in path], list(range(0, 25)))
 
     def test_first_four_weeks_are_complete_blocks(self):
         # AC-2: Week 0 plus Weeks 1-4 can be followed from the site alone.
@@ -71,6 +71,21 @@ class LearningPathTest(SiteTest):
             self.assertEqual(path[n]["source"], "tracker")
             for a in path[n]["acts"]:
                 self.assertIn(a["k"], art["keys"])
+
+    def test_weeks_22_to_24_point_at_doc5_rather_than_restating_it(self):
+        # These three weeks used to be one paragraph in doc2 that handed the
+        # reader to doc5. They are now real week pages. Their rows must name the
+        # doc5 section they come from: a row that describes the work without
+        # citing it is the site growing a second copy of doc5, which is the one
+        # thing the source-of-truth rule forbids.
+        path = {w["n"]: w for w in S.learning_path()}
+        for n in (22, 23, 24):
+            w = path[n]
+            self.assertEqual(w["source"], "blocks", n)
+            for a in w["acts"]:
+                self.assertTrue(a["time"] and a["do"] and a["out"], a)
+                self.assertTrue(re.search(r"(Document 5|§5\.\d)", a["do"]),
+                                f"week {n} row does not cite doc5: {a['do'][:70]}")
 
     def test_keys_are_unique_and_traceable_to_a_doc2_row(self):
         path = S.learning_path()
@@ -120,6 +135,78 @@ class LearningPathTest(SiteTest):
         t = S.tracker()
         for k in t["courses"]["keys"] + t["artefacts"]["keys"]:
             self.assertIn(f'data-tick="{k}"', html)
+
+
+class ServiceWorkerTest(SiteTest):
+    def sw(self):
+        return (self.site / "sw.js").read_text(encoding="utf-8")
+
+    def precache(self):
+        m = re.search(r"var PRECACHE=(\[.*?\]);", self.sw())
+        self.assertTrue(m, "sw.js has no precache list")
+        return json.loads(m.group(1))
+
+    def test_cache_name_is_versioned(self):
+        m = re.search(r'var CACHE="(hrsite-[0-9a-f]{12})"', self.sw())
+        self.assertTrue(m, "no versioned cache name in sw.js")
+
+    def test_cache_name_changes_when_the_content_changes(self):
+        # This is the whole versioning mechanism: a new build must get a new
+        # cache name, because activate retires anything that is not that name.
+        first = re.search(r'var CACHE="([^"]+)"', self.sw()).group(1)
+        with tempfile.TemporaryDirectory() as tmp:
+            doc = ROOT / "content/docs/src/doc1.md"
+            original = doc.read_text(encoding="utf-8")
+            doc.write_text(original + "\n\nA sentence added to move the digest.\n",
+                           encoding="utf-8")
+            try:
+                # sitegen memoises parsed documents in _cache, so an edit made
+                # inside this process is invisible until it is dropped. One
+                # build per process in production, so only tests need this.
+                S._cache.clear()
+                second = re.search(r'var CACHE="([^"]+)"',
+                                   build(tmp).joinpath("sw.js").read_text(encoding="utf-8")).group(1)
+            finally:
+                doc.write_text(original, encoding="utf-8")
+                S._cache.clear()
+        self.assertNotEqual(first, second, "a changed build reused the old cache name")
+
+    def test_precache_covers_r28s_set(self):
+        # R28: the shell, the week pages, the glossary and the law card.
+        urls = self.precache()
+        for n in [w["n"] for w in S.week_sections()]:
+            self.assertIn(f"/2/plan/week/{n}/", urls, f"week {n} is not precached")
+        for u in ("/", "/1/start-here/", "/2/plan/", "/4/nigeria/law-card/",
+                  "/wakeout.css", "/static/site.css", "/static/offline.js"):
+            self.assertIn(u, urls, u)
+
+    def test_every_precached_url_exists(self):
+        # addAll rejects the whole install on one 404, so a stale route here
+        # would silently cost the reader their offline site.
+        for u in self.precache():
+            p = self.site / u.lstrip("/")
+            p = p / "index.html" if u.endswith("/") else p
+            self.assertTrue(p.exists(), f"precached but missing: {u}")
+
+    def test_downloads_are_not_precached(self):
+        # They are large, and anyone fetching one is by definition online.
+        self.assertFalse([u for u in self.precache() if u.startswith("/files/")])
+
+    def test_other_origins_are_left_alone(self):
+        self.assertIn("self.location.origin", self.sw())
+
+    def test_the_nudge_never_reloads_on_its_own(self):
+        # R28: the nudge may not interrupt mid-read, so a reload happens only
+        # because the reader pressed the button.
+        js = (self.site / "static/offline.js").read_text(encoding="utf-8")
+        self.assertEqual(js.count("location.reload()"), 1)
+        head, _ = js.split("location.reload()")
+        self.assertIn("onclick", head[-80:], "reload sits outside a click handler")
+
+    def test_every_page_registers_the_worker(self):
+        for page in self.site.rglob("index.html"):
+            self.assertIn("static/offline.js", page.read_text(encoding="utf-8"),
+                          page.parent)
 
 
 class GlossaryTest(SiteTest):
