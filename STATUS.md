@@ -7,7 +7,7 @@ Updated: 2026-10-23 by Claude (Phase 3 finished: offline + share cards)
 
 ## Now
 - Phases 1-3 are built. `python3 tools/sitegen/check.py` is the gate (Python 3.11+): build · output
-  audit · html-validate · tests · .docx regression · voice audit · sources untouched.
+  audit · contrast · html-validate · tests · .docx regression · voice audit · sources untouched.
   **html-validate is required** (`npm install`); a missing binary FAILS rather than skips.
 - **All 25 weeks are real pages.** Weeks 22-24 come from doc5 §5.3-§5.8 and tick like any other week.
   Each of their rows names the doc5 section it came from, and a test fails a row that does not — that
@@ -38,10 +38,18 @@ Updated: 2026-10-23 by Claude (Phase 3 finished: offline + share cards)
 - **`sw.js` is not counted as page JS** — it runs after load, so it is not page weight.
 - **Weeks 22-24 rows are pointers, not prose.** Each cites its doc5 section; a test enforces it.
 
+## Phase 4 (pre-launch checks)
+- **Contrast: done, and the flagged risk does not materialise.** The roadmap feared 9pt table text
+  failing on cream. Measured: **13.42:1**, which is AAA. Worst text pair anywhere is quiet text at
+  5.18:1, still clear of AA's 4.5. `tools/sitegen/contrast.py` now runs in the gate on every build,
+  reading colours back out of site.css rather than restating them, so recoloring text fails it.
+- **Still to do**: Lighthouse mobile, 3G cold load, Android print, and the post-deploy `curl -I`
+  sweep. All four need a browser or a deploy, and there is neither here.
+
 ## Not verified, and why
 - **Three links stay inconclusive**: OpenLearn (403), labour.gov.ng (503), search.cac.gov.ng (403).
   Bot blocks and a busy server, not breakage. A human should still open them once.
-- Real phone, iOS Safari, Lighthouse/3G (Phase 4). The law card fits one A4 page in headless Chromium
+- Real phone, iOS Safari, Lighthouse/3G. The law card fits one A4 page in headless Chromium
   print-to-PDF; a real printer and Android print are untested. Browser checks were headless Chromium
   at 360 px: journey, reload, reset, corrupt/blocked storage, copy, keyboard, JS off.
 - **The service worker has never run in a browser** — there is no browser here. `sw.test.js` covers
@@ -55,10 +63,8 @@ Updated: 2026-10-23 by Claude (Phase 3 finished: offline + share cards)
 - **doc5 puts the five direct approaches in Week 24; doc2's Phase 7 puts them in Week 23.** The week
   pages follow doc2, which owns the plan. The documents disagree — the owner's call.
 
-## Closed last round (six owner decisions)
 Weeks 22-24 authored from doc5 · doc4 "unlocks" → "gives" · doc5 "Stakeholders" kept and marked
 `accepted` · html-validate required · home copy reworded · "how long it takes" dropped from both
-places. Doc2 re-shipped (100 → 106 paras) and the regression baseline moved with it.
 
 ## Closed this round (Phase 3 finished)
 - **Service worker (R28)**: versioned cache, 36 entries precached, cache-first with background
@@ -75,26 +81,24 @@ places. Doc2 re-shipped (100 → 106 paras) and the regression baseline moved wi
    python-docx and html-validate, and it does not build the site.
 
 ## Next justified step
-**Phase 4: pre-launch checks** — the last thing before launch. Lighthouse mobile on the four heaviest
-routes, a 3G cold-load timing, the 9pt table-text contrast audit, print from a real printer, and a
-`curl -I` sweep of every route after the first deploy.
+- **The R1 guard in `audit.py` fails while `content/` has uncommitted edits** — commit first.
 
 ## Session traps
-- `python3`/`python` on the owner's PC are Microsoft Store stubs; real interpreter:
-  `/c/Users/micha/AppData/Local/Python/bin/python3`. Set `PYTHONIOENCODING=utf-8` (`₦` breaks cp1252).
-- **The `.docx` regression cannot see a word-for-word swap.** It counts paragraphs, words, tables and
-  hyperlinks, so reworded source silently forks the download. Re-ship on purpose, by hand.
+- `python3` on the owner's PC is a Store stub; real one is `.../AppData/Local/Python/bin/python3`.
+- **The `.docx` regression cannot see a word-for-word swap** — re-ship downloads by hand.
 - **The R1 guard in `audit.py` fails while `content/` has uncommitted edits** — commit first.
 - The build clears `_site` itself (`clean_site()`); its guard refuses to clear the repo.
-- **A site copy string can live outside `content/`** — "how long it takes" was in both. Grep both.
 - **`sitegen._cache` memoises parsed documents for the whole process**, so editing `content/` in a
   running process changes nothing until cleared; tests must clear it to see edits.
-- **`sw.js` templating**: Python's `str.replace` hits every occurrence, JS's only the first, and
-  `sw.js`'s own header comment names both tokens — a JS replace without `/g` leaves them in place.
-- **Never promise PNG by checking that a binary exists** — ImageMagick usually has no SVG delegate
-  and "succeeds" while writing nothing. The OG probe draws a real card and checks the PNG header.
+- **`sw.js` templating**: Python's `str.replace` hits every occurrence, JS's only the first, so a
+  JS replace without `/g` leaves the tokens that `sw.js`'s own header comment also names.
+- **Never promise PNG by checking that a binary exists** — the OG probe draws a card, then checks.
 - sitegen.py needs Python 3.11+; 3.10 fails on the parser. `node --test` takes file paths, so a new
   JS test file must be named in `check.py` or it never runs.
-- `python-docx` isn't installed here by default: `pip install --break-system-packages -r requirements.txt`.
-- **Never rely on `subprocess.run(..., text=True)` without `encoding="utf-8"`** — it rots silently on
-  a Windows console. **A regex escape in a raw string is not an escape**: `r"\u00a7"` is six chars.
+- **Strip CSS comments before parsing a stylesheet.** A comment above a rule is otherwise captured
+  as part of its selector, so the rule never matches and the check silently measures a fallback.
+- **`subprocess.run(..., text=True)` needs `encoding="utf-8"`**; `r"\u00a7"` is six chars, not `§`.
+- **A site copy string can live outside `content/`** — "how long it takes" was in the source and in
+  `sitegen.py` at once. Grep both before calling a string removed.
+- `python-docx` is not installed here by default: `pip install --break-system-packages -r
+  requirements.txt`.

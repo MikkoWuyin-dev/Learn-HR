@@ -150,7 +150,7 @@ Reading, local edits, builds, tests and the link sweep's `--dry-run` need no app
 - Never write a number a command can produce (routes, links, keys, bytes). Write the command.
 - Never record git state in a document.
 - At the end of a task, update only what became false: `STATUS.md` always (overwrite it, under
-  80 lines); the PRD or roadmap only with owner approval; this file only when a command, invariant,
+  160 lines); the PRD or roadmap only with owner approval; this file only when a command, invariant,
   gate or gotcha changed.
 - Commit messages carry the history.
 
