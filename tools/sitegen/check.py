@@ -145,7 +145,10 @@ def main():
 
     results.append(run("python tests", [PY, "-m", "unittest", "discover", "-s", "tools/sitegen/tests"]))
     if shutil.which("node"):
-        results.append(run("javascript tests", ["node", "--test", "tools/sitegen/tests/progress.test.js"]))
+        # Named one by one: `node --test` takes file paths, not a directory.
+        results.append(run("javascript tests", ["node", "--test",
+                                                "tools/sitegen/tests/progress.test.js",
+                                                "tools/sitegen/tests/sw.test.js"]))
     else:
         print("SKIP  javascript tests (node not installed)")
     results.append(run(".docx regression", [PY, "tools/sitegen/docx_regression.py"]))
