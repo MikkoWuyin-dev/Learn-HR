@@ -27,7 +27,10 @@ import json
 import pathlib
 import re
 import shutil
+import struct
+import subprocess
 import sys
+import tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -522,6 +525,16 @@ def page(path, title, body, *, lead="", extra_head="", body_class="", detail=Fal
     if SITE_URL:
         meta += [f'<link rel="canonical" href="{SITE_URL}{url_path}">',
                  f'<meta property="og:url" content="{SITE_URL}{url_path}">']
+    # Recorded rather than written out again: every page comes through here, so
+    # this is where a share card learns the title it has to draw.
+    if path.strip("/") in OG_ROUTES:
+        _og_specs[path.strip("/")] = (title, lead)
+    card = og_image_url(path)
+    if card:
+        meta += [f'<meta property="og:image" content="{html.escape(card, quote=True)}">',
+                 f'<meta property="og:image:width" content="{OG_W}">',
+                 f'<meta property="og:image:height" content="{OG_H}">',
+                 f'<meta name="twitter:card" content="summary_large_image">']
     scripts = (f'<script src="{root}static/progress.js" defer></script>'
                f'\n<script src="{root}static/offline.js" defer></script>')
     if "copy-btn" in body:
@@ -1050,6 +1063,202 @@ def write_service_worker(weeks):
     return len(precache)
 
 
+# ---------------------------------------------------------------- share cards
+# One card per document, plus one for the home page. R28 asks for these to be
+# generated from the site's own tokens with no photography and no AI imagery, so
+# they are drawn: a frame, a colour chip, type. Nothing else.
+OG_ROUTES = ("", "1/start-here", "2/plan", "3/library", "4/nigeria", "5/getting-the-job")
+OG_W, OG_H = 1200, 630
+OG_FOOTER = "Free to read \u00b7 No account \u00b7 Nothing leaves your device"
+_og_specs = {}
+# Decided before any page is written, because og:image is an absolute URL baked
+# into the head and the extension has to be known up front.
+_og_ext = "svg"
+
+
+def _token(name, default):
+    """One colour primitive from the design system, so a card cannot drift."""
+    try:
+        data = json.loads((ROOT / "design-system/tokens/tokens.json").read_text(encoding="utf-8"))
+        got = data["color"]["primitive"][name]["value"]
+    except (OSError, ValueError, KeyError, TypeError):
+        return default
+    return got if isinstance(got, str) and got.startswith("#") else default
+
+
+def _wrap(text, width, limit):
+    """Greedy word wrap. SVG has no wrapping, so every line is placed by hand."""
+    words, lines, cur, i = text.split(), [], "", 0
+    while i < len(words):
+        trial = (cur + " " + words[i]).strip()
+        if len(trial) > width and cur:
+            lines.append(cur)
+            cur = ""
+            if len(lines) == limit:
+                break
+            continue
+        cur = trial
+        i += 1
+    if cur and len(lines) < limit:
+        lines.append(cur)
+    if i < len(words) and lines:
+        lines[-1] = lines[-1].rstrip() + "\u2026"
+    return lines
+
+
+def _og_svg(label, title, lead):
+    ink = _token("ink", "#043629")
+    paper = _token("paper", "#fff8e6")
+    lime = _token("lime", "#68be00")
+    purple = _token("purple", "#8a38f5")
+    yellow = _token("yellow", "#ffc629")
+    esc = html.escape
+    stack = "Fredoka, 'Space Grotesk', 'Segoe UI', system-ui, sans-serif"
+
+    title_lines = _wrap(title, 22, 3)
+    # A three-line title leaves room for one line of lead, not two: the card is
+    # a fixed 630px tall and the footer sticker is not going to move.
+    lead_lines = _wrap(lead, 46, 2 if len(title_lines) < 3 else 1) if lead else []
+    title_size, lead_size = 76, 34
+
+    # The block is centred in the band between the header and the footer, so a
+    # one-line title and a three-line title both look placed rather than top-heavy.
+    line_h, lead_h, band_top, band_bottom = 86, 44, 150, 496
+    block = len(title_lines) * line_h + (30 + len(lead_lines) * lead_h if lead_lines else 0)
+    top = band_top + max(0, (band_bottom - band_top - block) // 2)
+    title_y = [top + 62 + i * line_h for i in range(len(title_lines))]
+    rule_y = top + len(title_lines) * line_h + 6
+    lead_y = [rule_y + 52 + i * lead_h for i in range(len(lead_lines))]
+
+    chip_w = 44 + len(label) * 19 if label else 0
+    out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{OG_W}" height="{OG_H}" '
+           f'viewBox="0 0 {OG_W} {OG_H}" role="img" '
+           f'aria-label="{esc(title)}">',
+           f'<title>{esc(title)}</title>',
+           f'<rect width="{OG_W}" height="{OG_H}" fill="{paper}"/>',
+           f'<rect x="14" y="14" width="{OG_W - 28}" height="{OG_H - 28}" fill="none" '
+           f'stroke="{ink}" stroke-width="14"/>',
+           # brand mark, same geometry as the site's own
+           f'<rect x="72" y="66" width="46" height="46" fill="{lime}" stroke="{ink}" '
+           f'stroke-width="6"/>',
+           f'<text x="140" y="105" font-family="{stack}" font-size="38" font-weight="700" '
+           f'fill="{ink}" letter-spacing="1.5">HR LIBRARY</text>']
+    if label:
+        out += [f'<rect x="{OG_W - 72 - chip_w}" y="62" width="{chip_w}" height="54" '
+                f'fill="{purple}" stroke="{ink}" stroke-width="6"/>',
+                f'<text x="{OG_W - 72 - chip_w // 2}" y="99" font-family="{stack}" '
+                f'font-size="30" font-weight="700" fill="{paper}" '
+                f'text-anchor="middle">{esc(label.upper())}</text>']
+    for n, line in enumerate(title_lines):
+        out.append(f'<text x="72" y="{title_y[n]}" font-family="{stack}" '
+                   f'font-size="{title_size}" font-weight="800" fill="{ink}">{esc(line)}</text>')
+    if lead_lines:
+        out.append(f'<rect x="72" y="{rule_y}" width="150" height="10" fill="{lime}"/>')
+        for n, line in enumerate(lead_lines):
+            out.append(f'<text x="72" y="{lead_y[n]}" font-family="{stack}" '
+                       f'font-size="{lead_size}" fill="{ink}">{esc(line)}</text>')
+    foot_w = 60 + len(OG_FOOTER) * 17
+    out += [f'<rect x="72" y="{OG_H - 118}" width="{foot_w}" height="60" fill="{yellow}" '
+            f'stroke="{ink}" stroke-width="6"/>',
+            f'<text x="102" y="{OG_H - 76}" font-family="{stack}" font-size="28" '
+            f'font-weight="600" fill="{ink}">{esc(OG_FOOTER)}</text>',
+            '</svg>']
+    return "\n".join(out) + "\n"
+
+
+def _og_png(svg_path, png_path):
+    """Rasterise with whatever is installed. Returns False if nothing can."""
+    # Best first: rsvg-convert and inkscape are real SVG renderers. Browsers are
+    # next, because nearly every desktop has one and headless screenshotting is
+    # faithful. ImageMagick is last and its output is never trusted blindly - it
+    # is often installed without an SVG delegate and can "succeed" on garbage.
+    browsers = []
+    for name in ("chromium", "google-chrome", "chrome", "microsoft-edge", "msedge"):
+        found = shutil.which(name)
+        if found:
+            browsers.append([found, "--headless", "--disable-gpu", "--no-sandbox",
+                             f"--screenshot={png_path}", f"--window-size={OG_W},{OG_H}",
+                             f"--default-background-color=00000000", str(svg_path)])
+            break
+    for cmd in (
+        ["rsvg-convert", "-w", str(OG_W), "-o", str(png_path), str(svg_path)],
+        ["inkscape", "-w", str(OG_W), "-o", str(png_path), str(svg_path)],
+        *browsers,
+        ["convert", "-background", "none", "-density", "192", "-resize", str(OG_W),
+         str(svg_path), str(png_path)],
+    ):
+        if not shutil.which(cmd[0]):
+            continue
+        try:
+            subprocess.run(cmd, capture_output=True, timeout=120,
+                           encoding="utf-8", errors="replace")
+        except (OSError, subprocess.SubprocessError):
+            continue
+        # ImageMagick's built-in SVG renderer is poor and can "succeed" while
+        # writing nothing usable, so the output is checked rather than trusted.
+        if png_path.exists() and _valid_png(png_path):
+            return True
+    if png_path.exists():
+        png_path.unlink()
+    return False
+
+
+def _og_probe():
+    """'png' if a rasteriser can actually do it, else 'svg'."""
+    probe = (f'<svg xmlns="http://www.w3.org/2000/svg" width="{OG_W}" height="{OG_H}">'
+             f'<rect width="{OG_W}" height="{OG_H}" fill="#fff"/></svg>')
+    with tempfile.TemporaryDirectory() as tmp:
+        svg = pathlib.Path(tmp) / "probe.svg"
+        svg.write_text(probe, encoding="utf-8")
+        return "png" if _og_png(svg, pathlib.Path(tmp) / "probe.png") else "svg"
+
+
+def _valid_png(path, width=OG_W):
+    try:
+        raw = path.read_bytes()
+        return raw[:8] == b"\x89PNG\r\n\x1a\n" and struct.unpack(">I", raw[16:20])[0] >= width
+    except (OSError, struct.error):
+        return False
+
+
+def write_og_cards():
+    """Draw and write the share cards. Returns (written, extension used).
+
+    SVG is the source: it is small, crisp at any size and readable in a
+    repository. PNG is what social platforms actually want - most reject SVG -
+    so it is produced too wherever a rasteriser exists. Where none does, the
+    build says so out loud instead of quietly shipping cards that will not
+    appear when someone shares a page.
+    """
+    out_dir = SITE / "og"
+    out_dir.mkdir(exist_ok=True)
+    written = 0
+    for route in OG_ROUTES:
+        if route not in _og_specs:
+            continue
+        title, lead = _og_specs[route]
+        label = "" if not route else "Document " + route.split("/")[0]
+        slug = route.replace("/", "-") or "home"
+        svg_path = out_dir / f"{slug}.svg"
+        svg_path.write_text(_og_svg(label, title, lead), encoding="utf-8")
+        written += 1
+        if _og_ext == "png" and not _og_png(svg_path, out_dir / f"{slug}.png"):
+            print(f"      no rasteriser produced {slug}.png; sharing {slug}.svg instead")
+    return written
+
+
+def og_image_url(path):
+    """The absolute og:image for a route, or None when the origin is unknown."""
+    key = path.strip("/")
+    if not SITE_URL or key not in OG_ROUTES or key not in _og_specs:
+        return None
+    slug = key.replace("/", "-") or "home"
+    card = f"og/{slug}.{_og_ext}"
+    if _og_ext == "png" and not (SITE / card).exists():
+        card = f"og/{slug}.svg"
+    return f"{SITE_URL}/{card}"
+
+
 # ---------------------------------------------------------------- main
 WORD = re.compile(r"[A-Za-z0-9_$]")
 
@@ -1146,13 +1355,18 @@ def copy_assets():
 
 
 def main(argv):
-    global SITE_URL
+    global SITE_URL, _og_ext
     import os
     url = os.environ.get("HR_SITE_URL", "")
     for arg in argv:
         if arg.startswith("--site-url="):
             url = arg.split("=", 1)[1]
     SITE_URL = url.rstrip("/")
+    # Probe once, before any page is written: og:image is baked into the head
+    # and cannot be patched afterwards. The test draws a real card rather than
+    # asking whether a binary exists, because ImageMagick is often installed
+    # without a working SVG delegate and would promise PNGs it cannot make.
+    _og_ext = _og_probe()
     if SITE_URL and not re.match(r"^https://[^/\s]+$", SITE_URL):
         print(f"--site-url must be an https origin with no path, got {SITE_URL!r}")
         return 2
@@ -1182,9 +1396,14 @@ def main(argv):
     build_check()
     write_crawl_files()
     precached = write_service_worker(weeks)
+    og = write_og_cards()
     pages = sorted(p.relative_to(SITE).as_posix() for p in SITE.rglob("index.html"))
     print(f"built {len(pages)} routes; weeks={len(weeks)} cards={len(cards())} "
-          f"precached={precached}")
+          f"precached={precached} og={og} ({_og_ext})")
+    if _og_ext == "svg":
+        print("NOTE  share cards are SVG only - no rasteriser (rsvg-convert, inkscape "
+              "or ImageMagick) was found. Most social platforms reject SVG, so cards "
+              "will not appear when a page is shared until PNGs are made.")
     return 0
 
 
