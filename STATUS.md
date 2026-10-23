@@ -1,6 +1,6 @@
 # STATUS
 
-<!-- Overwrite this file at the end of each task. Don't append to it. Keep it under 100 lines.
+<!-- Overwrite this file at the end of each task. Don't append to it. Keep it under 160 lines.
      It is the only place that says "where we are". The commit log is the history. -->
 
 Updated: 2026-10-23 by Claude (Phase 3 finished: offline + share cards)
@@ -98,3 +98,7 @@ Weeks 22-24 authored from doc5 · doc4 "unlocks" → "gives" · doc5 "Stakeholde
 - **Strip CSS comments before parsing a stylesheet.** A comment above a rule is otherwise captured
   as part of its selector, so the rule never matches and the check silently measures a fallback.
 - **`subprocess.run(..., text=True)` needs `encoding="utf-8"`**; `r"\u00a7"` is six chars, not `§`.
+- **A site copy string can live outside `content/`** — "how long it takes" was in the source and in
+  `sitegen.py` at once. Grep both before calling a string removed.
+- `python-docx` is not installed here by default: `pip install --break-system-packages -r
+  requirements.txt`.
