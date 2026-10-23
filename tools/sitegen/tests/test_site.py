@@ -5,6 +5,7 @@
 Each test class builds the site into its own temporary directory, so running the
 tests never touches _site/.
 """
+import html
 import json
 import pathlib
 import re
@@ -14,6 +15,7 @@ import unittest
 from contextlib import redirect_stdout
 from html import unescape
 from io import StringIO
+from urllib.parse import unquote
 
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent))
@@ -207,6 +209,86 @@ class ServiceWorkerTest(SiteTest):
         for page in self.site.rglob("index.html"):
             self.assertIn("static/offline.js", page.read_text(encoding="utf-8"),
                           page.parent)
+
+
+class ShareCardTest(SiteTest):
+    ROUTES = ("", "1/start-here", "2/plan", "3/library", "4/nigeria", "5/getting-the-job")
+
+    def cards(self):
+        return {p.stem: p.read_text(encoding="utf-8")
+                for p in (self.site / "og").glob("*.svg")}
+
+    def test_one_card_per_document_plus_home(self):
+        self.assertEqual(sorted(self.cards()),
+                         sorted(r.replace("/", "-") or "home" for r in self.ROUTES))
+
+    def test_cards_are_real_svg_of_the_right_size(self):
+        for name, svg in self.cards().items():
+            self.assertTrue(svg.startswith("<svg"), name)
+            self.assertIn('width="1200"', svg, name)
+            self.assertIn('height="630"', svg, name)
+            self.assertTrue(svg.rstrip().endswith("</svg>"), name)
+
+    def test_cards_carry_the_pages_own_title(self):
+        # A card that draws the wrong title is worse than no card.
+        for route in self.ROUTES:
+            if not route:
+                continue
+            title = S._og_specs[route][0]
+            card = self.cards()[route.replace("/", "-")]
+            self.assertIn(html.escape(title.split(":")[0].strip())[:20], card, route)
+
+    def test_cards_are_drawn_not_photographic(self):
+        # R28: no photography, no AI imagery. Nothing is embedded at all.
+        for name, svg in self.cards().items():
+            self.assertNotIn("<image", svg, name)
+            self.assertNotIn("base64", svg, name)
+            self.assertNotIn("http://", svg.replace("http://www.w3.org", ""), name)
+
+    def test_card_colours_come_from_the_design_system(self):
+        tokens = json.loads((ROOT / "design-system/tokens/tokens.json").read_text(encoding="utf-8"))
+        allowed = {v["value"] for v in tokens["color"]["primitive"].values()
+                   if isinstance(v, dict) and str(v.get("value", "")).startswith("#")}
+        for name, svg in self.cards().items():
+            for hex_colour in set(re.findall(r'#[0-9a-fA-F]{6}', svg)):
+                self.assertIn(hex_colour.lower(), {c.lower() for c in allowed},
+                              f"{name} uses {hex_colour}, which is not a design token")
+
+    def test_no_og_image_without_a_known_origin(self):
+        # og:image must be absolute, so it cannot be invented before the domain is.
+        html_text = read(self.site, "/2/plan/")
+        self.assertNotIn("og:image", html_text)
+
+
+class ShareCardDomainTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls._tmp = tempfile.TemporaryDirectory()
+        cls.site = build(cls._tmp.name, site_url="https://learnhr.example")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls._tmp.cleanup()
+
+    def test_og_image_is_absolute_when_the_origin_is_known(self):
+        head = read(self.site, "/2/plan/")
+        m = re.search(r'<meta property="og:image" content="([^"]+)"', head)
+        self.assertTrue(m, "no og:image even though a site url was given")
+        self.assertTrue(m.group(1).startswith("https://learnhr.example/og/"), m.group(1))
+
+    def test_og_image_points_at_a_file_that_exists(self):
+        for page in ("", "/1/start-here/", "/2/plan/", "/3/library/",
+                     "/4/nigeria/", "/5/getting-the-job/"):
+            m = re.search(r'<meta property="og:image" content="[^"]+/([^"]+)"',
+                          read(self.site, page))
+            self.assertTrue(m, page)
+            target = self.site / "og" / unquote(m.group(1))
+            self.assertTrue(target.exists(), f"{page} -> missing {m.group(1)}")
+
+    def test_home_page_has_a_card_too(self):
+        m = re.search(r'<meta property="og:image" content="([^"]+)"', read(self.site, "/"))
+        self.assertTrue(m)
+        self.assertIn("home", m.group(1))
 
 
 class GlossaryTest(SiteTest):
