@@ -5,7 +5,8 @@ One command:  python3 tools/sitegen/sitegen.py [--no-css]
 
 Everything visible comes from the markdown (PRD R1: no content fork). The design
 system owns every visual value (R20): this file emits class names and structure,
-never a colour, size or shadow. Values live in site/static/site.css as var(--wk-*).
+never a colour, size or shadow. Values live in site/static/site.css as var(--fn-*),
+which design-system/tokens/fieldnotes.tokens.json compiles into fieldnotes.css.
 
 Layout of the output:
 
@@ -113,10 +114,10 @@ def md(s):
     out = PAREN_URL_RE.sub(r'(<a href="\1">\1</a>)', out)
     out = re.sub(r"\x02(\d+)\x02", lambda m: links[int(m.group(1))], out)
     out = re.sub(r"\x01(\d+)\x01", lambda m: codes[int(m.group(1))], out)
-    # Fredoka has no U+20A6 (verified: 217 glyphs, naira absent; Space Grotesk has
-    # it). A bare ₦ inside a display heading would fall back mid-word, so the
-    # sign always renders in the body face. Typography only — the character and
-    # the copy are untouched.
+    # The display face is a system monospace stack, and no such stack is
+    # guaranteed to carry U+20A6. A bare ₦ inside a heading would fall back
+    # mid-word, so the sign always renders in the reading face. Typography only
+    # — the character and the copy are untouched.
     return out.replace("\u20a6", '<span class="naira">\u20a6</span>')
 
 
@@ -551,7 +552,7 @@ def page(path, title, body, *, lead="", extra_head="", body_class="", detail=Fal
 <title>{html.escape(full_title(title))}</title>
 {chr(10).join(meta)}
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="{root}wakeout.css">
+<link rel="stylesheet" href="{root}fieldnotes.css">
 <link rel="stylesheet" href="{root}static/site.css">
 {extra_head}
 {scripts}
@@ -587,7 +588,10 @@ def page(path, title, body, *, lead="", extra_head="", body_class="", detail=Fal
 
 
 def hero(title, lead, kicker="", actions=""):
-    k = f'<p class="eyebrow">{kicker}</p>' if kicker else ""
+    # The hero kicker is a chip, as in the reference: a yellow block with ink
+    # text (14.00:1) rather than loose uppercase. Elsewhere .eyebrow stays a
+    # plain label, so the chip reads as the hero's own.
+    k = f'<p class="hero-eyebrow">{kicker}</p>' if kicker else ""
     return (f'<section class="hero">{k}<h1>{title}</h1><p class="lead">{lead}</p>{actions}'
             f'{hero_stamp()}</section>')
 
@@ -1032,16 +1036,15 @@ def write_service_worker(weeks):
     deletes every cache that is not that one, which is what retires the old
     version. Nothing has to be told to invalidate anything by hand.
 
-    R28 asks for the shell, the week pages, the glossary and the law card. Fonts
-    are deliberately absent: the fetch handler caches every same-origin response
-    it sees, so the fonts arrive with the very first page and are cached then,
-    without adding 60 KB to the install that a first-time reader is paying for.
+    R28 asks for the shell, the week pages, the glossary and the law card. There
+    are no fonts to precache: Fieldnotes is a system-font family, so a cold
+    install costs no webfont bytes at all.
     """
     import hashlib
     import json
 
     shell = ["/", "/1/start-here/", "/2/plan/", "/4/nigeria/law-card/",
-             "/wakeout.css", "/static/site.css", "/static/progress.js",
+             "/fieldnotes.css", "/static/site.css", "/static/progress.js",
              "/static/copy.js", "/static/glossary.js", "/static/library.js",
              "/static/offline.js"]
     precache = shell + [f"/2/plan/week/{w['n']}/" for w in weeks]
@@ -1077,9 +1080,9 @@ _og_ext = "svg"
 
 
 def _token(name, default):
-    """One colour primitive from the design system, so a card cannot drift."""
+    """One colour primitive from the Fieldnotes system, so a card cannot drift."""
     try:
-        data = json.loads((ROOT / "design-system/tokens/tokens.json").read_text(encoding="utf-8"))
+        data = json.loads((ROOT / "design-system/tokens/fieldnotes.tokens.json").read_text(encoding="utf-8"))
         got = data["color"]["primitive"][name]["value"]
     except (OSError, ValueError, KeyError, TypeError):
         return default
@@ -1107,13 +1110,14 @@ def _wrap(text, width, limit):
 
 
 def _og_svg(label, title, lead):
-    ink = _token("ink", "#043629")
-    paper = _token("paper", "#fff8e6")
-    lime = _token("lime", "#68be00")
-    purple = _token("purple", "#8a38f5")
-    yellow = _token("yellow", "#ffc629")
+    ink = _token("ink", "#11142B")
+    paper = _token("paper", "#FFF8E7")
+    green = _token("green", "#5EE780")
+    yellow = _token("yellow", "#FFE168")
     esc = html.escape
-    stack = "Fredoka, 'Space Grotesk', 'Segoe UI', system-ui, sans-serif"
+    # Fieldnotes ships no webfonts, so a card is drawn in the same system faces
+    # the page uses. The monospace stack is what makes it look like family.
+    stack = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
 
     title_lines = _wrap(title, 22, 3)
     # A three-line title leaves room for one line of lead, not two: the card is
@@ -1139,13 +1143,13 @@ def _og_svg(label, title, lead):
            f'<rect x="14" y="14" width="{OG_W - 28}" height="{OG_H - 28}" fill="none" '
            f'stroke="{ink}" stroke-width="14"/>',
            # brand mark, same geometry as the site's own
-           f'<rect x="72" y="66" width="46" height="46" fill="{lime}" stroke="{ink}" '
+           f'<rect x="72" y="66" width="46" height="46" fill="{green}" stroke="{ink}" '
            f'stroke-width="6"/>',
            f'<text x="140" y="105" font-family="{stack}" font-size="38" font-weight="700" '
            f'fill="{ink}" letter-spacing="1.5">HR LIBRARY</text>']
     if label:
         out += [f'<rect x="{OG_W - 72 - chip_w}" y="62" width="{chip_w}" height="54" '
-                f'fill="{purple}" stroke="{ink}" stroke-width="6"/>',
+                f'fill="{ink}" stroke="{ink}" stroke-width="6"/>',
                 f'<text x="{OG_W - 72 - chip_w // 2}" y="99" font-family="{stack}" '
                 f'font-size="30" font-weight="700" fill="{paper}" '
                 f'text-anchor="middle">{esc(label.upper())}</text>']
@@ -1153,7 +1157,7 @@ def _og_svg(label, title, lead):
         out.append(f'<text x="72" y="{title_y[n]}" font-family="{stack}" '
                    f'font-size="{title_size}" font-weight="800" fill="{ink}">{esc(line)}</text>')
     if lead_lines:
-        out.append(f'<rect x="72" y="{rule_y}" width="150" height="10" fill="{lime}"/>')
+        out.append(f'<rect x="72" y="{rule_y}" width="150" height="10" fill="{green}"/>')
         for n, line in enumerate(lead_lines):
             out.append(f'<text x="72" y="{lead_y[n]}" font-family="{stack}" '
                        f'font-size="{lead_size}" fill="{ink}">{esc(line)}</text>')
@@ -1333,22 +1337,16 @@ def clean_site():
 def copy_assets():
     SITE.mkdir(parents=True, exist_ok=True)
     (SITE / "static").mkdir(parents=True, exist_ok=True)
-    (SITE / "fonts").mkdir(exist_ok=True)
-    src = ROOT / "design-system/artifacts/wakeout.css"
+    src = ROOT / "design-system/artifacts/fieldnotes.css"
     text = src.read_text(encoding="utf-8")
     text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
     text = re.sub(r"\s+", " ", text)
     text = re.sub(r"\s*([{};:,])\s*", r"\1", text).strip()
-    (SITE / "wakeout.css").write_text(text, encoding="utf-8")
+    (SITE / "fieldnotes.css").write_text(text, encoding="utf-8")
     shutil.copy2(ROOT / "site/static/site.css", SITE / "static/site.css")
     for f in ("progress.js", "copy.js", "glossary.js", "library.js", "offline.js"):
         js = (ROOT / "site/static" / f).read_text(encoding="utf-8")
         (SITE / "static" / f).write_text(squeeze_js(js), encoding="utf-8")
-    # The .woff2 files are SIL OFL 1.1, which requires the licence to travel
-    # with them, so the two OFL texts ship beside the fonts they cover.
-    for f in (ROOT / "design-system/public/fonts").glob("*"):
-        if f.suffix in (".woff2", ".txt"):
-            shutil.copy2(f, SITE / "fonts" / f.name)
     (SITE / "files").mkdir(exist_ok=True)
     for f in (ROOT / "downloads").glob("HR_*"):
         shutil.copy2(f, SITE / "files" / f.name)

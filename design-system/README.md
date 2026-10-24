@@ -1,52 +1,56 @@
-# Wakeout UI — design tokens (drop-in bundle)
+# Fieldnotes design system
 
-Extracted from https://wakeout.app on 2026-10-20.
-**183 tokens, 6 artifacts, one source of truth.** No build step needed to consume this.
+The shared visual system for the Fieldnotes family of resource libraries.
+Learn-HR is the first site to consume it; the Nature Photography Library is the
+reference it was read from.
 
-## Fastest path
-Open `artifacts/standalone.html` in a browser — the whole system (palette, type ramp, buttons,
-cards, shadows, textures, motion) renders offline from one file, then copy what you need.
-
-## Use in a Tailwind v4 project
-Copy `artifacts/wakeout.css` and `artifacts/wakeout.theme.css` next to your stylesheet, then:
-```css
-@import "tailwindcss" source(none);   /* keep: otherwise it scrapes unrelated HTML */
-@import "./wakeout.theme.css";
-@source "./src";
 ```
-Utilities come with the tokens: `bg-lime text-ink border-3 rounded-2xl shadow-sticker
-animate-wiggle text-eyebrow bg-dots`. Custom utilities added here: `border-3`, `border-t-3`,
-`bg-dots`, `bg-grid`, `bg-energy`, `bg-sunrise`, `bg-dusk`, `lift`, `font-display`,
-`font-body`, `font-app-ui`.
-
-## No Tailwind?
-```html
-<link rel="stylesheet" href="wakeout.css">
-<button class="wk-button wk-button--primary wk-button--sm">Start</button>
-<div class="wk-card"><div class="wk-card__body">…</div></div>
+tokens/fieldnotes.tokens.json   the one source of truth
+        |
+        |  node design-system/tools/build-tokens.mjs
+        v
+artifacts/fieldnotes.css        --fn-* custom properties, the only artefact
+        |
+        |  copied and minified by tools/sitegen/sitegen.py
+        v
+_site/fieldnotes.css            linked by every page, ahead of site/static/site.css
 ```
-Or read a token: `getComputedStyle(document.documentElement).getPropertyValue("--wk-primary")`.
 
-## Figma / style-dictionary
-`artifacts/tokens.dtcg.json` (W3C DTCG, with `$extensions["wakeout.evidence"]` on each token).
+## The rule
 
-## Regenerate / change
-`node tools/build-tokens.mjs` re-emits every artifact from `tokens/tokens.json` — **zero
-dependencies, no npm install**. `node tools/contrast.mjs` re-measures WCAG pairs. Then
-`node tools/standalone.mjs` to refresh the specimen.
+**`tokens/fieldnotes.tokens.json` is the only place a value may be written.**
+`site/static/site.css` may only reference `var(--fn-*)`; the output audit fails
+the build on a colour literal in the site layer. If a value has no token, it
+does not belong on the page — add a token instead.
 
-## If this lands in a sandbox like the one it came from
-Do **not** rename `artifacts/` to `dist/`. Names like `dist` and `build` are excluded from
-persisted workspace snapshots there, so deliverables written to them disappear from the user's
-viewer even though the files exist in the shell.
+Rebuild after editing the token file:
 
-## Before you change a value
-Read `AGENTS.md` §3 (invariants) and §4 (traps). Every token's `evidence` field says which CSS
-declaration it came from; the radius scale in particular is **not** Tailwind's default.
-
-## Self-check after copying
-```bash
-grep -o '\-\-wk-radius-2xl:[^;]*' wakeout.css        # → 2.25rem (not 1rem)
-grep -o '\-\-wk-shadow-sticker:[^;]*' wakeout.css   # → 6px 6px 0 0 var(--wk-ink)
-grep -c -- '--wk-' wakeout.css                        # 183 tokens + aliases
 ```
+node design-system/tools/build-tokens.mjs
+```
+
+## What the system is
+
+- **Square corners.** The reference stylesheet contains exactly one
+  `border-radius` (2px) in 27,771 characters.
+- **Hard offset shadows, never a blur.** Rest `6px 6px 0 line`; hover lifts
+  `-3px` and the shadow grows to `10px 10px 0 pink`.
+- **The chrome face is monospace**; only running copy opts into the reading
+  face, because a monospace paragraph is harder work than a monospace label.
+- **No webfonts.** The family ships system fonts. Nothing here emits
+  `@font-face`, and the build copies no woff2. This is a decision, not a
+  limitation: two self-hosted faces cost 48,628 B, 68% of a cold first visit.
+
+Full reasoning is in the repository root:
+
+- [`DESIGN.md`](../DESIGN.md) — principles, the page spine, the component
+  inventory and the content conventions, each tied to its evidence.
+- [`STYLE-GUIDE.md`](../STYLE-GUIDE.md) — the measured surface: tokens, type
+  scale, spacing, borders, shadows, motion, focus and print.
+
+## History
+
+This replaced a token set extracted from `wakeout.app`, an unrelated
+third-party site, which is why an earlier version of this site used a green
+palette and rounded pills. `ref/` keeps the evidence from that extraction so the
+provenance is on the record. It is not in force and nothing reads it.
