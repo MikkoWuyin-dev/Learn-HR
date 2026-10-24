@@ -134,7 +134,10 @@ def main():
                # Phase 4's JS-off crawl. The risk it guards is a page whose
                # words only appear once a script runs, which passes every
                # other check here and reaches a reader as an empty page.
-               run("no-JavaScript crawl", [PY, "tools/sitegen/nojs.py"])]
+               run("no-JavaScript crawl", [PY, "tools/sitegen/nojs.py"]),
+               # Phase 4's stand-in for the 3G timing: the bytes half of that
+               # sum, which is all that can be measured without a browser.
+               run("page weight", [PY, "tools/sitegen/weight.py"])]
 
     # html-validate (roadmap 1.6), rules in .htmlvalidate.json; the frozen archive under
     # files/ is not ours to change, so only generated pages are checked.
