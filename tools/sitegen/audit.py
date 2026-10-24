@@ -140,6 +140,26 @@ def main():
     check("table text is 9pt (12px)", "font-size: var(--fn-text-caption)" in css_text,
           "site.css sets table font-size from --fn-text-caption")
 
+    # A control's height must not come from the spacing scale. Spacing is fluid
+    # by design — every step is a clamp — and a clamp collapses on a phone:
+    # --fn-space-12 is clamp(28px, 6vw, 48px), so a button whose min-height was
+    # that token rendered 38px at 390px instead of 48px, and the nav sat at
+    # 32px. A thumb does not get smaller on a phone. Caught in a browser on
+    # 2026-10-24 and fixed with --fn-control-height; this is what stops it
+    # coming back, and it needs no browser to run.
+    fluid_heights = []
+    # Only controls. A banner's min-height may be fluid - nothing is tapped -
+    # so this walks rules rather than matching the declaration everywhere.
+    for m in re.finditer(r"([^{}]+)\{([^}]*)\}", css_text):
+        selector, body = " ".join(m.group(1).split()), m.group(2)
+        if not re.search(r"\.btn|\.tick|\.site-nav a\b|\binput\b|\bselect\b|\bbutton\b", selector):
+            continue
+        hit = re.search(r"min-height:\s*var\(--fn-space-[0-9-]+\)", body)
+        if hit:
+            fluid_heights.append(f"{selector} -> {hit.group(0)}")
+    check("control heights do not come from the fluid spacing scale",
+          not fluid_heights, "; ".join(fluid_heights[:3]))
+
     # --- keys --------------------------------------------------------------
     keys = []
     for p in ps:

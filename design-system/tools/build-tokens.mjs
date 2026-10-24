@@ -48,6 +48,7 @@ const GROUP_PREFIX = {
   "motion.easing": "ease",
   "motion.press": "press",
   "motion.lift": "lift",
+  "dimension.control": "control",
   "component.hero": "hero",
 };
 
