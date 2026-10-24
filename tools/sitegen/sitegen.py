@@ -588,13 +588,27 @@ def page(path, title, body, *, lead="", extra_head="", body_class="", detail=Fal
     return dest
 
 
+# What the hero's stat chips say. They describe the site rather than the page,
+# so they are the same on every hero — the kicker is what names the page, and
+# these are the four things a reader wants to know before they start.
+HERO_META = ("25 weeks", "Free", "No account", "Nothing leaves your device")
+
+
 def hero(title, lead, kicker="", actions=""):
-    # The hero kicker is a chip, as in the reference: a yellow block with ink
-    # text (14.00:1) rather than loose uppercase. Elsewhere .eyebrow stays a
-    # plain label, so the chip reads as the hero's own.
-    k = f'<p class="hero-eyebrow">{kicker}</p>' if kicker else ""
-    return (f'<section class="hero">{k}<h1>{title}</h1><p class="lead">{lead}</p>{actions}'
-            f'{hero_stamp()}</section>')
+    """The reference's hero, in its order: a chip, a title, a lead, some stats.
+
+    The kicker is a chip rather than loose uppercase, and the whole thing sits
+    on the system blue — which measures 4.58:1 under white text, so the one
+    part of this that looks like an accessibility compromise is not one.
+    """
+    k = f'<p class="hero-eyebrow">{html.escape(kicker)}</p>' if kicker else ""
+    meta = "".join(f"<li>{html.escape(m)}</li>" for m in HERO_META)
+    return (f'<section class="hero" aria-labelledby="hero-title">'
+            f'<div class="hero-inner">{k}'
+            f'<h1 id="hero-title">{title}</h1>'
+            f'<p class="hero-lead">{lead}</p>'
+            f'<ul class="hero-meta">{meta}</ul>'
+            f'{actions}{hero_stamp()}</div></section>')
 
 
 def hero_stamp():
@@ -1388,7 +1402,7 @@ def build_style_guide():
     page's head from the same token file. The rule stays absolute, and a class
     that appears here is by construction a token that exists.
     """
-    from contrast import rgb as _rgb, ratio as _ratio
+    from contrast import rgb as _rgb, ratio as _ratio, over as _over
 
     css = (ROOT / "design-system/artifacts/fieldnotes.css").read_text(encoding="utf-8")
     tok = dict(re.findall(r"(--fn-[a-z0-9-]+):\s*([^;}]+);", css))
@@ -1432,6 +1446,12 @@ def build_style_guide():
         if on_ink >= on_paper:
             return f"ink {on_ink:.2f}:1 · {verdict(on_ink)}"
         return f"{on_paper:.2f}:1 on paper · {verdict(on_paper)}"
+
+    # The stat chips sit on a translucent fill over the blue ground, so the
+    # only honest number is the composite. Composited here rather than repeated
+    # from a note somewhere, so it moves when either colour moves.
+    _chip_rgb, _chip_a = _rgb(val("hero-chip-fill"))
+    chip_over_blue = _over(_chip_rgb, _chip_a, _rgb(hexval("blue"))[0])
 
     esc = html.escape
 
@@ -1597,10 +1617,30 @@ def build_style_guide():
                 'classes the pages actually use rather than with copies of their '
                 'styles. Change a token and these change with it.</p>')
 
-    body.append('<div class="card"><h3>Hero and eyebrow</h3>'
-                '<p class="hero-eyebrow">Document 1</p>'
-                '<p>The eyebrow is a chip, not loose uppercase: yellow with ink text, '
-                'at fourteen to one.</p></div>')
+    body.append('<h3>Hero</h3>'
+                '<p>The hero you passed on the way in, drawn again here so it can be '
+                'read against its own measurements. A blue ground inside a thick cyan '
+                'border, a ten pixel pink shadow, and a title big enough to carry tight '
+                'tracking. White on the blue is 4.58:1, which clears AA even at the '
+                'lead\'s body size, so the part of this that looks like a compromise is '
+                'not one.</p>'
+                '<div class="scroller"><table>'
+                '<caption class="eyebrow">The hero, measured</caption>'
+                '<thead><tr><th scope="col">Part</th><th scope="col">Pair</th>'
+                '<th scope="col">Ratio</th></tr></thead><tbody>'
+                '<tr><td>title</td><td>white on blue</td>'
+                f'<td class="num">{ratio("white", "blue"):.2f}:1</td></tr>'
+                '<tr><td>lead</td><td>white on blue</td>'
+                f'<td class="num">{ratio("white", "blue"):.2f}:1</td></tr>'
+                '<tr><td>stat chips</td><td>white on the chip fill over blue</td>'
+                f'<td class="num">{_ratio(_rgb("#FFFFFF")[0], chip_over_blue):.2f}:1</td></tr>'
+                '<tr><td>eyebrow</td><td>ink on yellow</td>'
+                f'<td class="num">{ratio("ink", "yellow"):.2f}:1</td></tr>'
+                '</tbody></table></div>')
+    body.append('<p class="note">The hero itself is at the top of this page — it is '
+                'not drawn a second time here, because two of them would mean two '
+                'first-level headings on one page. Read the numbers above against '
+                'the real thing.</p>')
 
     body.append('<div class="card"><h3>Stickers</h3>'
                 '<p>One class, six grounds. Each carries its own background, and the '

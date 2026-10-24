@@ -145,7 +145,6 @@ PAIRS = [
     ("sticker on cyan", [".sticker", "body"], "--fn-cyan", False),
     ("sticker on pink", [".sticker", "body"], "--fn-pink", False),
     ("sticker on paper", [".sticker", "body"], "--fn-paper", False),
-    ("hero eyebrow", [".hero-eyebrow", "body"], "--fn-yellow", False),
     ("link, hovered", ["a:hover", "body"], "--fn-surface", False),
     ("link hovered on the page", ["a:hover", "body"], "--fn-paper", False),
     ("primary button label", [".btn-primary", "body"], "--fn-primary", False),
@@ -162,6 +161,26 @@ DRAWN = [
     ("share-card chip", "--fn-paper", "--fn-ink", False),
     ("share-card type", "--fn-ink", "--fn-paper", True),
     ("share-card rule", "--fn-ink", "--fn-green", False),
+]
+
+# Pairs where the background is translucent and sits on something else, so the
+# fill has to be composited onto what is behind it before anything is measured.
+# Reading white against rgba(17,20,43,.62) as though it were opaque would be
+# wrong in both directions: too dark against the raw fill, too light against
+# the blue showing through it.
+LAYERED = [
+    ("hero stat chip", "--fn-white", "--fn-hero-chip-fill", "--fn-blue", False),
+]
+
+# Pairs whose ground is whatever another rule declares, read from the
+# stylesheet rather than named here. (label, text selectors, ground selector,
+# is_large). The hero is the reason this exists: its ground is one token today
+# and could be another tomorrow, and the check should follow the stylesheet.
+ON_RULE = [
+    ("hero title", [".hero", "body"], ".hero", True),
+    ("hero lead", [".hero-lead", "body"], ".hero", False),
+    ("hero stamp", [".hero .stamp", "body"], ".hero", False),
+    ("hero eyebrow", [".hero-eyebrow", "body"], ".hero-eyebrow", False),
 ]
 
 
@@ -182,6 +201,18 @@ def measure(decls, table, selectors):
                 return got[0], got[1], selector, False
             return None, None, selector, True
     return None, None, None, False
+
+
+def declared_background(decls, selector, table):
+    """The background a rule sets, resolved. None if the rule sets none.
+
+    Reading it here rather than naming the token in the pair table is what stops
+    the stylesheet and the check from drifting apart.
+    """
+    block = decls.get(selector)
+    if not block or "background" not in block:
+        return None
+    return to_rgb(block["background"], table)
 
 
 def variant_backgrounds(decls, prefix):
@@ -258,6 +289,30 @@ def main(argv):
         record(f"{variant} carries sticker text", fg, alpha, bg[0], False,
                f"{variant} sets its own background")
 
+    for label, selectors, ground, is_large in ON_RULE:
+        bg = declared_background(decls, ground, table)
+        if not bg:
+            failures.append(f"{label}: {ground} declares no background to measure against")
+            continue
+        fg, alpha, found, unresolved = measure(decls, table, selectors)
+        if unresolved:
+            failures.append(f"{label}: {found} sets a colour that does not resolve")
+            continue
+        if fg is None:
+            failures.append(f"{label}: none of {selectors} is in site.css any more")
+            continue
+        record(label, fg, alpha, bg[0], is_large, f"on {ground}'s background")
+
+    for label, fg_name, fill_name, under_name, is_large in LAYERED:
+        fg = to_rgb("var(" + fg_name + ")", table)
+        fill = to_rgb("var(" + fill_name + ")", table)
+        under = to_rgb("var(" + under_name + ")", table)
+        if not (fg and fill and under):
+            failures.append(f"{label}: could not resolve {fg_name} / {fill_name} / {under_name}")
+            continue
+        record(label, fg[0], fg[1], over(fill[0], fill[1], under[0]), is_large,
+               f"{fill_name} over {under_name}")
+
     # Completeness: a colour set on text that nothing measures is a blind spot.
     not_text = ("progress",)
     used = set()
@@ -275,6 +330,13 @@ def main(argv):
             if m:
                 covered.add(m.group(1))
     covered |= {f for _, f, _, _ in DRAWN}
+    covered |= {f for _, f, _, _, _ in LAYERED}
+    for _, selectors, _, _ in ON_RULE:
+        for selector in selectors:
+            block = decls.get(selector, {})
+            m = re.match(r"var\((--fn-[a-z0-9-]+)\)$", block.get("color", ""))
+            if m:
+                covered.add(m.group(1))
     unmeasured = sorted(used - covered)
     if unmeasured:
         failures.append("these colours are set on text but never measured: "

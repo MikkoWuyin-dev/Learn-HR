@@ -91,9 +91,21 @@ almost exclusively as a *hover shadow* — never as a fill behind text.
 | white on blue (hero) | **4.58:1** | AA — but only just |
 | ink on cyan / yellow / green / pink / orange | 11.4–14.0:1 | AAA |
 
-**One place to be careful:** the hero eyebrow is yellow on blue at **3.54:1** — below
-the 4.5 floor for its size. It passes only as large text. If HR adopts the hero
-treatment, use a darker yellow or a larger size there.
+**A correction, because this document was wrong once.** An earlier version of this
+guide warned that the hero eyebrow is yellow on blue at 3.54:1. That was a pair
+computed while auditing the palette, not something the reference renders: the
+eyebrow is a **yellow chip carrying ink text at 14.00:1**, and no yellow-on-blue
+text exists anywhere in the reference. The real hero measures:
+
+| Part of the hero | Pair | Ratio |
+|---|---|---|
+| title | white on blue | **4.58:1** — clears AA even at body size |
+| lead | white on blue | **4.58:1** |
+| stat chips | white on the chip fill over blue | **11.41:1** |
+| eyebrow | ink on yellow | **14.00:1** |
+
+The hero is safe as drawn. The 3.54:1 figure is real but describes a pairing to
+avoid, not one to fix.
 
 ---
 

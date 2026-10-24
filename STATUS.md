@@ -43,7 +43,7 @@ Updated: 2026-10-24 by Claude (Fieldnotes redesign: tokens, type, and the webfon
   `--site-url=https://…` (or `HR_SITE_URL`), since the domain is open.
 
 ## The redesign, and what it changed
-- **Contrast improved while the palette changed.** 25 pairs measured, all clear AA; the worst
+- **Contrast improved while the palette changed.** 35 pairs measured, all clear AA; the worst
   is quiet text in a callout at **5.36:1** (previously the worst anywhere was 5.18:1). Body
   text on paper is 17.12:1. The gate reads colours back out of `site.css`, so recoloring text
   fails the build rather than passing on a stale assumption.
@@ -58,8 +58,15 @@ Updated: 2026-10-24 by Claude (Fieldnotes redesign: tokens, type, and the webfon
   and table heads use the mono stack; `p`, `li`, `td`, `blockquote` opt into the reading
   face. The reference does the same in reverse — its base is mono and its prose blocks opt
   out — but this site carries far more prose, so opting out per block would be unreadable.
-- **The hero kicker is now a chip** (`.hero-eyebrow`, yellow on ink, 14.00:1) rather than
-  loose uppercase, matching the reference's hero. Other `.eyebrow` uses stay plain labels.
+- **The reference's hero is adopted as it ships** — a blue ground inside a thick cyan
+  border, a ten pixel pink shadow, a huge tight-tracked title, a row of stat chips. The
+  owner asked for it accepting poor contrast; **there was none to accept**: the eyebrow
+  is a yellow chip carrying ink at 14.00:1 and the text is white on blue at 4.58:1, which
+  clears AA even at the lead's body size. An earlier note here warned of a 3.54:1
+  yellow-on-blue eyebrow — a pair computed while auditing the palette, not anything the
+  reference renders. `STYLE-GUIDE.md` now says so.
+- **The hero's stats are a real list.** The reference labels them with `aria-label` on a
+  plain `div`, which assistive tech does not honour and `html-validate` rejects.
 - **The style guide reports each colour the way it is used.** Measuring everything against
   ink alone would report that ink fails against ink, which is true and useless, so a light
   colour reports ink-on-it and a dark one reports it-on-paper. That is how `--fn-blue`
@@ -86,8 +93,8 @@ Updated: 2026-10-24 by Claude (Fieldnotes redesign: tokens, type, and the webfon
   keeps its `<h1>`, its prose, its week rows, its terms and its resources. **Nothing ships
   hidden without a stated reason**: an element carrying `hidden` must be a control or
   saved-progress state, and the check names the file and refuses a new one until classified.
-- **Page weight: measured.** Heaviest route is now **22,285 B** gzipped cold: HTML ~12 KB,
-  CSS ~6 KB, JS ~4 KB, **fonts 0 B**. Budget 40 KB, all 54 routes inside it.
+- **Page weight: measured.** Heaviest route is **23,594 B** gzipped cold: HTML ~12 KB,
+  CSS ~7 KB, JS ~4 KB, **fonts 0 B**. Budget 40 KB, all 55 routes inside it.
 - **Still to do**: Lighthouse mobile, 3G cold load, Android print, and the post-deploy
   `curl -I` sweep. All four need a browser or a deploy, and there is neither here.
 
@@ -135,9 +142,8 @@ source of how the site builds.
 - **`sitegen._cache` memoises parsed documents for the whole process**, so editing `content/`
   in a running process changes nothing until cleared; tests must clear it to see edits.
 - **A trailing `;` in a CSS regex misses the last declaration in a rule.** The reference
-  stylesheet is largely minified, so the final declaration before `}` has no semicolon. Match
-  `(?:^|[;{\s])PROP\s*:\s*([^;}]+)` — a naive `border-radius:\s*([^;]+);` finds one radius in
-  27 KB and reports the system square for the wrong reason.
+  stylesheet is largely minified, so the final declaration before `}` has no semicolon; match
+  `(?:^|[;{\s])PROP\s*:\s*([^;}]+)` or you find one radius in 27 KB for the wrong reason.
 - **Strip CSS comments before parsing a stylesheet.** A comment above a rule is otherwise
   captured as part of its selector, so the rule never matches and the contrast check silently
   measures inherited body text instead.

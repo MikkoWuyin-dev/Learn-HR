@@ -135,17 +135,42 @@ main > .wide, main > .grid, main > .table-card, main > .res-grid { max-width: no
 }
 .skip:focus { left: var(--fn-space-2); top: var(--fn-space-2); z-index: 10; }
 
-/* ---------------------------------------------------------------- hero */
+/* ---------------------------------------------------------------- hero
+   The reference's hero, adopted as it ships: a blue ground inside a thick cyan
+   border, a ten pixel pink shadow, and a title big enough to carry -.035em of
+   tracking. It looks like a compromise and is not one - white on the blue is
+   4.58:1, which clears AA even at the lead's body size, and the eyebrow is a
+   yellow chip carrying ink at 14.00:1. */
 .hero {
-  background: var(--fn-surface);
-  border: var(--fn-border-base) solid var(--fn-line);
-  box-shadow: var(--fn-shadow-sticker);
-  padding: var(--fn-space-8) var(--fn-space-6);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: var(--fn-hero-padding-block) var(--fn-hero-padding-inline)
+           var(--fn-hero-padding-bottom);
+  border: var(--fn-border-thick) solid var(--fn-cyan);
+  background: var(--fn-blue);
+  color: var(--fn-white);
+  box-shadow: var(--fn-shadow-sticker-hover);
   margin-bottom: var(--fn-space-10);
 }
-.hero h1 { font-size: var(--fn-text-title); margin-bottom: var(--fn-space-3); }
-.hero .lead { margin-bottom: var(--fn-space-4); max-width: var(--fn-container-2xl); }
-/* The reference's hero eyebrow: a yellow chip with ink text, 14.00:1. */
+/* The corner mark: two cross-hatched yellow gradients, clipped by the hero's
+   overflow and sitting behind the content. Decoration - nothing reads it, and
+   it is hidden from print. */
+.hero::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  right: -25px;
+  bottom: -25px;
+  width: var(--fn-hero-mark-size);
+  height: var(--fn-hero-mark-size);
+  opacity: var(--fn-hero-mark-opacity);
+  background:
+    linear-gradient(90deg, transparent 45%, var(--fn-yellow) 45% 55%, transparent 55%),
+    linear-gradient(transparent 45%, var(--fn-yellow) 45% 55%, transparent 55%);
+}
+.hero-inner { position: relative; z-index: 1; max-width: var(--fn-hero-inner-width); }
+
 .hero-eyebrow {
   display: inline-block;
   margin: 0 0 var(--fn-space-4);
@@ -157,7 +182,43 @@ main > .wide, main > .grid, main > .table-card, main > .res-grid { max-width: no
   font-weight: var(--fn-weight-bold);
   letter-spacing: var(--fn-tracking-widest);
   line-height: var(--fn-leading-snug);
+  text-transform: uppercase;
 }
+.hero h1 {
+  max-width: 18ch;
+  margin: 0 0 var(--fn-hero-lead-gap);
+  font-size: var(--fn-hero-title-size);
+  line-height: var(--fn-hero-title-leading);
+  letter-spacing: var(--fn-hero-title-tracking);
+}
+.hero-lead {
+  max-width: 66ch;
+  margin: 0;
+  color: var(--fn-white);
+  font-size: var(--fn-hero-lead-size);
+  line-height: var(--fn-leading-relaxed);
+}
+/* The stat chips. Their fill is translucent so the blue reads through them,
+   which is why the text measures 11.41:1 against the composite and not against
+   the raw fill. */
+.hero-meta {
+  display: flex; flex-wrap: wrap; gap: var(--fn-hero-meta-gap);
+  margin: var(--fn-hero-meta-top) 0 0; padding: 0; list-style: none;
+}
+.hero-meta li {
+  min-width: 0; max-width: 100%;
+  padding: var(--fn-space-1) var(--fn-space-2);
+  border: var(--fn-border-thin) solid var(--fn-hero-chip-line);
+  background: var(--fn-hero-chip-fill);
+  font-family: var(--fn-font-display);
+  font-size: var(--fn-text-meta);
+  overflow-wrap: break-word;
+}
+/* The stamp and the buttons have to survive a blue ground: muted grey would
+   vanish and cream would fight it. */
+.hero .stamp { color: var(--fn-white); margin-bottom: 0; }
+.hero .stamp-dot { background: var(--fn-yellow); border-color: var(--fn-white); }
+.hero .actions { margin-bottom: 0; }
 
 /* ---------------------------------------------------------------- pieces */
 .card {
@@ -442,6 +503,12 @@ tr[hidden] { display: none; }
     -webkit-print-color-adjust: exact;
   }
   .hero { padding: 0 0 var(--fn-space-4); border-width: 0 0 var(--fn-border-base) 0; }
+  .hero::after { display: none; }
+  .hero h1, .hero-lead, .hero .stamp { color: var(--fn-ink); }
+  .hero .stamp-dot { background: var(--fn-white); border-color: var(--fn-ink); }
+  .hero-eyebrow, .hero-meta span {
+    background: var(--fn-white); color: var(--fn-ink); border-color: var(--fn-ink);
+  }
   a { text-decoration: none; color: var(--fn-ink); }
   th, td { padding: var(--fn-space-2) var(--fn-space-3); }
   .week-list { columns: 1; }
@@ -449,7 +516,7 @@ tr[hidden] { display: none; }
 
 /* ---------------------------------------------------------------- narrow */
 @media (max-width: 40rem) {
-  .hero { padding: var(--fn-space-6) var(--fn-space-4); }
+  .hero { padding: var(--fn-space-6) var(--fn-space-4) var(--fn-space-6); }
   h1 { font-size: var(--fn-text-headline); }
   .week-list { columns: 1; }
   .site-head .wrap { justify-content: flex-start; }

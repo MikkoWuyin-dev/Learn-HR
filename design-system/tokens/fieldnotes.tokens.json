@@ -469,5 +469,69 @@
         "value": "-3px"
       }
     }
+  },
+  "component": {
+    "hero": {
+      "padding-block": {
+        "value": "clamp(18px, 6.3vw, 77px)",
+        "evidence": ".hero padding"
+      },
+      "padding-inline": {
+        "value": "clamp(14px, 5.4vw, 70px)",
+        "evidence": ".hero padding"
+      },
+      "padding-bottom": {
+        "value": "36px",
+        "evidence": ".hero padding"
+      },
+      "inner-width": {
+        "value": "65rem",
+        "evidence": ".hero-inner max-width:1040px"
+      },
+      "title-size": {
+        "value": "clamp(1.85rem, 5.4vw, 4.75rem)",
+        "evidence": ".hero h1"
+      },
+      "title-leading": {
+        "value": "0.98",
+        "evidence": ".hero h1"
+      },
+      "title-tracking": {
+        "value": "-0.035em",
+        "evidence": ".hero h1"
+      },
+      "lead-size": {
+        "value": "clamp(1rem, 2vw, 1.27rem)",
+        "evidence": ".hero-lead"
+      },
+      "lead-gap": {
+        "value": "18px",
+        "evidence": ".hero h1 margin-bottom"
+      },
+      "meta-top": {
+        "value": "26px",
+        "evidence": ".hero-meta margin-top"
+      },
+      "meta-gap": {
+        "value": "9px",
+        "evidence": ".hero-meta gap"
+      },
+      "mark-size": {
+        "value": "clamp(118px, 30vw, 190px)",
+        "evidence": ".hero::after"
+      },
+      "mark-opacity": {
+        "value": "0.34",
+        "evidence": ".hero::after opacity"
+      },
+      "chip-line": {
+        "value": "rgba(255,255,255,0.76)",
+        "evidence": ".hero-meta span border"
+      },
+      "chip-fill": {
+        "value": "rgba(17,20,43,0.62)",
+        "evidence": ".hero-meta span background"
+      }
+    }
   }
 }

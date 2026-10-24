@@ -48,6 +48,7 @@ const GROUP_PREFIX = {
   "motion.easing": "ease",
   "motion.press": "press",
   "motion.lift": "lift",
+  "component.hero": "hero",
 };
 
 /** Keys that are documentation, not tokens. */

@@ -110,6 +110,21 @@
   --fn-press-y: 2px;
   --fn-lift-x: -3px;
   --fn-lift-y: -3px;
+  --fn-hero-padding-block: clamp(18px, 6.3vw, 77px);
+  --fn-hero-padding-inline: clamp(14px, 5.4vw, 70px);
+  --fn-hero-padding-bottom: 36px;
+  --fn-hero-inner-width: 65rem;
+  --fn-hero-title-size: clamp(1.85rem, 5.4vw, 4.75rem);
+  --fn-hero-title-leading: 0.98;
+  --fn-hero-title-tracking: -0.035em;
+  --fn-hero-lead-size: clamp(1rem, 2vw, 1.27rem);
+  --fn-hero-lead-gap: 18px;
+  --fn-hero-meta-top: 26px;
+  --fn-hero-meta-gap: 9px;
+  --fn-hero-mark-size: clamp(118px, 30vw, 190px);
+  --fn-hero-mark-opacity: 0.34;
+  --fn-hero-chip-line: rgba(255,255,255,0.76);
+  --fn-hero-chip-fill: rgba(17,20,43,0.62);
 
   /* aliases - what a browser needs that the primitives do not name */
   --fn-font-body: var(--fn-font-prose);
