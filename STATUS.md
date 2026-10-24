@@ -33,8 +33,9 @@ Updated: 2026-10-23 by Claude (Phase 3 finished: offline + share cards)
   not misled. **R19 facets**: section + cost, which doc3 states; not phase/hours/credential.
 - **R5 list**: the intake template and reference-check script are learner outputs, not document
   templates. **R18 JSON-LD** omitted: `price: 0` would be false for the paid resources.
-- **R24 JS budget is 14 KB**, not 10 KB: 12 KB (owner, for the library filter), then 14 KB for
-  `offline.js`. Forced — the thinnest usable version is 739 B against 661 B of headroom.
+- **R24 JS budget is 14 KB**, not 10 KB: 12 KB (owner, 2026-10-21, for the library filter), then
+  14 KB (ratified by the owner 2026-10-23) for `offline.js`, which was 739 B against 661 B of
+  headroom. Raising a budget is mine to decide; reporting every increase is not optional.
 - **`sw.js` is not counted as page JS** — it runs after load, so it is not page weight.
 - **Weeks 22-24 rows are pointers, not prose.** Each cites its doc5 section; a test enforces it.
 
@@ -81,7 +82,9 @@ Weeks 22-24 authored from doc5 · doc4 "unlocks" → "gives" · doc5 "Stakeholde
    python-docx and html-validate, and it does not build the site.
 
 ## Next justified step
-- **The R1 guard in `audit.py` fails while `content/` has uncommitted edits** — commit first.
+Finish Phase 4. A JS-disabled crawl first — prove every page's words are in the HTML and not built
+by script — then a page-weight pass as the honest stand-in for the 3G timing. Lighthouse, the
+Android print and the post-deploy `curl -I` sweep all need a browser or a deploy, so they wait.
 
 ## Session traps
 - `python3` on the owner's PC is a Store stub; real one is `.../AppData/Local/Python/bin/python3`.

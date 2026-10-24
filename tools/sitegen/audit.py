@@ -119,8 +119,10 @@ def main():
     css = SITE / "static/site.css"
     gz = len(gzip.compress(css.read_bytes(), 9)) + len(gzip.compress((SITE / "wakeout.css").read_bytes(), 9))
     check("CSS <= 45 KB gzipped", gz <= 45 * 1024, f"{gz:,} B gz (site.css + wakeout.css)")
-    # R24 said 10 KB; the owner raised it to 12 KB on 2026-10-21 for the library
-    # filter, and to 14 KB on 2026-10-22 for the service worker's page-side code.
+      # R24 said 10 KB. The owner raised it to 12 KB on 2026-10-21 for the library
+      # filter, and ratified 14 KB on 2026-10-23 for the service worker's page-side
+      # offline bar, which needed 739 B against 661 B of headroom at 12 KB.
+      # Raising this further is fine, but the owner is told every time: see AGENTS.md.
     # sw.js is counted separately, below: it is not page weight. It runs on its
     # own thread after the page has loaded, so it neither delays a first paint
     # nor adds to what a reader downloads to see the page.

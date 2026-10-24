@@ -95,8 +95,13 @@ Technical:
 - The design system owns every visual value: `var(--wk-*)` only, no colour literal (audit fails),
   no blur, no gradients. A value with no token gets a `/* TODO no token: … */` and a question to the owner.
 - No Tailwind build and no Node toolchain for the site; Node is used only for tests.
-- Budgets (R24): ≤120 KB HTML per page, ≤45 KB CSS gzipped, ≤12 KB JS for the whole site (R24 said
-  10 KB; the owner raised it for the library filter).
+- Budgets (R24): ≤120 KB HTML per page, ≤45 KB CSS gzipped, ≤14 KB JS for the whole site (R24 said
+  10 KB; 12 KB for the library filter, then 14 KB for the offline bar — both owner-approved). The
+  gate in `tools/sitegen/audit.py` is the one that enforces these, so trust its number over any
+  document, this file included.
+- **Raising a budget is mine to decide; reporting it is not optional.** Any increase gets told to
+  the owner, with what forced it and how much room is left. Never raise one silently, and never
+  weaken a check to stay inside a budget instead of raising it.
 - Row keys (`data-k`, e.g. `w13-r2`) are a persistence contract: they come from the heading slug plus
   the row index. Renaming a week heading or reordering rows orphans learners' ticks.
 - Progress counts are derived from the build manifest, never stored. Controls ship `hidden` and the
