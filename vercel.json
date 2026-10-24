@@ -1,0 +1,5 @@
+{
+  "framework": null,
+  "buildCommand": "python3 tools/sitegen/sitegen.py",
+  "outputDirectory": "_site"
+}

@@ -91,17 +91,23 @@ Weeks 22-24 authored from doc5 · doc4 "unlocks" → "gives" · doc5 "Stakeholde
 - **27 tests**: 10 Node (worker logic, mutation-checked) and 17 Python. One proves the cache name
   changes when content changes; one fails any card colour that is not a design token.
 
-## Blocked on an owner decision
-1. **Production domain** (D4): needed for canonical URLs, `og:url`, `og:image` and the sitemap.
-   `learnhr.vercel.app` is likely but unconfirmed — nothing is set anywhere until the URL is real.
-   When it is: build command `python3 tools/sitegen/sitegen.py`, output dir `_site`, and set
-   `HR_SITE_URL` in Vercel's env dashboard. Do **not** run `check.py` in the deploy: it needs
-   python-docx and html-validate, and it does not build the site.
+## Deployed
+- **Live at https://fieldnotes-hr.vercel.app** — the owner deployed it on 2026-10-24. The project is
+  "FieldNotes HR", one of a family of FieldNotes resource libraries.
+- **`vercel.json` carries the deploy settings** so they live in the repo, not in dashboard text
+  fields. `framework: null` is the load-bearing line: it stops Vercel auto-detecting a Python
+  runtime from `requirements.txt` and hunting for an entrypoint, which is how it once found the
+  `Handler` test double in `test_linkcheck.py` and tried to deploy the test suite as a web app.
+- **Still unset**: `HR_SITE_URL`. Canonical URLs, `og:image` and `sitemap.xml` are all inert until
+  it is set in Vercel's env dashboard. That is the next thing to do.
+- Do **not** run `check.py` in the deploy: it needs python-docx and html-validate, and it does not
+  build the site. `python3 tools/sitegen/sitegen.py` builds; `_site` is the output.
 
 ## Next justified step
-**Phase 4 is done bar the four items that need a browser or a deploy.** What is left is launch: the
-production domain (blocked, D4), then the Vercel deploy, then the `curl -I` sweep and Lighthouse
-against the real URL. Nothing else can be finished from here.
+The site is live, so the four checks that were blocked on a deploy are now unblocked: `curl -I`
+every route against the real URL, Lighthouse mobile on the four heaviest routes, the 3G cold load,
+and the service-worker acceptance run (install, go offline, reload ten times). Before any of them
+mean much, `HR_SITE_URL` needs setting so canonical URLs and `og:image` exist.
 
 ## Session traps
 - `python3` on the owner's PC is a Store stub; real one is `.../AppData/Local/Python/bin/python3`.
@@ -117,6 +123,11 @@ against the real URL. Nothing else can be finished from here.
   JS test file must be named in `check.py` or it never runs.
 - **Strip CSS comments before parsing a stylesheet.** A comment above a rule is otherwise captured
   as part of its selector, so the rule never matches and the check silently measures a fallback.
+- **`requirements.txt` makes Vercel look for a Python entrypoint**, and it will find one — the
+  `Handler` test double in `test_linkcheck.py`. `framework: null` in `vercel.json` is what stops it.
+- **Never paste a value into a Vercel dashboard field.** A tab came along once and Vercel looked
+  for a directory named `<tab>_site`. Put deploy settings in `vercel.json`, where the bytes are
+  visible and reviewed.
 - **Asset hrefs are relative and differ by depth** — the home page says `static/site.css`, a week
   page says `../../../../static/site.css`. Resolve against the page's own directory; against the
   site root, every route but the home page scores as pulling nothing.
