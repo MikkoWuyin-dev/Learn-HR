@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fieldnotes redesign — where we are</title>
+<!-- Self-contained on purpose: this opens from a file, so it carries its own
+     copy of the Fieldnotes values rather than linking the site's stylesheet.
+     The values are the same ones in design-system/artifacts/fieldnotes.css. -->
+<style>
+  :root {
+    --ink:#11142B; --paper:#FFF8E7; --cream:#FFFDF6; --line:#1E2553;
+    --muted:#565C73; --shade:#D8D9EA; --blue:#3768FF; --cyan:#65E8FF;
+    --pink:#FF4E91; --yellow:#FFE168; --green:#5EE780; --well:#DFE7FF;
+    --live-bg:#E9FFEF; --live-ink:#164D2D; --caveat-bg:#FFF1BD; --caveat-ink:#6E4A00;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --prose:system-ui,sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--prose); font-size:16px; line-height:1.55;
+    padding: clamp(16px,4vw,48px);
+  }
+  h1,h2,h3,h4,.chip,.eyebrow,.stat,.num { font-family:var(--mono); }
+  h1,h2,h3,h4 { font-weight:800; letter-spacing:-.03em; line-height:1.15; margin:0 0 12px; }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  .hero {
+    background:var(--cream); border:3px solid var(--line);
+    box-shadow:6px 6px 0 var(--line); padding:clamp(20px,4vw,40px);
+    margin-bottom:clamp(24px,5vw,40px);
+  }
+  .hero h1 { font-size:2.2rem; margin-bottom:8px; }
+  .hero p { margin:0; max-width:60ch; }
+  .eyebrow {
+    display:inline-block; background:var(--yellow); color:var(--ink);
+    font-size:.77rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+    padding:5px 8px; margin-bottom:16px;
+  }
+
+  /* The four states a stage can be in. Colour and a word, never colour alone. */
+  .chip {
+    display:inline-block; font-size:.72rem; font-weight:800; letter-spacing:.06em;
+    text-transform:uppercase; padding:4px 8px; border:2px solid var(--line);
+    color:var(--ink); white-space:nowrap;
+  }
+  .chip-done    { background:var(--green); }
+  .chip-now     { background:var(--yellow); }
+  .chip-next    { background:var(--cyan); }
+  .chip-blocked { background:var(--caveat-bg); color:var(--caveat-ink); }
+  .chip-later   { background:var(--shade); }
+
+  .stage {
+    display:grid; grid-template-columns:auto 1fr; gap:0 clamp(16px,3vw,28px);
+    margin-bottom:clamp(16px,3vw,28px);
+  }
+  .rail { display:flex; flex-direction:column; align-items:center; gap:6px; padding-top:6px; }
+  .dot { width:18px; height:18px; border:3px solid var(--line); background:var(--cream); flex:none; }
+  .dot-done { background:var(--green); }
+  .dot-now  { background:var(--yellow); }
+  .dot-next { background:var(--cyan); }
+  .dot-blocked { background:var(--caveat-bg); }
+  .dot-later { background:var(--shade); }
+  .spine { flex:1; width:4px; background:var(--line); min-height:24px; }
+
+  .card {
+    background:var(--cream); border:3px solid var(--line);
+    box-shadow:6px 6px 0 var(--line); padding:clamp(16px,3vw,24px);
+    transition:transform .14s ease, box-shadow .14s ease;
+  }
+  .card:hover { transform:translate(-3px,-3px); box-shadow:10px 10px 0 var(--pink); }
+  .card h3 { font-size:1.1rem; margin:0 0 8px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  .card p { margin:0 0 10px; }
+  .card ul { margin:0; padding-left:20px; }
+  .card li { margin-bottom:4px; }
+  .card > :last-child { margin-bottom:0; }
+  .commit { font-family:var(--mono); font-size:.82rem; color:var(--muted); }
+
+  .metrics { display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); margin-bottom:clamp(24px,5vw,40px); }
+  .metric { background:var(--cream); border:3px solid var(--line); box-shadow:6px 6px 0 var(--line); padding:16px; }
+  .metric .stat { display:block; font-size:1.9rem; font-weight:800; letter-spacing:-.04em; line-height:1; margin-bottom:6px; }
+  .metric .label { font-size:.82rem; color:var(--muted); }
+  .metric .was { font-family:var(--mono); font-size:.82rem; color:var(--muted); text-decoration:line-through; }
+
+  .grid2 { display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); }
+  .callout { background:var(--well); border:3px solid var(--line); box-shadow:3px 3px 0 var(--line); padding:18px; }
+  .callout h3 { margin-top:0; }
+  .callout p:last-child { margin-bottom:0; }
+
+  footer { margin-top:40px; padding-top:16px; border-top:3px solid var(--line); font-size:.82rem; color:var(--muted); }
+  @media print {
+    body { background:#fff; padding:0; }
+    .hero,.card,.metric,.callout { box-shadow:none; border-color:#111; break-inside:avoid; }
+    .card:hover { transform:none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition-duration:.01ms !important; }
+    .card:hover { transform:none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <p class="eyebrow">Fieldnotes · Learn-HR</p>
+    <h1>Redesign: where we are</h1>
+    <p>The site was painted with a token set taken from an unrelated third-party site,
+       which is why it was green with rounded pills while its sister site was cream
+       and square. This is the work of moving it onto one shared system.</p>
+  </header>
+
+  <h2>By the numbers</h2>
+  <div class="metrics">
+    <div class="metric">
+      <span class="stat">22,300 B</span>
+      <span class="was">71,337 B</span>
+      <span class="label">heaviest cold first visit, gzipped</span>
+    </div>
+    <div class="metric">
+      <span class="stat">−69%</span>
+      <span class="was">48,628 B fonts</span>
+      <span class="label">page weight, after the webfonts went</span>
+    </div>
+    <div class="metric">
+      <span class="stat">25 / 25</span>
+      <span class="label">contrast pairs clear AA · worst 5.36:1</span>
+    </div>
+    <div class="metric">
+      <span class="stat">107</span>
+      <span class="label">tokens in the shared system</span>
+    </div>
+    <div class="metric">
+      <span class="stat">55</span>
+      <span class="label">routes, including the new style guide</span>
+    </div>
+    <div class="metric">
+      <span class="stat">11 / 11</span>
+      <span class="label">gate checks passing</span>
+    </div>
+  </div>
+
+  <h2>The stages</h2>
+
+  <div class="stage">
+    <div class="rail"><span class="dot dot-done"></span><span class="spine"></span></div>
+    <div class="card">
+      <h3>1 · Deconstruct the Nature Photography site <span class="chip chip-done">done</span></h3>
+      <p>Read its source rather than its rendered page, so every value is measured instead
+         of guessed: 27,771 characters of CSS, 143 classes, 27 custom properties.</p>
+      <ul>
+        <li><code>DESIGN.md</code> — principles, the page spine, the component inventory, content conventions</li>
+        <li><code>STYLE-GUIDE.md</code> — palette, type scale, fluid spacing, borders, shadows, motion</li>
+      </ul>
+      <p class="commit">commit 8faa241</p>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="rail"><span class="dot dot-done"></span><span class="spine"></span></div>
+    <div class="card">
+      <h3>2 · Build the shared token system <span class="chip chip-done">done</span></h3>
+      <p>One source both sites can draw from, replacing the Wakeout set.</p>
+      <ul>
+        <li><code>tokens/fieldnotes.tokens.json</code> → <code>artifacts/fieldnotes.css</code>, 107 tokens</li>
+        <li>The Wakeout token file, its five unbuilt artifacts and three extraction tools are gone —
+            a dead stylesheet beside a live one is how an old system comes back</li>
+        <li>Its evidence stays in <code>ref/</code> so the provenance is on the record</li>
+      </ul>
+      <p class="commit">commit ac63b41</p>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="rail"><span class="dot dot-done"></span><span class="spine"></span></div>
+    <div class="card">
+      <h3>3 · The visual overhaul <span class="chip chip-done">done</span></h3>
+      <p>The language moved, not just the palette.</p>
+      <ul>
+        <li><strong>Square corners</strong> — the reference contains one border-radius in 27,771 characters;
+            this keeps a 2px softening on the smallest controls only</li>
+        <li><strong>Hard shadows, no blur</strong> — cards rest at 6px and lift −3px into 10px of pink on hover</li>
+        <li><strong>Monospace chrome</strong> — headings, labels, buttons, stamps, table heads;
+            running copy opts into the reading face</li>
+        <li><strong>The hero kicker is a chip</strong> rather than loose uppercase</li>
+      </ul>
+      <p class="commit">commit ac63b41</p>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="rail"><span class="dot dot-done"></span><span class="spine"></span></div>
+    <div class="card">
+      <h3>4 · Drop the webfonts <span class="chip chip-done">done · your call</span></h3>
+      <p>Fredoka and Space Grotesk were 68% of a cold first visit. The cold-visit budget
+         dropped from 100 KB to 40 KB as a consequence — the old figure was measuring
+         nothing against 22 KB of real weight, and 40 KB is below what the fonts alone
+         cost, so the budget is now what stops them returning.</p>
+      <p class="commit">commit ac63b41</p>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="rail"><span class="dot dot-done"></span><span class="spine"></span></div>
+    <div class="card">
+      <h3>5 · The live <code>/style-guide</code> route <span class="chip chip-done">done</span></h3>
+      <p>Every component rendered from the tokens it ships with, so a component and the
+         token behind it cannot drift.</p>
+      <ul>
+        <li>23 colour swatches, each with the contrast pair it is really used in</li>
+        <li>11 type sizes in both faces · 11 spacing steps · 4 border widths · 6 shadows</li>
+        <li>12 components, built with the classes the pages actually use</li>
+        <li>No inline styles: the per-token classes are generated from the token file at
+            build time, so the repo's ban stays absolute</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="rail"><span class="dot dot-now"></span><span class="spine"></span></div>
+    <div class="card">
+      <h3>6 · Look at it <span class="chip chip-now">needs you</span></h3>
+      <p><strong>No browser has run on the redesign.</strong> The gate proves the rules are
+         satisfied, not that the page looks right. Every value is tokenised and measured,
+         but nobody has seen square cards, the pink hover lift or monospace headings
+         rendered. The preview is live — this is the one thing the gate cannot do for us.</p>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="rail"><span class="dot dot-blocked"></span><span class="spine"></span></div>
+    <div class="card">
+      <h3>7 · The four checks that need a browser <span class="chip chip-blocked">blocked</span></h3>
+      <ul>
+        <li>Lighthouse mobile on the four heaviest routes</li>
+        <li>The 3G cold load</li>
+        <li>Android print</li>
+        <li>The service worker: install, go offline, reload ten times</li>
+      </ul>
+      <p>Each needs a real browser or a real deploy. None can be faked from here.</p>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="rail"><span class="dot dot-later"></span></div>
+    <div class="card">
+      <h3>8 · A shared home for the tokens <span class="chip chip-later">later · your call</span></h3>
+      <p>The docs live in the HR repo for now, as you chose. When there is a shared home
+         they lift out unchanged — nothing in them refers to HR specifically.</p>
+    </div>
+  </div>
+
+  <h2>Decisions made along the way</h2>
+  <div class="grid2">
+    <div class="callout">
+      <h3>Not copied: the rendering model</h3>
+      <p>The reference builds all 25 cards from JavaScript, so its catalogue is empty with
+         JS off, and it carries a second renderer to patch that. This site's words are in
+         the HTML, proven by the JS-off crawl. Taking the visual system while leaving the
+         rendering model alone was deliberate.</p>
+    </div>
+    <div class="callout">
+      <h3>Not copied: the weak pair</h3>
+      <p>The reference's hero eyebrow is yellow on blue at 3.54:1 — under the 4.5 floor
+         and legal only as large text. Paper on the same blue is 4.32:1. So the share-card
+         chip is ink-on-paper at 17.12:1, and the style guide reports blue as
+         "large only" rather than quietly reusing it.</p>
+    </div>
+    <div class="callout">
+      <h3>Found by mutation testing</h3>
+      <p>After moving the contrast check over, a planted fault in a sticker variant
+         slipped straight through: the check measured the base class against six grounds
+         someone had listed by hand. Variants are now read out of the stylesheet and
+         measured individually — 25 pairs became 31, and the same fault now fails at 2.95:1.</p>
+    </div>
+    <div class="callout">
+      <h3>Still open on Vercel</h3>
+      <p>The dashboard's build-command override may still be set. It takes precedence over
+         <code>vercel.json</code>, so it is worth clearing — otherwise the repo is not the
+         only source of truth for how the site builds.</p>
+    </div>
+  </div>
+
+  <footer>
+    <p>Fieldnotes · Learn-HR. Generated 24 October 2026 from the repository state at the
+       style-guide commit. The commit log is the history; this is the map.</p>
+  </footer>
+
+</div>
+</body>
+</html>

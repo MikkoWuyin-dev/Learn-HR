@@ -21,6 +21,7 @@ Layout of the output:
   _site/5/getting-the-job/             doc5
   _site/5/templates/                   doc5's copyable messages only
   _site/check/                         every external URL with its sweep state
+  _site/style-guide/                   the Fieldnotes system, read live from the stylesheet
   _site/downloads/                     the seven files, with sizes
 """
 import html
@@ -571,7 +572,7 @@ def page(path, title, body, *, lead="", extra_head="", body_class="", detail=Fal
 <footer class="site-foot">
   <div class="wrap">
     <p class="resume" data-resume hidden></p>
-    <p class="stamp">Checked 20 October 2026 · <a href="{root}downloads/">downloads</a> · <a href="{root}check/">link status</a></p>
+    <p class="stamp">Checked 20 October 2026 · <a href="{root}downloads/">downloads</a> · <a href="{root}check/">link status</a> · <a href="{root}style-guide/">style guide</a></p>
     <p>No accounts, no cookies, nothing leaves your device. Free to read; text shared CC BY-SA 4.0.</p>
     <p class="vh" id="hr-live" aria-live="polite"></p>
   </div>
@@ -1352,6 +1353,363 @@ def copy_assets():
         shutil.copy2(f, SITE / "files" / f.name)
 
 
+# What the style guide shows, and in what order. The names are token names
+# without the --fn- prefix, so a rename in the token file surfaces here as a
+# missing swatch rather than as a silent gap.
+SG_COLOUR_GROUPS = (
+    ("Ground and ink", ("ink", "paper", "cream", "line", "muted", "shade")),
+    ("Accent", ("blue", "blue-ink", "cyan", "pink", "yellow", "green", "orange")),
+    ("Notice and control", ("well", "white")),
+)
+SG_STATUS = ("live", "archive", "caveat")
+SG_TAGS = ("default", "playful", "pixel", "action", "mobile")
+SG_TYPE = ("hero", "title", "headline", "lead", "subhead", "body", "body-sm",
+           "small", "caption", "meta", "eyebrow")
+SG_SPACE = ("1", "2", "2-5", "3", "4", "5", "6", "8", "10", "12", "16")
+SG_BORDER = ("hairline", "thin", "base", "thick")
+SG_SHADOW = ("sticker-sm", "sticker", "sticker-hover", "sticker-lg", "disabled", "ring")
+
+
+def build_style_guide():
+    """Render the Fieldnotes system from the compiled stylesheet.
+
+    Every value on this page is read out of artifacts/fieldnotes.css at build
+    time rather than written here, so a component and the token behind it
+    cannot drift apart: change a token, rebuild, and the page changes with it.
+
+    That is the whole reason for the route. A style guide that restates its
+    own values is a second source of truth, and two sources of truth
+    eventually disagree - which is how a design system decays into a
+    description of what the system used to be.
+
+    The one thing it cannot do is use inline styles, which the repo bans. A
+    style guide is exactly the page that wants them - every swatch needs a
+    different value - so the per-token classes it needs are generated into the
+    page's head from the same token file. The rule stays absolute, and a class
+    that appears here is by construction a token that exists.
+    """
+    from contrast import rgb as _rgb, ratio as _ratio
+
+    css = (ROOT / "design-system/artifacts/fieldnotes.css").read_text(encoding="utf-8")
+    tok = dict(re.findall(r"(--fn-[a-z0-9-]+):\s*([^;}]+);", css))
+
+    def val(name):
+        return tok.get("--fn-" + name, "").strip()
+
+    def hexval(name):
+        v = val(name)
+        return v if v.startswith("#") else ""
+
+    def ratio(a, b):
+        ha, hb = hexval(a), hexval(b)
+        if not ha or not hb:
+            return None
+        return _ratio(_rgb(ha)[0], _rgb(hb)[0])
+
+    def verdict(r):
+        if r is None:
+            return ""
+        if r >= 7:
+            return "AAA"
+        if r >= 4.5:
+            return "AA"
+        if r >= 3:
+            return "large only"
+        return "fails"
+
+    def pairing(name):
+        """How this colour is actually used, as a measured pair.
+
+        Measuring every colour against ink alone would report that ink fails
+        against ink, which is true and useless. A dark colour is something that
+        sits *on* a ground; a light colour is a ground that ink sits on. So
+        take the pair with the more separation and name which one it is - the
+        reader always sees the number that describes real use.
+        """
+        on_ink, on_paper = ratio(name, "ink"), ratio(name, "paper")
+        if on_ink is None or on_paper is None:
+            return ""
+        if on_ink >= on_paper:
+            return f"ink {on_ink:.2f}:1 · {verdict(on_ink)}"
+        return f"{on_paper:.2f}:1 on paper · {verdict(on_paper)}"
+
+    esc = html.escape
+
+    # ------------------------------------------------------------ the classes
+    # Collected as we go, then emitted once. A token named here and missing
+    # from the token file produces a rule pointing at nothing, which the
+    # contrast table on the page would then show as an empty ratio.
+    rules = []
+
+    def bg(name):
+        rules.append(f".sg-bg-{name}{{background:var(--fn-{name})}}")
+        return f"sg-bg-{name}"
+
+    def fg(name):
+        rules.append(f".sg-fg-{name}{{color:var(--fn-{name})}}")
+        return f"sg-fg-{name}"
+
+    def bw(name):
+        rules.append(f".sg-bw-{name}{{border-width:var(--fn-border-{name})}}")
+        return f"sg-bw-{name}"
+
+    def sh(name):
+        rules.append(f".sg-sh-{name}{{box-shadow:var(--fn-shadow-{name})}}")
+        return f"sg-sh-{name}"
+
+    def fs(name):
+        rules.append(f".sg-fs-{name}{{font-size:var(--fn-text-{name})}}")
+        return f"sg-fs-{name}"
+
+    def w(name):
+        rules.append(f".sg-w-{name}{{width:var(--fn-space-{name})}}")
+        return f"sg-w-{name}"
+
+    def face(kind):
+        rules.append(f".sg-ff-{kind}{{font-family:var(--fn-font-{kind})}}")
+        return f"sg-ff-{kind}"
+
+    # ---------------------------------------------------------------- colour
+    body = [hero("Style guide",
+                 "Every colour, size, space and component in the Fieldnotes system, "
+                 "read live from the stylesheet this site ships.",
+                 "Fieldnotes")]
+
+    body.append("<h2>Colour</h2>")
+    body.append('<p class="lead">Each swatch shows the token, its value, and what '
+                'ink text measures against it. The ratio is computed at build time '
+                'with the same maths as the gate\'s contrast check, so a colour that '
+                'stops being safe says so here rather than passing quietly.</p>')
+
+    for group_name, names in SG_COLOUR_GROUPS:
+        cells = []
+        for n in names:
+            if not hexval(n):
+                continue
+            cells.append(f'<div class="sg-swatch {bg(n)}">'
+                         f'<code>--fn-{esc(n)}</code>'
+                         f'<span class="sg-swatch-val">{esc(hexval(n))}</span>'
+                         f'<span class="sg-swatch-c">{esc(pairing(n))}</span>'
+                         f'</div>')
+        body.append(f'<div class="card"><h3>{esc(group_name)}</h3>'
+                    f'<div class="sg-grid">{"".join(cells)}</div></div>')
+
+    cells = []
+    for s in SG_STATUS:
+        pair, pair_ink = f"status-{s}-bg", f"status-{s}-ink"
+        r = ratio(pair_ink, pair)
+        cells.append(f'<div class="sg-swatch {bg(pair)} {fg(pair_ink)}">'
+                     f'<code>--fn-{esc(s)}</code>'
+                     f'<span class="sg-swatch-val">{esc(hexval(pair))}</span>'
+                     f'<span class="sg-swatch-c">{r:.2f}:1 · {verdict(r)}</span>'
+                     f'</div>')
+    body.append('<div class="card"><h3>Status pairs</h3>'
+                '<p>Each status is a background and an ink together, so a status never '
+                'needs a rule about the colour of its own text.</p>'
+                f'<div class="sg-grid">{"".join(cells)}</div></div>')
+
+    cells = []
+    for t in SG_TAGS:
+        cells.append(f'<div class="sg-swatch {bg("tag-" + t)}">'
+                     f'<code>--fn-tag-{esc(t)}</code>'
+                     f'<span class="sg-swatch-val">{esc(hexval("tag-" + t))}</span>'
+                     f'<span class="sg-swatch-c">{esc(pairing("tag-" + t))}</span>'
+                     f'</div>')
+    body.append('<div class="card"><h3>Tag colours</h3>'
+                '<p>Colour carries meaning, so every tag also carries a word. '
+                'Nothing here is signalled by hue alone.</p>'
+                f'<div class="sg-grid">{"".join(cells)}</div></div>')
+
+    # ------------------------------------------------------------------ type
+    body.append("<h2>Type</h2>")
+    body.append('<p class="lead">The chrome face is monospace: headings, labels, '
+                'buttons, stamps and table heads. Running copy opts into the reading '
+                'face, because a monospace paragraph is harder work than a monospace '
+                'label. Each size below is shown in the face that would use it.</p>')
+    rows = []
+    for t in SG_TYPE:
+        rows.append(f'<tr><td><code>--fn-text-{esc(t)}</code></td>'
+                    f'<td class="num">{esc(val("text-" + t))}</td>'
+                    f'<td><span class="{face("mono")} {fs(t)}">Week 24 · HR</span></td>'
+                    f'<td><span class="{face("prose")} {fs(t)}">Read the whole clause '
+                    f'before you rely on it.</span></td></tr>')
+    body.append('<div class="card table-card"><div class="scroller"><table>'
+                '<caption class="eyebrow">The type scale, in both faces</caption>'
+                '<thead><tr><th scope="col">Token</th><th scope="col">Value</th>'
+                '<th scope="col">Chrome face</th><th scope="col">Reading face</th>'
+                f'</tr></thead><tbody>{"".join(rows)}</tbody></table></div></div>')
+
+    # ---------------------------------------------------------------- spacing
+    body.append("<h2>Spacing</h2>")
+    body.append('<p class="lead">Fluid throughout, so spacing is continuous rather '
+                'than stepped. Each step is a clamp with a floor, a viewport middle '
+                'and a ceiling; the bar shows the step at its ceiling.</p>')
+    rows = []
+    for s in SG_SPACE:
+        rows.append(f'<tr><td><code>--fn-space-{esc(s)}</code></td>'
+                    f'<td class="num">{esc(val("space-" + s))}</td>'
+                    f'<td><span class="sg-bar {w(s)}"></span></td></tr>')
+    body.append('<div class="card table-card"><div class="scroller"><table>'
+                '<caption class="eyebrow">The spacing scale</caption>'
+                '<thead><tr><th scope="col">Token</th><th scope="col">Value</th>'
+                f'<th scope="col">At its ceiling</th></tr></thead>'
+                f'<tbody>{"".join(rows)}</tbody></table></div></div>')
+
+    # ------------------------------------------------- borders, corners, shadow
+    body.append("<h2>Borders, corners and shadow</h2>")
+    rows = []
+    for b in SG_BORDER:
+        rows.append(f'<tr><td><code>--fn-border-{esc(b)}</code></td>'
+                    f'<td class="num">{esc(val("border-" + b))}</td>'
+                    f'<td><span class="sg-box {bw(b)}"></span></td></tr>')
+    body.append('<div class="card table-card"><div class="scroller"><table>'
+                '<caption class="eyebrow">Border widths</caption>'
+                '<thead><tr><th scope="col">Token</th><th scope="col">Value</th>'
+                f'<th scope="col">Rendered</th></tr></thead>'
+                f'<tbody>{"".join(rows)}</tbody></table></div></div>')
+
+    cells = []
+    for s in SG_SHADOW:
+        cells.append(f'<div class="sg-shadow-cell">'
+                     f'<span class="sg-box sg-shadow {sh(s)}"></span>'
+                     f'<code>--fn-shadow-{esc(s)}</code>'
+                     f'<span class="sg-swatch-val">{esc(val("shadow-" + s))}</span>'
+                     f'</div>')
+    body.append('<div class="card"><h3>Shadow</h3>'
+                '<p>Hard offsets with no blur. Cards rest at six pixels and lift '
+                'into a ten pixel pink shadow on hover, which is the one gesture '
+                'that makes the system feel physical.</p>'
+                f'<div class="sg-grid">{"".join(cells)}</div></div>')
+
+    body.append('<div class="card"><h3>Corners</h3>'
+                '<p>Square. The reference stylesheet contains exactly one '
+                'border-radius in 27,771 characters, and this system keeps it to the '
+                'smallest controls.</p><div class="sg-grid">'
+                f'<div class="sg-swatch"><code>--fn-radius-none</code>'
+                f'<span class="sg-swatch-val">{esc(val("radius-none"))}</span></div>'
+                f'<div class="sg-swatch"><code>--fn-radius-sm</code>'
+                f'<span class="sg-swatch-val">{esc(val("radius-sm"))}</span></div>'
+                '</div></div>')
+
+    # ---------------------------------------------------------------- pieces
+    body.append("<h2>Components</h2>")
+    body.append('<p class="lead">The pieces the site is built from, rendered with the '
+                'classes the pages actually use rather than with copies of their '
+                'styles. Change a token and these change with it.</p>')
+
+    body.append('<div class="card"><h3>Hero and eyebrow</h3>'
+                '<p class="hero-eyebrow">Document 1</p>'
+                '<p>The eyebrow is a chip, not loose uppercase: yellow with ink text, '
+                'at fourteen to one.</p></div>')
+
+    body.append('<div class="card"><h3>Stickers</h3>'
+                '<p>One class, six grounds. Each carries its own background, and the '
+                'gate measures the text on every one of them.</p>'
+                '<p><span class="sticker sticker-free-to-finish">Free to finish</span> '
+                '<span class="sticker sticker-free-to-use">Free to use</span> '
+                '<span class="sticker sticker-limited-access">Limited access</span> '
+                '<span class="sticker sticker-paid">Paid</span> '
+                '<span class="sticker sticker-check-before-committing">Check first</span> '
+                '<span class="sticker sticker-free-to-study-paid-cert">Free to study'
+                '</span></p></div>')
+
+    body.append('<div class="card"><h3>Buttons</h3>'
+                '<p>Every control is at least three rem tall for a thumb.</p>'
+                '<p class="actions">'
+                '<button type="button" class="btn btn-primary">Start with Week 0</button> '
+                '<button type="button" class="btn btn-paper">See the whole plan</button> '
+                '<button type="button" class="btn btn-ink">Reset</button> '
+                '<button type="button" class="btn btn-sm">Copy</button></p></div>')
+
+    body.append('<div class="card"><h3>Hover</h3>'
+                '<p>Hover a card and it rises toward you as its shadow deepens and '
+                'turns pink: three pixels of lift, four of shadow, in just over a '
+                'tenth of a second. Anyone who asks for less motion gets none.</p>'
+                '<div class="grid grid-3">'
+                '<div class="card"><h4>A card at rest</h4>'
+                '<p>Six pixels of hard shadow, square corners.</p></div>'
+                '<div class="card"><h4>Hover this one</h4>'
+                '<p>The lift and the pink shadow are the system\'s signature.</p></div>'
+                '<div class="card"><h4>And this one</h4>'
+                '<p>Both are the same component; nothing is special-cased.</p></div>'
+                '</div></div>')
+
+    body.append('<div class="card"><h3>Progress</h3>'
+                '<p>A two pixel box with a white track and a blue fill. No rounding.</p>'
+                '<div class="meter"><progress value="9" max="25"></progress></div>'
+                '<p class="note">9 of 25 weeks</p></div>')
+
+    body.append('<div class="card"><h3>Status chips</h3>'
+                '<p>Background and ink travel together, so a chip never needs a rule '
+                'about its own text.</p>'
+                f'<p><span class="sticker {bg("status-live-bg")} {fg("status-live-ink")}">'
+                f'live</span> '
+                f'<span class="sticker {bg("status-archive-bg")} {fg("status-archive-ink")}">'
+                f'archive</span> '
+                f'<span class="sticker {bg("status-caveat-bg")} {fg("status-caveat-ink")}">'
+                f'caveat</span></p></div>')
+
+    body.append('<div class="callout"><h3>Callout</h3>'
+                '<p>The soft blue notice tint is one token, shared by callouts, table '
+                'heads, code blocks and the current row. Ink on it measures just under '
+                'fifteen to one.</p></div>')
+
+    body.append('<div class="card table-card"><h3>Table</h3>'
+                '<div class="scroller"><table>'
+                '<caption class="eyebrow">A table with its caption</caption>'
+                '<thead><tr><th scope="col">Week</th><th scope="col">Focus</th>'
+                '<th scope="col" class="num">Hours</th></tr></thead><tbody>'
+                '<tr><td>0</td><td>Set up</td><td class="num">2</td></tr>'
+                '<tr class="is-next"><td>1</td><td>What HR is</td><td class="num">5</td></tr>'
+                '<tr class="is-done"><td>2</td><td>The function</td><td class="num">5</td></tr>'
+                '</tbody></table></div></div>')
+
+    body.append('<div class="card"><h3>Stamp</h3>'
+                '<p>Every content page carries one. It is the family\'s promise that a '
+                'fact has a date on it.</p>'
+                f'<p class="stamp"><span class="stamp-dot" aria-hidden="true"></span>'
+                f'{STAMP}</p></div>')
+
+    body.append('<div class="card"><h3>Motion</h3>'
+                '<p>Motion is confirmation, not decoration: it tells you a card is '
+                'interactive or that a bar moved. Nothing animates on load, and the '
+                'durations come from the tokens rather than from habit.</p>'
+                '<div class="scroller"><table>'
+                '<caption class="eyebrow">Durations and easing</caption>'
+                '<thead><tr><th scope="col">Token</th><th scope="col">Value</th>'
+                '<th scope="col">Used for</th></tr></thead><tbody>'
+                f'<tr><td><code>--fn-duration-quick</code></td>'
+                f'<td class="num">{esc(val("duration-quick"))}</td>'
+                f'<td>transform, box-shadow, background</td></tr>'
+                f'<tr><td><code>--fn-duration-bar</code></td>'
+                f'<td class="num">{esc(val("duration-bar"))}</td>'
+                f'<td>the progress fill</td></tr>'
+                f'<tr><td><code>--fn-ease-out</code></td>'
+                f'<td class="num">{esc(val("ease-out"))}</td><td>everything</td></tr>'
+                '</tbody></table></div></div>')
+
+    body.append('<div class="card"><h3>Focus</h3>'
+                '<p>A three pixel blue ring at two pixels offset, never removed. Tab to '
+                'any control on this page to see it. Controls that already sit on a '
+                'coloured ground take a yellow fill as well, so the ring is never lost '
+                'against what is behind it.</p>'
+                '<p class="actions"><button type="button" class="btn btn-paper">'
+                'Tab to me</button></p></div>')
+
+    # Only now is the class list complete, so only now can it be emitted.
+    seen, sheet = set(), []
+    for rule in rules:
+        if rule not in seen:
+            seen.add(rule)
+            sheet.append(rule)
+    extra_head = "<style>" + "".join(sheet) + "</style>"
+
+    page("style-guide", "Style guide", "\n".join(body),
+         lead="Every colour, size, space and component in the Fieldnotes system, "
+              "read live from the stylesheet this site ships.",
+         extra_head=extra_head)
+
+
 def main(argv):
     global SITE_URL, _og_ext
     import os
@@ -1392,6 +1750,7 @@ def main(argv):
     build_templates()
     build_downloads()
     build_check()
+    build_style_guide()
     write_crawl_files()
     precached = write_service_worker(weeks)
     og = write_og_cards()

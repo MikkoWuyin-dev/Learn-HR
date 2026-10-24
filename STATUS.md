@@ -31,6 +31,12 @@ Updated: 2026-10-24 by Claude (Fieldnotes redesign: tokens, type, and the webfon
   system's own colour primitives. A test fails any card using a hex that is not a token.
 - Ticks, resume line, reset (`progress.js`, `hrsite:v1`) · copy buttons (`copy.js`) · glossary
   search (`glossary.js`) · library filter (`library.js`) · course cards keyed to the tracker.
+- **`/style-guide/` is a live route** (55 pages now) and is linked from every footer. It
+  reads the compiled stylesheet at build time rather than restating values, so a component
+  and the token behind it cannot drift. It carries no inline styles — the per-token classes
+  it needs are generated into its head from the token file, because the repo bans inline
+  style and a style guide is not a reason to exempt itself. `REDESIGN-ROADMAP.html` at the
+  root is a visual map of the redesign, and is a snapshot rather than a live document.
 - `/check/` lists all 43 external links and reads `checks/links.json`: "Last sweep:
   2026-10-22", 0 failed, 3 inconclusive. `link-sweep.yml` re-runs it monthly and opens an
   issue only when a link gets worse. Canonical, `sitemap.xml` and `og:image` only appear with
@@ -54,6 +60,10 @@ Updated: 2026-10-24 by Claude (Fieldnotes redesign: tokens, type, and the webfon
   out — but this site carries far more prose, so opting out per block would be unreadable.
 - **The hero kicker is now a chip** (`.hero-eyebrow`, yellow on ink, 14.00:1) rather than
   loose uppercase, matching the reference's hero. Other `.eyebrow` uses stay plain labels.
+- **The style guide reports each colour the way it is used.** Measuring everything against
+  ink alone would report that ink fails against ink, which is true and useless, so a light
+  colour reports ink-on-it and a dark one reports it-on-paper. That is how `--fn-blue`
+  surfaces as "large only" at 4.32:1 instead of being quietly reused.
 
 ## Deviations from the PRD, made on purpose
 - **R9 storage shape**: `{v:1, ts, done:{rowKey:1}, last}`, so derived counts cannot go stale.
@@ -111,11 +121,12 @@ Updated: 2026-10-24 by Claude (Fieldnotes redesign: tokens, type, and the webfon
   does not build the site. `python3 tools/sitegen/sitegen.py` builds; `_site` is the output.
 
 ## Next justified step
-The `/style-guide` route the owner asked for. It renders every component in the new system
-from the live tokens, so the components and the tokens cannot drift — and it is the only way
-to see the redesign without deploying. After that, the four checks that were blocked on a
-browser: Lighthouse mobile on the four heaviest routes, the 3G cold load, Android print, and
-the service-worker acceptance run (install, go offline, reload ten times).
+**The owner opening the redesign in a browser.** The gate proves the rules are satisfied, not
+that the page looks right, and no browser has run on it. After that, the four checks blocked
+on a browser or a deploy: Lighthouse mobile on the four heaviest routes, the 3G cold load,
+Android print, and the service-worker acceptance run (install, go offline, reload ten times).
+Then the dashboard's build-command override wants clearing so `vercel.json` is the only
+source of how the site builds.
 
 ## Session traps
 - `python3` on the owner's PC is a Store stub; real one is `.../AppData/Local/Python/bin/python3`.

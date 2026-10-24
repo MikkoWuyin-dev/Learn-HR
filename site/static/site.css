@@ -489,3 +489,37 @@ tr[hidden] { display: none; }
   cursor: pointer;
 }
 @media print { .sw-note { display: none; } }
+
+/* ------------------------------------------------- style-guide page furniture
+   Only /style-guide/ uses these. They hold the swatches and the specimen bars,
+   and they take their values from the same tokens as everything else - the page
+   is a demonstration of the system, so it cannot be allowed to sit outside it. */
+.sg-grid { display: grid; gap: var(--fn-space-3); grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); }
+
+.sg-swatch {
+  display: grid; gap: var(--fn-space-1); align-content: start;
+  min-height: var(--fn-space-16); padding: var(--fn-space-3);
+  border: var(--fn-border-thin) solid var(--fn-line);
+  font-family: var(--fn-font-display);
+}
+.sg-swatch code { font-size: var(--fn-text-meta); }
+.sg-swatch-val { font-size: var(--fn-text-meta); }
+.sg-swatch-c { font-size: var(--fn-text-meta); }
+
+.sg-bar {
+  display: block; height: var(--fn-space-3); max-width: 100%;
+  background: var(--fn-line);
+}
+
+.sg-box {
+  display: inline-block; width: var(--fn-space-8); height: var(--fn-space-8);
+  border-style: solid; border-color: var(--fn-line);
+  background: var(--fn-surface);
+}
+.sg-shadow { border-width: var(--fn-border-thin); }
+
+.sg-shadow-cell {
+  display: grid; gap: var(--fn-space-2); justify-items: start;
+  padding: var(--fn-space-3);
+  font-family: var(--fn-font-display); font-size: var(--fn-text-meta);
+}
