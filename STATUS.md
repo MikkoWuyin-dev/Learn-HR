@@ -7,8 +7,8 @@ Updated: 2026-10-23 by Claude (Phase 3 finished: offline + share cards)
 
 ## Now
 - Phases 1-3 are built. `python3 tools/sitegen/check.py` is the gate (Python 3.11+): build · output
-  audit · contrast · no-JS crawl · html-validate · tests · .docx regression · voice audit ·
-  sources untouched.
+  audit · contrast · no-JS crawl · page weight · html-validate · tests · .docx regression · voice
+  audit · sources untouched.
   **html-validate is required** (`npm install`); a missing binary FAILS rather than skips.
 - **All 25 weeks are real pages.** Weeks 22-24 come from doc5 §5.3-§5.8 and tick like any other week.
   Each of their rows names the doc5 section it came from, and a test fails a row that does not — that
@@ -52,6 +52,15 @@ Updated: 2026-10-23 by Claude (Phase 3 finished: offline + share cards)
   carrying `hidden` must be a control (tick, copy, search, filter) or saved-progress state, and the
   check names the file and refuses a new one until it is classified. That is the part that keeps this
   true later. Three mutations planted, three caught.
+- **Page weight: measured, and fonts are the whole story.** `tools/sitegen/weight.py` weighs a cold
+  first visit — not the HTML alone, which is what a page-weight check usually measures and which
+  misses everything a returning reader has already cached. Heaviest route is **71,337 B** gzipped:
+  HTML 12,144 + CSS 6,494 + JS 4,071 + **fonts 48,628, which is 68% of it**. New budget: a cold
+  first visit may cost **100 KB**, set well above the 71 KB seen, to catch a route that grows.
+- **Fonts are not preloaded**, so they start downloading only after the CSS is parsed. `<link
+  rel=preload>` on the two latin faces is the obvious fix, but it needs `crossorigin` even
+  same-origin or the font downloads twice — and there is no browser here to catch that. Left alone
+  on purpose; do it where it can be watched.
 - **Still to do**: Lighthouse mobile, 3G cold load, Android print, and the post-deploy `curl -I`
   sweep. All four need a browser or a deploy, and there is neither here.
 
@@ -90,8 +99,9 @@ Weeks 22-24 authored from doc5 · doc4 "unlocks" → "gives" · doc5 "Stakeholde
    python-docx and html-validate, and it does not build the site.
 
 ## Next justified step
-A page-weight pass: what each route actually weighs, as the honest stand-in for the 3G timing that
-cannot be measured here. Then Phase 4 is done bar the four items that need a browser or a deploy.
+**Phase 4 is done bar the four items that need a browser or a deploy.** What is left is launch: the
+production domain (blocked, D4), then the Vercel deploy, then the `curl -I` sweep and Lighthouse
+against the real URL. Nothing else can be finished from here.
 
 ## Session traps
 - `python3` on the owner's PC is a Store stub; real one is `.../AppData/Local/Python/bin/python3`.
@@ -107,6 +117,9 @@ cannot be measured here. Then Phase 4 is done bar the four items that need a bro
   JS test file must be named in `check.py` or it never runs.
 - **Strip CSS comments before parsing a stylesheet.** A comment above a rule is otherwise captured
   as part of its selector, so the rule never matches and the check silently measures a fallback.
+- **Asset hrefs are relative and differ by depth** — the home page says `static/site.css`, a week
+  page says `../../../../static/site.css`. Resolve against the page's own directory; against the
+  site root, every route but the home page scores as pulling nothing.
 - **Normalise HTML the same way on both sides of a comparison.** Turning tags into "" on one side and
   " " on the other makes `</strong>:` read as `:` in one and ` :` in the other, so every bold cell in
   the content looks missing when it is plainly there.
