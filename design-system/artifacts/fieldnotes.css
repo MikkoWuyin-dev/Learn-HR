@@ -97,6 +97,8 @@
   --fn-container-2xl: 42rem;
   --fn-container-3xl: 52rem;
   --fn-container-6xl: 82.5rem;
+  --fn-control-height: 48px;
+  --fn-control-height-nav: 44px;
   --fn-shadow-sticker-sm: 3px 3px 0 var(--fn-line);
   --fn-shadow-sticker: 6px 6px 0 var(--fn-line);
   --fn-shadow-sticker-hover: 10px 10px 0 var(--fn-pink);

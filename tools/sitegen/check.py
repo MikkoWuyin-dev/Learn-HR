@@ -163,6 +163,18 @@ def main():
         print("SKIP  javascript tests (node not installed)")
     results.append(run(".docx regression", [PY, "tools/sitegen/docx_regression.py"]))
 
+    # Browser. Skipped unless a machine has a Chromium to point at, so the gate
+    # stays green on a laptop with no browser — but it prints, so it cannot be
+    # silently forgotten. It needs the site served, since a service worker will
+    # not register from file://. Nothing here is covered by a static check.
+    if shutil.which("node") and os.environ.get("CHROME_PATH"):
+        results.append(run("browser checks", ["node", "tools/sitegen/browser_check.mjs",
+                                              "http://localhost:8000"]))
+    elif not shutil.which("node"):
+        print("SKIP  browser checks (node not installed)")
+    else:
+        print("SKIP  browser checks (no CHROME_PATH; serve the site and set it to run)")
+
     # Voice (roadmap 1.5): the generated pages' text, so template-added filler is caught,
     # plus the interface strings progress.js and copy.js write at run time.
     with tempfile.TemporaryDirectory() as tmp:

@@ -411,6 +411,18 @@
         "value": "82.5rem",
         "evidence": ".shell max-width:1320px"
       }
+    },
+    "control": {
+      "height": {
+        "value": "48px",
+        "evidence": "the site's own rule: every control is at least 3rem tall for a thumb",
+        "note": "fixed, not fluid. --fn-space-12 collapses to 28px at 390px, which is why it must never be used for a control's minimum height."
+      },
+      "height-nav": {
+        "value": "44px",
+        "evidence": "the common touch-target floor for standalone links",
+        "note": "nav links are standalone targets, not inline prose links, so they do not get WCAG 2.2's inline exemption"
+      }
     }
   },
   "elevation": {
