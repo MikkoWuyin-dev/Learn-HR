@@ -9,7 +9,7 @@ Checks, each of which the roadmap makes an exit criterion:
   R26      every <table> has a <caption> and every <th> a scope
   R26      table text is 12px (9pt) — checked in the CSS, not inferred
   R7       every content page carries the checked-on stamp
-  R20      no colour literal in the site layer (every value comes from --wk-*)
+  R20      no colour literal in the site layer (every value comes from --fn-*)
   R9       every data-k is unique site-wide
   R1       no template leftovers (** markers, {{vars}}) and no second copy of copy
 
@@ -117,8 +117,8 @@ def main():
            for p in ps if p.stat().st_size > 120 * 1024]
     check("pages <= 120 KB", not big, f"largest {max((s for _, s in [(p.name, p.stat().st_size) for p in ps]), default=0):,} B")
     css = SITE / "static/site.css"
-    gz = len(gzip.compress(css.read_bytes(), 9)) + len(gzip.compress((SITE / "wakeout.css").read_bytes(), 9))
-    check("CSS <= 45 KB gzipped", gz <= 45 * 1024, f"{gz:,} B gz (site.css + wakeout.css)")
+    gz = len(gzip.compress(css.read_bytes(), 9)) + len(gzip.compress((SITE / "fieldnotes.css").read_bytes(), 9))
+    check("CSS <= 45 KB gzipped", gz <= 45 * 1024, f"{gz:,} B gz (site.css + fieldnotes.css)")
       # R24 said 10 KB. The owner raised it to 12 KB on 2026-10-21 for the library
       # filter, and ratified 14 KB on 2026-10-23 for the service worker's page-side
       # offline bar, which needed 739 B against 661 B of headroom at 12 KB.
@@ -137,8 +137,8 @@ def main():
     css_text = css.read_text(encoding="utf-8")
     hexes = re.findall(r"#[0-9a-fA-F]{3,8}\b", css_text)
     check("no colour literal in site.css", not hexes, str(hexes[:4]))
-    check("table text is 9pt (12px)", "font-size: var(--wk-text-caption)" in css_text,
-          "site.css sets table font-size from --wk-text-caption")
+    check("table text is 9pt (12px)", "font-size: var(--fn-text-caption)" in css_text,
+          "site.css sets table font-size from --fn-text-caption")
 
     # --- keys --------------------------------------------------------------
     keys = []

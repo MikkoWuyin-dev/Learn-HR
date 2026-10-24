@@ -93,11 +93,11 @@ def declarations():
 
 
 def tokens():
-    """Every --wk-* colour in the built stylesheet, with var() chains resolved."""
-    css = SITE / "wakeout.css"
+    """Every --fn-* colour in the built stylesheet, with var() chains resolved."""
+    css = SITE / "fieldnotes.css"
     if not css.exists():
-        raise SystemExit("no _site/wakeout.css - build the site first")
-    raw = dict(re.findall(r"(--wk-[a-z0-9-]+):\s*([^;}]+);", css.read_text(encoding="utf-8")))
+        raise SystemExit("no _site/fieldnotes.css - build the site first")
+    raw = dict(re.findall(r"(--fn-[a-z0-9-]+):\s*([^;}]+);", css.read_text(encoding="utf-8")))
     out = {}
     for name in raw:
         value, seen = raw[name].strip(), set()
@@ -112,7 +112,7 @@ def tokens():
 
 
 def to_rgb(value, table):
-    """A css colour or a var(--wk-*) reference -> (rgb, alpha)."""
+    """A css colour or a var(--fn-*) reference -> (rgb, alpha)."""
     value = value.strip()
     if value.startswith("var("):
         value = table.get(value[4:-1].strip(), "")
@@ -128,31 +128,59 @@ def to_rgb(value, table):
 # (label, selectors to look for in order, background token, is_large)
 # The first selector that declares a colour wins; `body` is the inherited base.
 PAIRS = [
-    ("table text", ["table", "body"], "--wk-surface", False),
-    ("table text on the page", ["table", "body"], "--wk-paper", False),
-    ("table caption", ["caption.table-caption", "body"], "--wk-surface", False),
-    ("text in a callout", [".callout", "body"], "--wk-sunrise", False),
-    ("quiet text", ["small, .note", "body"], "--wk-surface", False),
-    ("quiet text on the page", ["small, .note", "body"], "--wk-paper", False),
-    ("week number", [".week-n", "body"], "--wk-surface", False),
-    ("cost line", [".cost-line", "body"], "--wk-surface", False),
+    ("table text", ["table", "body"], "--fn-surface", False),
+    ("table text on the page", ["table", "body"], "--fn-paper", False),
+    ("table caption", ["caption.table-caption", "body"], "--fn-surface", False),
+    ("text in a callout", [".callout", "body"], "--fn-well", False),
+    ("quiet text", ["small, .note", "body"], "--fn-surface", False),
+    ("quiet text on the page", ["small, .note", "body"], "--fn-paper", False),
+    ("quiet text in a callout", ["small, .note", "body"], "--fn-well", False),
+    ("week number", [".week-n", "body"], "--fn-surface", False),
+    ("cost line", [".cost-line", "body"], "--fn-surface", False),
     ("a completed row", ["tr.is-done td, li.is-done .cell-text", "body"],
-     "--wk-surface", False),
-    ("sticker on lime", [".sticker", "body"], "--wk-lime", False),
-    ("sticker on yellow", [".sticker", "body"], "--wk-yellow", False),
-    ("sticker on sunrise", [".sticker", "body"], "--wk-sunrise", False),
-    ("sticker on paper", [".sticker", "body"], "--wk-paper", False),
-    ("link, hovered", ["a:hover", "body"], "--wk-surface", False),
-    ("link hovered on the page", ["a:hover", "body"], "--wk-paper", False),
-    ("primary button label", [".btn-primary", "body"], "--wk-primary", False),
-    ("offline bar", [".sw-note", "body"], "--wk-accent", False),
+     "--fn-surface", False),
+    ("sticker on green", [".sticker", "body"], "--fn-green", False),
+    ("sticker on yellow", [".sticker", "body"], "--fn-yellow", False),
+    ("sticker in a well", [".sticker", "body"], "--fn-well", False),
+    ("sticker on cyan", [".sticker", "body"], "--fn-cyan", False),
+    ("sticker on pink", [".sticker", "body"], "--fn-pink", False),
+    ("sticker on paper", [".sticker", "body"], "--fn-paper", False),
+    ("link, hovered", ["a:hover", "body"], "--fn-surface", False),
+    ("link hovered on the page", ["a:hover", "body"], "--fn-paper", False),
+    ("primary button label", [".btn-primary", "body"], "--fn-primary", False),
+    ("primary button, hovered", [".btn-primary", "body"], "--fn-green", False),
+    ("offline bar", [".sw-note", "body"], "--fn-accent", False),
 ]
 
 # Pairs that live outside site.css and have no selector to read - the share
 # cards are drawn in sitegen.py from tokens directly.
 DRAWN = [
-    ("share-card chip", "--wk-paper", "--wk-purple", False),
-    ("share-card type", "--wk-ink", "--wk-paper", True),
+    # The chip carries paper text on an ink ground. Paper on the system's blue
+    # was 4.32:1, under the floor, which is why the chip is ink rather than the
+    # blue that replaced the old purple.
+    ("share-card chip", "--fn-paper", "--fn-ink", False),
+    ("share-card type", "--fn-ink", "--fn-paper", True),
+    ("share-card rule", "--fn-ink", "--fn-green", False),
+]
+
+# Pairs where the background is translucent and sits on something else, so the
+# fill has to be composited onto what is behind it before anything is measured.
+# Reading white against rgba(17,20,43,.62) as though it were opaque would be
+# wrong in both directions: too dark against the raw fill, too light against
+# the blue showing through it.
+LAYERED = [
+    ("hero stat chip", "--fn-white", "--fn-hero-chip-fill", "--fn-blue", False),
+]
+
+# Pairs whose ground is whatever another rule declares, read from the
+# stylesheet rather than named here. (label, text selectors, ground selector,
+# is_large). The hero is the reason this exists: its ground is one token today
+# and could be another tomorrow, and the check should follow the stylesheet.
+ON_RULE = [
+    ("hero title", [".hero", "body"], ".hero", True),
+    ("hero lead", [".hero-lead", "body"], ".hero", False),
+    ("hero stamp", [".hero .stamp", "body"], ".hero", False),
+    ("hero eyebrow", [".hero-eyebrow", "body"], ".hero-eyebrow", False),
 ]
 
 
@@ -161,7 +189,7 @@ def measure(decls, table, selectors):
 
     `unresolved` is the important fourth value: a `color:` that names a token
     which does not exist must be a failure, not a silent fall-through to the
-    inherited colour. Otherwise mistyping --wk-ink-70 as --wk-ink-30 makes the
+    inherited colour. Otherwise mistyping --fn-muted as --fn-muted-3 makes the
     check report the body text's comfortable ratio and pass while the real text
     renders as whatever the browser defaults to.
     """
@@ -173,6 +201,32 @@ def measure(decls, table, selectors):
                 return got[0], got[1], selector, False
             return None, None, selector, True
     return None, None, None, False
+
+
+def declared_background(decls, selector, table):
+    """The background a rule sets, resolved. None if the rule sets none.
+
+    Reading it here rather than naming the token in the pair table is what stops
+    the stylesheet and the check from drifting apart.
+    """
+    block = decls.get(selector)
+    if not block or "background" not in block:
+        return None
+    return to_rgb(block["background"], table)
+
+
+def variant_backgrounds(decls, prefix):
+    """{selector: background} for every rule whose selector starts with `prefix`.
+
+    Read from the stylesheet rather than listed here, so a variant added later
+    is measured without anyone remembering to update this file.
+    """
+    out = {}
+    for selector, block in decls.items():
+        if not selector.startswith(prefix) or "background" not in block:
+            continue
+        out[selector] = block["background"]
+    return out
 
 
 def main(argv):
@@ -217,23 +271,72 @@ def main(argv):
             continue
         record(label, fg[0], fg[1], bg[0], is_large, "drawn in sitegen.py")
 
+    # A variant class that sets its own background is invisible to PAIRS, which
+    # only measures the base selector against grounds someone listed by hand.
+    # The sticker has six such variants, and a seventh could be added with any
+    # colour at all. So read the variants out of the stylesheet and measure
+    # each one: a new .sticker-* rule is checked the moment it exists, whether
+    # or not anyone remembered to add a row.
+    for variant, bg_value in sorted(variant_backgrounds(decls, ".sticker-").items()):
+        bg = to_rgb(bg_value, table)
+        if not bg:
+            failures.append(f"{variant}: background {bg_value} does not resolve")
+            continue
+        fg, alpha, found, unresolved = measure(decls, table, [".sticker", "body"])
+        if unresolved or fg is None:
+            failures.append(f"{variant}: could not find the text colour that lands on it")
+            continue
+        record(f"{variant} carries sticker text", fg, alpha, bg[0], False,
+               f"{variant} sets its own background")
+
+    for label, selectors, ground, is_large in ON_RULE:
+        bg = declared_background(decls, ground, table)
+        if not bg:
+            failures.append(f"{label}: {ground} declares no background to measure against")
+            continue
+        fg, alpha, found, unresolved = measure(decls, table, selectors)
+        if unresolved:
+            failures.append(f"{label}: {found} sets a colour that does not resolve")
+            continue
+        if fg is None:
+            failures.append(f"{label}: none of {selectors} is in site.css any more")
+            continue
+        record(label, fg, alpha, bg[0], is_large, f"on {ground}'s background")
+
+    for label, fg_name, fill_name, under_name, is_large in LAYERED:
+        fg = to_rgb("var(" + fg_name + ")", table)
+        fill = to_rgb("var(" + fill_name + ")", table)
+        under = to_rgb("var(" + under_name + ")", table)
+        if not (fg and fill and under):
+            failures.append(f"{label}: could not resolve {fg_name} / {fill_name} / {under_name}")
+            continue
+        record(label, fg[0], fg[1], over(fill[0], fill[1], under[0]), is_large,
+               f"{fill_name} over {under_name}")
+
     # Completeness: a colour set on text that nothing measures is a blind spot.
     not_text = ("progress",)
     used = set()
     for selector, block in decls.items():
         if any(w in selector for w in not_text):
             continue
-        m = re.match(r"var\((--wk-[a-z0-9-]+)\)$", block.get("color", ""))
+        m = re.match(r"var\((--fn-[a-z0-9-]+)\)$", block.get("color", ""))
         if m:
             used.add(m.group(1))
     covered = set()
     for _, selectors, _, _ in PAIRS:
         for selector in selectors:
             block = decls.get(selector, {})
-            m = re.match(r"var\((--wk-[a-z0-9-]+)\)$", block.get("color", ""))
+            m = re.match(r"var\((--fn-[a-z0-9-]+)\)$", block.get("color", ""))
             if m:
                 covered.add(m.group(1))
     covered |= {f for _, f, _, _ in DRAWN}
+    covered |= {f for _, f, _, _, _ in LAYERED}
+    for _, selectors, _, _ in ON_RULE:
+        for selector in selectors:
+            block = decls.get(selector, {})
+            m = re.match(r"var\((--fn-[a-z0-9-]+)\)$", block.get("color", ""))
+            if m:
+                covered.add(m.group(1))
     unmeasured = sorted(used - covered)
     if unmeasured:
         failures.append("these colours are set on text but never measured: "

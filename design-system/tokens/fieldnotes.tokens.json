@@ -1,0 +1,537 @@
+{
+  "$meta": {
+    "name": "Fieldnotes Design System",
+    "version": "2.0.0",
+    "source": "github.com/MikkoWuyin-dev/Field-Notes_Nature-Photography",
+    "capturedAt": "2026-10-24",
+    "method": "Static extraction of the NPL stylesheet (4 inline <style> blocks, 27,771 chars, 143 classes) plus its rendered HTML. Every value is a literal read from that stylesheet or a class it actually applies.",
+    "fidelity": "exact - values are copied, not approximated. Values with no literal in the source are flagged \"inferred\": true.",
+    "note": "This replaces the Wakeout token set, which was extracted from an unrelated third-party site. Fieldnotes is the system both family sites draw from: Learn-HR consumes it as --fn-* custom properties.",
+    "counts": {
+      "cssChars": 27771,
+      "customProperties": 27,
+      "classes": 143
+    }
+  },
+  "color": {
+    "primitive": {
+      "ink": {
+        "value": "#11142B",
+        "evidence": "--ink",
+        "note": "near-black indigo. body text and the darkest border"
+      },
+      "paper": {
+        "value": "#FFF8E7",
+        "evidence": "--paper",
+        "note": "warm cream page ground"
+      },
+      "cream": {
+        "value": "#FFFDF6",
+        "evidence": "--cream",
+        "note": "near-white card ground, sits on paper"
+      },
+      "line": {
+        "value": "#1E2553",
+        "evidence": "--line",
+        "note": "every border, and the default hard shadow"
+      },
+      "muted": {
+        "value": "#565C73",
+        "evidence": "--muted",
+        "note": "secondary text"
+      },
+      "shade": {
+        "value": "#D8D9EA",
+        "evidence": "--shade",
+        "note": "disabled and inactive fills"
+      },
+      "blue": {
+        "value": "#3768FF",
+        "evidence": "--blue",
+        "note": "interactive: hero ground, progress fill, focus ring"
+      },
+      "blue-ink": {
+        "value": "#2C55DA",
+        "evidence": "--blue-ink",
+        "note": "link hover on a light ground. 5.80:1 on paper"
+      },
+      "cyan": {
+        "value": "#65E8FF",
+        "evidence": "--cyan",
+        "note": "default tag, hero border"
+      },
+      "pink": {
+        "value": "#FF4E91",
+        "evidence": "--pink",
+        "note": "the hover shadow. the system's signature"
+      },
+      "yellow": {
+        "value": "#FFE168",
+        "evidence": "--yellow",
+        "note": "primary button, hero eyebrow, focus fill"
+      },
+      "green": {
+        "value": "#5EE780",
+        "evidence": "--green",
+        "note": "complete state, action tag"
+      },
+      "orange": {
+        "value": "#FF9958",
+        "evidence": "--orange",
+        "note": "warm accent"
+      },
+      "well": {
+        "value": "#DFE7FF",
+        "evidence": "literal, 3 uses",
+        "note": "soft blue notice tint: .tour-invite, .status-progress, .availability-note. always with ink text (14.68:1)"
+      },
+      "white": {
+        "value": "#FFFFFF",
+        "evidence": "literal, 18 uses",
+        "note": "the done control and the progress track"
+      }
+    },
+    "status": {
+      "live": {
+        "bg": {
+          "value": "#E9FFEF"
+        },
+        "ink": {
+          "value": "#164D2D"
+        },
+        "note": "9.38:1"
+      },
+      "archive": {
+        "bg": {
+          "value": "#FFE9F2"
+        },
+        "ink": {
+          "value": "#822444"
+        },
+        "note": "7.96:1"
+      },
+      "caveat": {
+        "bg": {
+          "value": "#FFF1BD"
+        },
+        "ink": {
+          "value": "#6E4A00"
+        },
+        "note": "7.03:1"
+      }
+    },
+    "tag": {
+      "default": {
+        "value": "#65E8FF",
+        "evidence": "--tag-default",
+        "meaning": "LEARN"
+      },
+      "playful": {
+        "value": "#FFC3DE",
+        "evidence": "--tag-playful",
+        "meaning": "FIELD"
+      },
+      "pixel": {
+        "value": "#FFE168",
+        "evidence": "--tag-pixel",
+        "meaning": "TIME"
+      },
+      "action": {
+        "value": "#5EE780",
+        "evidence": "--tag-action",
+        "meaning": "ACCESS"
+      },
+      "mobile": {
+        "value": "#DCD0FF",
+        "evidence": "--tag-mobile",
+        "meaning": "reserved"
+      }
+    },
+    "semantic": {
+      "background": {
+        "value": "{color.primitive.paper}",
+        "note": "page ground"
+      },
+      "surface": {
+        "value": "{color.primitive.cream}",
+        "note": "card ground"
+      },
+      "foreground": {
+        "value": "{color.primitive.ink}",
+        "note": "17.12:1 on paper, 17.81:1 on cream"
+      },
+      "muted-foreground": {
+        "value": "{color.primitive.muted}",
+        "note": "6.25:1 on paper, 6.50:1 on cream"
+      },
+      "border": {
+        "value": "{color.primitive.line}",
+        "note": "the default border and shadow colour"
+      },
+      "border-faint": {
+        "value": "{color.primitive.shade}",
+        "note": "hairlines and dividers"
+      },
+      "primary": {
+        "value": "{color.primitive.yellow}",
+        "note": "NPL's .button-primary. ink on this is 14.00:1"
+      },
+      "primary-foreground": {
+        "value": "{color.primitive.ink}"
+      },
+      "secondary": {
+        "value": "{color.primitive.cream}"
+      },
+      "secondary-foreground": {
+        "value": "{color.primitive.ink}"
+      },
+      "link": {
+        "value": "{color.primitive.ink}"
+      },
+      "link-hover": {
+        "value": "{color.primitive.blue-ink}",
+        "note": "5.80:1 on paper, 6.03:1 on cream"
+      },
+      "accent": {
+        "value": "{color.primitive.yellow}",
+        "note": "the offline nudge bar"
+      },
+      "accent-foreground": {
+        "value": "{color.primitive.ink}"
+      },
+      "destructive": {
+        "value": "#FF4E91",
+        "inferred": true,
+        "note": "NPL ships no red. pink is the system's warning hue; ink on it is 5.83:1"
+      },
+      "ring": {
+        "value": "{color.primitive.blue}",
+        "note": "focus outline"
+      },
+      "progress-fill": {
+        "value": "{color.primitive.blue}"
+      },
+      "progress-track": {
+        "value": "{color.primitive.white}"
+      }
+    }
+  },
+  "typography": {
+    "fontFamily": {
+      "mono": {
+        "value": "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+        "evidence": "--font-mono",
+        "note": "NPL's base face, and the face of every heading, label and control. No @font-face exists anywhere in NPL: the family ships zero webfont bytes."
+      },
+      "prose": {
+        "value": "system-ui, sans-serif",
+        "evidence": "--font-prose",
+        "note": "the reading face. NPL opts its prose blocks into this (.availability-note, .tag-key). Learn-HR has far more prose, so it opts in at the paragraph level rather than per block."
+      }
+    },
+    "fontWeight": {
+      "regular": {
+        "value": "400"
+      },
+      "medium": {
+        "value": "700"
+      },
+      "bold": {
+        "value": "800",
+        "note": "NPL's dominant weight (9 uses), then 900 (5), then 700 (3)"
+      }
+    },
+    "fontSize": {
+      "hero": {
+        "value": "2.75rem",
+        "evidence": ".progress-number strong",
+        "note": "44px"
+      },
+      "title": {
+        "value": "1.55rem",
+        "note": "24.8px"
+      },
+      "headline": {
+        "value": "1.2rem",
+        "evidence": "h5",
+        "note": "19.2px. card titles"
+      },
+      "lead": {
+        "value": "1.08rem",
+        "note": "17.3px"
+      },
+      "subhead": {
+        "value": "1.05rem",
+        "note": "16.8px"
+      },
+      "body": {
+        "value": "1rem",
+        "evidence": "body",
+        "note": "16px"
+      },
+      "body-sm": {
+        "value": "0.98rem"
+      },
+      "small": {
+        "value": "0.82rem",
+        "note": "13.1px"
+      },
+      "caption": {
+        "value": "0.77rem",
+        "note": "12.3px. table text - above the 9pt (12px) floor R26 sets"
+      },
+      "meta": {
+        "value": "0.72rem",
+        "note": "11.5px"
+      },
+      "eyebrow": {
+        "value": "0.68rem",
+        "note": "10.9px"
+      }
+    },
+    "lineHeight": {
+      "tight": {
+        "value": "1.15"
+      },
+      "snug": {
+        "value": "1.25"
+      },
+      "normal": {
+        "value": "1.45"
+      },
+      "relaxed": {
+        "value": "1.55",
+        "evidence": "body",
+        "note": "16px/1.55 in NPL"
+      }
+    },
+    "letterSpacing": {
+      "tight": {
+        "value": "-0.03em",
+        "note": "headings tighten as they grow; NPL goes to -.06em at 2.75rem"
+      },
+      "normal": {
+        "value": "0"
+      },
+      "wide": {
+        "value": "0.02em"
+      },
+      "widest": {
+        "value": "0.06em",
+        "evidence": ".hero-eyebrow",
+        "note": "uppercase micro-labels. NPL uses .05em-.06em"
+      }
+    }
+  },
+  "dimension": {
+    "space": {
+      "0": {
+        "value": "0"
+      },
+      "1": {
+        "value": "4px"
+      },
+      "2": {
+        "value": "8px"
+      },
+      "2-5": {
+        "value": "10px"
+      },
+      "3": {
+        "value": "clamp(10px, 2vw, 12px)"
+      },
+      "4": {
+        "value": "clamp(12px, 2.6vw, 16px)"
+      },
+      "5": {
+        "value": "clamp(13px, 3.6vw, 18px)",
+        "evidence": "the most common padding in NPL"
+      },
+      "6": {
+        "value": "clamp(16px, 4vw, 24px)"
+      },
+      "8": {
+        "value": "clamp(20px, 5vw, 32px)"
+      },
+      "10": {
+        "value": "clamp(24px, 5.6vw, 40px)"
+      },
+      "12": {
+        "value": "clamp(28px, 6vw, 48px)"
+      },
+      "16": {
+        "value": "clamp(32px, 6.3vw, 64px)"
+      },
+      "20": {
+        "value": "clamp(40px, 7vw, 80px)"
+      },
+      "24": {
+        "value": "clamp(48px, 7.5vw, 96px)"
+      },
+      "28": {
+        "value": "clamp(56px, 8vw, 112px)"
+      }
+    },
+    "radius": {
+      "none": {
+        "value": "0"
+      },
+      "sm": {
+        "value": "2px",
+        "evidence": "the only border-radius in NPL's 27,771 chars (.tour-highlight)"
+      },
+      "note": "NPL is a square system. One 2px radius in the entire stylesheet; everything else is a right angle."
+    },
+    "borderWidth": {
+      "hairline": {
+        "value": "1px",
+        "note": "dividers and quiet chips (8 uses)"
+      },
+      "thin": {
+        "value": "2px",
+        "note": "controls, tags, inputs (16 uses)"
+      },
+      "base": {
+        "value": "3px",
+        "note": "cards and panels (12 uses)"
+      },
+      "thick": {
+        "value": "4px",
+        "note": "the hero, and the focus outline (2 uses)"
+      }
+    },
+    "container": {
+      "2xl": {
+        "value": "42rem"
+      },
+      "3xl": {
+        "value": "52rem"
+      },
+      "6xl": {
+        "value": "82.5rem",
+        "evidence": ".shell max-width:1320px"
+      }
+    }
+  },
+  "elevation": {
+    "note": "Hard offsets only. There is no blur radius anywhere in NPL.",
+    "sticker-sm": {
+      "value": "3px 3px 0 var(--fn-line)"
+    },
+    "sticker": {
+      "value": "6px 6px 0 var(--fn-line)",
+      "evidence": "the card at rest"
+    },
+    "sticker-hover": {
+      "value": "10px 10px 0 var(--fn-pink)",
+      "evidence": "card hover, with translate(-3px,-3px)"
+    },
+    "sticker-lg": {
+      "value": "8px 8px 0 var(--fn-pink)"
+    },
+    "disabled": {
+      "value": "4px 4px 0 var(--fn-shade)"
+    },
+    "ring": {
+      "value": "0 0 0 2px var(--fn-cyan)"
+    }
+  },
+  "motion": {
+    "duration": {
+      "quick": {
+        "value": "0.14s",
+        "evidence": "transform and box-shadow transitions"
+      },
+      "bar": {
+        "value": "0.2s",
+        "evidence": ".progress-fill transition:width"
+      }
+    },
+    "easing": {
+      "out": {
+        "value": "ease"
+      }
+    },
+    "press": {
+      "x": {
+        "value": "2px"
+      },
+      "y": {
+        "value": "2px"
+      },
+      "note": "NPL lifts -3px on hover; the press returns the element flush."
+    },
+    "lift": {
+      "x": {
+        "value": "-3px"
+      },
+      "y": {
+        "value": "-3px"
+      }
+    }
+  },
+  "component": {
+    "hero": {
+      "padding-block": {
+        "value": "clamp(18px, 6.3vw, 77px)",
+        "evidence": ".hero padding"
+      },
+      "padding-inline": {
+        "value": "clamp(14px, 5.4vw, 70px)",
+        "evidence": ".hero padding"
+      },
+      "padding-bottom": {
+        "value": "36px",
+        "evidence": ".hero padding"
+      },
+      "inner-width": {
+        "value": "65rem",
+        "evidence": ".hero-inner max-width:1040px"
+      },
+      "title-size": {
+        "value": "clamp(1.85rem, 5.4vw, 4.75rem)",
+        "evidence": ".hero h1"
+      },
+      "title-leading": {
+        "value": "0.98",
+        "evidence": ".hero h1"
+      },
+      "title-tracking": {
+        "value": "-0.035em",
+        "evidence": ".hero h1"
+      },
+      "lead-size": {
+        "value": "clamp(1rem, 2vw, 1.27rem)",
+        "evidence": ".hero-lead"
+      },
+      "lead-gap": {
+        "value": "18px",
+        "evidence": ".hero h1 margin-bottom"
+      },
+      "meta-top": {
+        "value": "26px",
+        "evidence": ".hero-meta margin-top"
+      },
+      "meta-gap": {
+        "value": "9px",
+        "evidence": ".hero-meta gap"
+      },
+      "mark-size": {
+        "value": "clamp(118px, 30vw, 190px)",
+        "evidence": ".hero::after"
+      },
+      "mark-opacity": {
+        "value": "0.34",
+        "evidence": ".hero::after opacity"
+      },
+      "chip-line": {
+        "value": "rgba(255,255,255,0.76)",
+        "evidence": ".hero-meta span border"
+      },
+      "chip-fill": {
+        "value": "rgba(17,20,43,0.62)",
+        "evidence": ".hero-meta span background"
+      }
+    }
+  }
+}

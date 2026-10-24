@@ -30,10 +30,14 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 SITE = ROOT / "_site"
 
-# What one cold first visit may cost, gzipped, fonts included. The heaviest
-# route sat near 69 KB when this was written, so the headroom is real but not
-# generous: it is here to catch a route that grows, not to be comfortable.
-FIRST_VISIT_BUDGET = 100 * 1024
+# What one cold first visit may cost, gzipped, fonts included. Dropping the
+# webfonts (owner's decision, 2026-10-24) took the heaviest route from 71,337 B
+# to 22,285 B, which left the old 100 KB figure measuring nothing at all.
+#
+# 40 KB is deliberately tight against that: it leaves room for a route to grow,
+# but not for the fonts to come back. Reintroducing Fredoka and Space Grotesk
+# alone is 48,628 B, so this budget is the thing that would stop it.
+FIRST_VISIT_BUDGET = 40 * 1024
 
 # "Slow 3G" as Chrome's DevTools defines it: 400 kbps down, 2000 ms RTT.
 # Chosen because the site is meant for a phone on a bad Nigerian connection,
@@ -57,7 +61,7 @@ def first_fonts():
     the latin-ext subset - is a fallback that is never fetched while the first
     works, so counting it would overstate the page by 11 KB.
     """
-    css = (SITE / "wakeout.css").read_text(encoding="utf-8")
+    css = (SITE / "fieldnotes.css").read_text(encoding="utf-8")
     out, total = [], 0
     for block in re.finditer(r"@font-face\s*\{([^}]*)\}", css):
         srcs = re.findall(r"url\(['\"]?([^'\")]+)['\"]?\)", block.group(1))
@@ -164,8 +168,8 @@ def main(argv):
           f"{CONNECTION_ROUND_TRIPS * RTT_SECONDS:>5.1f} s")
     print(f"    transfer          {worst[5]:,} B        {transfer:>5.1f} s")
     print(f"    heaviest route                      {cold:>5.1f} s to first paint")
-    print("    fonts are preloaded by no <link rel=preload>, so they start")
-    print("    after the css is parsed; the real figure is a little worse.")
+    print("    there are no webfonts to preload: Fieldnotes uses system faces,")
+    print("    so nothing waits on a font fetch and the figure is the real one.")
     print("    This is bytes-over-a-stated-link, not a measurement: no browser")
     print("    runs here, so treat it as an estimate with the assumption shown.")
     print()

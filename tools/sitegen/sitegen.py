@@ -5,7 +5,8 @@ One command:  python3 tools/sitegen/sitegen.py [--no-css]
 
 Everything visible comes from the markdown (PRD R1: no content fork). The design
 system owns every visual value (R20): this file emits class names and structure,
-never a colour, size or shadow. Values live in site/static/site.css as var(--wk-*).
+never a colour, size or shadow. Values live in site/static/site.css as var(--fn-*),
+which design-system/tokens/fieldnotes.tokens.json compiles into fieldnotes.css.
 
 Layout of the output:
 
@@ -20,6 +21,7 @@ Layout of the output:
   _site/5/getting-the-job/             doc5
   _site/5/templates/                   doc5's copyable messages only
   _site/check/                         every external URL with its sweep state
+  _site/style-guide/                   the Fieldnotes system, read live from the stylesheet
   _site/downloads/                     the seven files, with sizes
 """
 import html
@@ -113,10 +115,10 @@ def md(s):
     out = PAREN_URL_RE.sub(r'(<a href="\1">\1</a>)', out)
     out = re.sub(r"\x02(\d+)\x02", lambda m: links[int(m.group(1))], out)
     out = re.sub(r"\x01(\d+)\x01", lambda m: codes[int(m.group(1))], out)
-    # Fredoka has no U+20A6 (verified: 217 glyphs, naira absent; Space Grotesk has
-    # it). A bare ₦ inside a display heading would fall back mid-word, so the
-    # sign always renders in the body face. Typography only — the character and
-    # the copy are untouched.
+    # The display face is a system monospace stack, and no such stack is
+    # guaranteed to carry U+20A6. A bare ₦ inside a heading would fall back
+    # mid-word, so the sign always renders in the reading face. Typography only
+    # — the character and the copy are untouched.
     return out.replace("\u20a6", '<span class="naira">\u20a6</span>')
 
 
@@ -551,7 +553,7 @@ def page(path, title, body, *, lead="", extra_head="", body_class="", detail=Fal
 <title>{html.escape(full_title(title))}</title>
 {chr(10).join(meta)}
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="{root}wakeout.css">
+<link rel="stylesheet" href="{root}fieldnotes.css">
 <link rel="stylesheet" href="{root}static/site.css">
 {extra_head}
 {scripts}
@@ -570,7 +572,7 @@ def page(path, title, body, *, lead="", extra_head="", body_class="", detail=Fal
 <footer class="site-foot">
   <div class="wrap">
     <p class="resume" data-resume hidden></p>
-    <p class="stamp">Checked 20 October 2026 · <a href="{root}downloads/">downloads</a> · <a href="{root}check/">link status</a></p>
+    <p class="stamp">Checked 20 October 2026 · <a href="{root}downloads/">downloads</a> · <a href="{root}check/">link status</a> · <a href="{root}style-guide/">style guide</a></p>
     <p>No accounts, no cookies, nothing leaves your device. Free to read; text shared CC BY-SA 4.0.</p>
     <p class="vh" id="hr-live" aria-live="polite"></p>
   </div>
@@ -586,10 +588,27 @@ def page(path, title, body, *, lead="", extra_head="", body_class="", detail=Fal
     return dest
 
 
+# What the hero's stat chips say. They describe the site rather than the page,
+# so they are the same on every hero — the kicker is what names the page, and
+# these are the four things a reader wants to know before they start.
+HERO_META = ("25 weeks", "Free", "No account", "Nothing leaves your device")
+
+
 def hero(title, lead, kicker="", actions=""):
-    k = f'<p class="eyebrow">{kicker}</p>' if kicker else ""
-    return (f'<section class="hero">{k}<h1>{title}</h1><p class="lead">{lead}</p>{actions}'
-            f'{hero_stamp()}</section>')
+    """The reference's hero, in its order: a chip, a title, a lead, some stats.
+
+    The kicker is a chip rather than loose uppercase, and the whole thing sits
+    on the system blue — which measures 4.58:1 under white text, so the one
+    part of this that looks like an accessibility compromise is not one.
+    """
+    k = f'<p class="hero-eyebrow">{html.escape(kicker)}</p>' if kicker else ""
+    meta = "".join(f"<li>{html.escape(m)}</li>" for m in HERO_META)
+    return (f'<section class="hero" aria-labelledby="hero-title">'
+            f'<div class="hero-inner">{k}'
+            f'<h1 id="hero-title">{title}</h1>'
+            f'<p class="hero-lead">{lead}</p>'
+            f'<ul class="hero-meta">{meta}</ul>'
+            f'{actions}{hero_stamp()}</div></section>')
 
 
 def hero_stamp():
@@ -1032,16 +1051,15 @@ def write_service_worker(weeks):
     deletes every cache that is not that one, which is what retires the old
     version. Nothing has to be told to invalidate anything by hand.
 
-    R28 asks for the shell, the week pages, the glossary and the law card. Fonts
-    are deliberately absent: the fetch handler caches every same-origin response
-    it sees, so the fonts arrive with the very first page and are cached then,
-    without adding 60 KB to the install that a first-time reader is paying for.
+    R28 asks for the shell, the week pages, the glossary and the law card. There
+    are no fonts to precache: Fieldnotes is a system-font family, so a cold
+    install costs no webfont bytes at all.
     """
     import hashlib
     import json
 
     shell = ["/", "/1/start-here/", "/2/plan/", "/4/nigeria/law-card/",
-             "/wakeout.css", "/static/site.css", "/static/progress.js",
+             "/fieldnotes.css", "/static/site.css", "/static/progress.js",
              "/static/copy.js", "/static/glossary.js", "/static/library.js",
              "/static/offline.js"]
     precache = shell + [f"/2/plan/week/{w['n']}/" for w in weeks]
@@ -1077,9 +1095,9 @@ _og_ext = "svg"
 
 
 def _token(name, default):
-    """One colour primitive from the design system, so a card cannot drift."""
+    """One colour primitive from the Fieldnotes system, so a card cannot drift."""
     try:
-        data = json.loads((ROOT / "design-system/tokens/tokens.json").read_text(encoding="utf-8"))
+        data = json.loads((ROOT / "design-system/tokens/fieldnotes.tokens.json").read_text(encoding="utf-8"))
         got = data["color"]["primitive"][name]["value"]
     except (OSError, ValueError, KeyError, TypeError):
         return default
@@ -1107,13 +1125,14 @@ def _wrap(text, width, limit):
 
 
 def _og_svg(label, title, lead):
-    ink = _token("ink", "#043629")
-    paper = _token("paper", "#fff8e6")
-    lime = _token("lime", "#68be00")
-    purple = _token("purple", "#8a38f5")
-    yellow = _token("yellow", "#ffc629")
+    ink = _token("ink", "#11142B")
+    paper = _token("paper", "#FFF8E7")
+    green = _token("green", "#5EE780")
+    yellow = _token("yellow", "#FFE168")
     esc = html.escape
-    stack = "Fredoka, 'Space Grotesk', 'Segoe UI', system-ui, sans-serif"
+    # Fieldnotes ships no webfonts, so a card is drawn in the same system faces
+    # the page uses. The monospace stack is what makes it look like family.
+    stack = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
 
     title_lines = _wrap(title, 22, 3)
     # A three-line title leaves room for one line of lead, not two: the card is
@@ -1139,13 +1158,13 @@ def _og_svg(label, title, lead):
            f'<rect x="14" y="14" width="{OG_W - 28}" height="{OG_H - 28}" fill="none" '
            f'stroke="{ink}" stroke-width="14"/>',
            # brand mark, same geometry as the site's own
-           f'<rect x="72" y="66" width="46" height="46" fill="{lime}" stroke="{ink}" '
+           f'<rect x="72" y="66" width="46" height="46" fill="{green}" stroke="{ink}" '
            f'stroke-width="6"/>',
            f'<text x="140" y="105" font-family="{stack}" font-size="38" font-weight="700" '
            f'fill="{ink}" letter-spacing="1.5">HR LIBRARY</text>']
     if label:
         out += [f'<rect x="{OG_W - 72 - chip_w}" y="62" width="{chip_w}" height="54" '
-                f'fill="{purple}" stroke="{ink}" stroke-width="6"/>',
+                f'fill="{ink}" stroke="{ink}" stroke-width="6"/>',
                 f'<text x="{OG_W - 72 - chip_w // 2}" y="99" font-family="{stack}" '
                 f'font-size="30" font-weight="700" fill="{paper}" '
                 f'text-anchor="middle">{esc(label.upper())}</text>']
@@ -1153,7 +1172,7 @@ def _og_svg(label, title, lead):
         out.append(f'<text x="72" y="{title_y[n]}" font-family="{stack}" '
                    f'font-size="{title_size}" font-weight="800" fill="{ink}">{esc(line)}</text>')
     if lead_lines:
-        out.append(f'<rect x="72" y="{rule_y}" width="150" height="10" fill="{lime}"/>')
+        out.append(f'<rect x="72" y="{rule_y}" width="150" height="10" fill="{green}"/>')
         for n, line in enumerate(lead_lines):
             out.append(f'<text x="72" y="{lead_y[n]}" font-family="{stack}" '
                        f'font-size="{lead_size}" fill="{ink}">{esc(line)}</text>')
@@ -1333,25 +1352,402 @@ def clean_site():
 def copy_assets():
     SITE.mkdir(parents=True, exist_ok=True)
     (SITE / "static").mkdir(parents=True, exist_ok=True)
-    (SITE / "fonts").mkdir(exist_ok=True)
-    src = ROOT / "design-system/artifacts/wakeout.css"
+    src = ROOT / "design-system/artifacts/fieldnotes.css"
     text = src.read_text(encoding="utf-8")
     text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
     text = re.sub(r"\s+", " ", text)
     text = re.sub(r"\s*([{};:,])\s*", r"\1", text).strip()
-    (SITE / "wakeout.css").write_text(text, encoding="utf-8")
+    (SITE / "fieldnotes.css").write_text(text, encoding="utf-8")
     shutil.copy2(ROOT / "site/static/site.css", SITE / "static/site.css")
     for f in ("progress.js", "copy.js", "glossary.js", "library.js", "offline.js"):
         js = (ROOT / "site/static" / f).read_text(encoding="utf-8")
         (SITE / "static" / f).write_text(squeeze_js(js), encoding="utf-8")
-    # The .woff2 files are SIL OFL 1.1, which requires the licence to travel
-    # with them, so the two OFL texts ship beside the fonts they cover.
-    for f in (ROOT / "design-system/public/fonts").glob("*"):
-        if f.suffix in (".woff2", ".txt"):
-            shutil.copy2(f, SITE / "fonts" / f.name)
     (SITE / "files").mkdir(exist_ok=True)
     for f in (ROOT / "downloads").glob("HR_*"):
         shutil.copy2(f, SITE / "files" / f.name)
+
+
+# What the style guide shows, and in what order. The names are token names
+# without the --fn- prefix, so a rename in the token file surfaces here as a
+# missing swatch rather than as a silent gap.
+SG_COLOUR_GROUPS = (
+    ("Ground and ink", ("ink", "paper", "cream", "line", "muted", "shade")),
+    ("Accent", ("blue", "blue-ink", "cyan", "pink", "yellow", "green", "orange")),
+    ("Notice and control", ("well", "white")),
+)
+SG_STATUS = ("live", "archive", "caveat")
+SG_TAGS = ("default", "playful", "pixel", "action", "mobile")
+SG_TYPE = ("hero", "title", "headline", "lead", "subhead", "body", "body-sm",
+           "small", "caption", "meta", "eyebrow")
+SG_SPACE = ("1", "2", "2-5", "3", "4", "5", "6", "8", "10", "12", "16")
+SG_BORDER = ("hairline", "thin", "base", "thick")
+SG_SHADOW = ("sticker-sm", "sticker", "sticker-hover", "sticker-lg", "disabled", "ring")
+
+
+def build_style_guide():
+    """Render the Fieldnotes system from the compiled stylesheet.
+
+    Every value on this page is read out of artifacts/fieldnotes.css at build
+    time rather than written here, so a component and the token behind it
+    cannot drift apart: change a token, rebuild, and the page changes with it.
+
+    That is the whole reason for the route. A style guide that restates its
+    own values is a second source of truth, and two sources of truth
+    eventually disagree - which is how a design system decays into a
+    description of what the system used to be.
+
+    The one thing it cannot do is use inline styles, which the repo bans. A
+    style guide is exactly the page that wants them - every swatch needs a
+    different value - so the per-token classes it needs are generated into the
+    page's head from the same token file. The rule stays absolute, and a class
+    that appears here is by construction a token that exists.
+    """
+    from contrast import rgb as _rgb, ratio as _ratio, over as _over
+
+    css = (ROOT / "design-system/artifacts/fieldnotes.css").read_text(encoding="utf-8")
+    tok = dict(re.findall(r"(--fn-[a-z0-9-]+):\s*([^;}]+);", css))
+
+    def val(name):
+        return tok.get("--fn-" + name, "").strip()
+
+    def hexval(name):
+        v = val(name)
+        return v if v.startswith("#") else ""
+
+    def ratio(a, b):
+        ha, hb = hexval(a), hexval(b)
+        if not ha or not hb:
+            return None
+        return _ratio(_rgb(ha)[0], _rgb(hb)[0])
+
+    def verdict(r):
+        if r is None:
+            return ""
+        if r >= 7:
+            return "AAA"
+        if r >= 4.5:
+            return "AA"
+        if r >= 3:
+            return "large only"
+        return "fails"
+
+    def pairing(name):
+        """How this colour is actually used, as a measured pair.
+
+        Measuring every colour against ink alone would report that ink fails
+        against ink, which is true and useless. A dark colour is something that
+        sits *on* a ground; a light colour is a ground that ink sits on. So
+        take the pair with the more separation and name which one it is - the
+        reader always sees the number that describes real use.
+        """
+        on_ink, on_paper = ratio(name, "ink"), ratio(name, "paper")
+        if on_ink is None or on_paper is None:
+            return ""
+        if on_ink >= on_paper:
+            return f"ink {on_ink:.2f}:1 · {verdict(on_ink)}"
+        return f"{on_paper:.2f}:1 on paper · {verdict(on_paper)}"
+
+    # The stat chips sit on a translucent fill over the blue ground, so the
+    # only honest number is the composite. Composited here rather than repeated
+    # from a note somewhere, so it moves when either colour moves.
+    _chip_rgb, _chip_a = _rgb(val("hero-chip-fill"))
+    chip_over_blue = _over(_chip_rgb, _chip_a, _rgb(hexval("blue"))[0])
+
+    esc = html.escape
+
+    # ------------------------------------------------------------ the classes
+    # Collected as we go, then emitted once. A token named here and missing
+    # from the token file produces a rule pointing at nothing, which the
+    # contrast table on the page would then show as an empty ratio.
+    rules = []
+
+    def bg(name):
+        rules.append(f".sg-bg-{name}{{background:var(--fn-{name})}}")
+        return f"sg-bg-{name}"
+
+    def fg(name):
+        rules.append(f".sg-fg-{name}{{color:var(--fn-{name})}}")
+        return f"sg-fg-{name}"
+
+    def bw(name):
+        rules.append(f".sg-bw-{name}{{border-width:var(--fn-border-{name})}}")
+        return f"sg-bw-{name}"
+
+    def sh(name):
+        rules.append(f".sg-sh-{name}{{box-shadow:var(--fn-shadow-{name})}}")
+        return f"sg-sh-{name}"
+
+    def fs(name):
+        rules.append(f".sg-fs-{name}{{font-size:var(--fn-text-{name})}}")
+        return f"sg-fs-{name}"
+
+    def w(name):
+        rules.append(f".sg-w-{name}{{width:var(--fn-space-{name})}}")
+        return f"sg-w-{name}"
+
+    def face(kind):
+        rules.append(f".sg-ff-{kind}{{font-family:var(--fn-font-{kind})}}")
+        return f"sg-ff-{kind}"
+
+    # ---------------------------------------------------------------- colour
+    body = [hero("Style guide",
+                 "Every colour, size, space and component in the Fieldnotes system, "
+                 "read live from the stylesheet this site ships.",
+                 "Fieldnotes")]
+
+    body.append("<h2>Colour</h2>")
+    body.append('<p class="lead">Each swatch shows the token, its value, and what '
+                'ink text measures against it. The ratio is computed at build time '
+                'with the same maths as the gate\'s contrast check, so a colour that '
+                'stops being safe says so here rather than passing quietly.</p>')
+
+    for group_name, names in SG_COLOUR_GROUPS:
+        cells = []
+        for n in names:
+            if not hexval(n):
+                continue
+            cells.append(f'<div class="sg-swatch {bg(n)}">'
+                         f'<code>--fn-{esc(n)}</code>'
+                         f'<span class="sg-swatch-val">{esc(hexval(n))}</span>'
+                         f'<span class="sg-swatch-c">{esc(pairing(n))}</span>'
+                         f'</div>')
+        body.append(f'<div class="card"><h3>{esc(group_name)}</h3>'
+                    f'<div class="sg-grid">{"".join(cells)}</div></div>')
+
+    cells = []
+    for s in SG_STATUS:
+        pair, pair_ink = f"status-{s}-bg", f"status-{s}-ink"
+        r = ratio(pair_ink, pair)
+        cells.append(f'<div class="sg-swatch {bg(pair)} {fg(pair_ink)}">'
+                     f'<code>--fn-{esc(s)}</code>'
+                     f'<span class="sg-swatch-val">{esc(hexval(pair))}</span>'
+                     f'<span class="sg-swatch-c">{r:.2f}:1 · {verdict(r)}</span>'
+                     f'</div>')
+    body.append('<div class="card"><h3>Status pairs</h3>'
+                '<p>Each status is a background and an ink together, so a status never '
+                'needs a rule about the colour of its own text.</p>'
+                f'<div class="sg-grid">{"".join(cells)}</div></div>')
+
+    cells = []
+    for t in SG_TAGS:
+        cells.append(f'<div class="sg-swatch {bg("tag-" + t)}">'
+                     f'<code>--fn-tag-{esc(t)}</code>'
+                     f'<span class="sg-swatch-val">{esc(hexval("tag-" + t))}</span>'
+                     f'<span class="sg-swatch-c">{esc(pairing("tag-" + t))}</span>'
+                     f'</div>')
+    body.append('<div class="card"><h3>Tag colours</h3>'
+                '<p>Colour carries meaning, so every tag also carries a word. '
+                'Nothing here is signalled by hue alone.</p>'
+                f'<div class="sg-grid">{"".join(cells)}</div></div>')
+
+    # ------------------------------------------------------------------ type
+    body.append("<h2>Type</h2>")
+    body.append('<p class="lead">The chrome face is monospace: headings, labels, '
+                'buttons, stamps and table heads. Running copy opts into the reading '
+                'face, because a monospace paragraph is harder work than a monospace '
+                'label. Each size below is shown in the face that would use it.</p>')
+    rows = []
+    for t in SG_TYPE:
+        rows.append(f'<tr><td><code>--fn-text-{esc(t)}</code></td>'
+                    f'<td class="num">{esc(val("text-" + t))}</td>'
+                    f'<td><span class="{face("mono")} {fs(t)}">Week 24 · HR</span></td>'
+                    f'<td><span class="{face("prose")} {fs(t)}">Read the whole clause '
+                    f'before you rely on it.</span></td></tr>')
+    body.append('<div class="card table-card"><div class="scroller"><table>'
+                '<caption class="eyebrow">The type scale, in both faces</caption>'
+                '<thead><tr><th scope="col">Token</th><th scope="col">Value</th>'
+                '<th scope="col">Chrome face</th><th scope="col">Reading face</th>'
+                f'</tr></thead><tbody>{"".join(rows)}</tbody></table></div></div>')
+
+    # ---------------------------------------------------------------- spacing
+    body.append("<h2>Spacing</h2>")
+    body.append('<p class="lead">Fluid throughout, so spacing is continuous rather '
+                'than stepped. Each step is a clamp with a floor, a viewport middle '
+                'and a ceiling; the bar shows the step at its ceiling.</p>')
+    rows = []
+    for s in SG_SPACE:
+        rows.append(f'<tr><td><code>--fn-space-{esc(s)}</code></td>'
+                    f'<td class="num">{esc(val("space-" + s))}</td>'
+                    f'<td><span class="sg-bar {w(s)}"></span></td></tr>')
+    body.append('<div class="card table-card"><div class="scroller"><table>'
+                '<caption class="eyebrow">The spacing scale</caption>'
+                '<thead><tr><th scope="col">Token</th><th scope="col">Value</th>'
+                f'<th scope="col">At its ceiling</th></tr></thead>'
+                f'<tbody>{"".join(rows)}</tbody></table></div></div>')
+
+    # ------------------------------------------------- borders, corners, shadow
+    body.append("<h2>Borders, corners and shadow</h2>")
+    rows = []
+    for b in SG_BORDER:
+        rows.append(f'<tr><td><code>--fn-border-{esc(b)}</code></td>'
+                    f'<td class="num">{esc(val("border-" + b))}</td>'
+                    f'<td><span class="sg-box {bw(b)}"></span></td></tr>')
+    body.append('<div class="card table-card"><div class="scroller"><table>'
+                '<caption class="eyebrow">Border widths</caption>'
+                '<thead><tr><th scope="col">Token</th><th scope="col">Value</th>'
+                f'<th scope="col">Rendered</th></tr></thead>'
+                f'<tbody>{"".join(rows)}</tbody></table></div></div>')
+
+    cells = []
+    for s in SG_SHADOW:
+        cells.append(f'<div class="sg-shadow-cell">'
+                     f'<span class="sg-box sg-shadow {sh(s)}"></span>'
+                     f'<code>--fn-shadow-{esc(s)}</code>'
+                     f'<span class="sg-swatch-val">{esc(val("shadow-" + s))}</span>'
+                     f'</div>')
+    body.append('<div class="card"><h3>Shadow</h3>'
+                '<p>Hard offsets with no blur. Cards rest at six pixels and lift '
+                'into a ten pixel pink shadow on hover, which is the one gesture '
+                'that makes the system feel physical.</p>'
+                f'<div class="sg-grid">{"".join(cells)}</div></div>')
+
+    body.append('<div class="card"><h3>Corners</h3>'
+                '<p>Square. The reference stylesheet contains exactly one '
+                'border-radius in 27,771 characters, and this system keeps it to the '
+                'smallest controls.</p><div class="sg-grid">'
+                f'<div class="sg-swatch"><code>--fn-radius-none</code>'
+                f'<span class="sg-swatch-val">{esc(val("radius-none"))}</span></div>'
+                f'<div class="sg-swatch"><code>--fn-radius-sm</code>'
+                f'<span class="sg-swatch-val">{esc(val("radius-sm"))}</span></div>'
+                '</div></div>')
+
+    # ---------------------------------------------------------------- pieces
+    body.append("<h2>Components</h2>")
+    body.append('<p class="lead">The pieces the site is built from, rendered with the '
+                'classes the pages actually use rather than with copies of their '
+                'styles. Change a token and these change with it.</p>')
+
+    body.append('<h3>Hero</h3>'
+                '<p>The hero you passed on the way in, drawn again here so it can be '
+                'read against its own measurements. A blue ground inside a thick cyan '
+                'border, a ten pixel pink shadow, and a title big enough to carry tight '
+                'tracking. White on the blue is 4.58:1, which clears AA even at the '
+                'lead\'s body size, so the part of this that looks like a compromise is '
+                'not one.</p>'
+                '<div class="scroller"><table>'
+                '<caption class="eyebrow">The hero, measured</caption>'
+                '<thead><tr><th scope="col">Part</th><th scope="col">Pair</th>'
+                '<th scope="col">Ratio</th></tr></thead><tbody>'
+                '<tr><td>title</td><td>white on blue</td>'
+                f'<td class="num">{ratio("white", "blue"):.2f}:1</td></tr>'
+                '<tr><td>lead</td><td>white on blue</td>'
+                f'<td class="num">{ratio("white", "blue"):.2f}:1</td></tr>'
+                '<tr><td>stat chips</td><td>white on the chip fill over blue</td>'
+                f'<td class="num">{_ratio(_rgb("#FFFFFF")[0], chip_over_blue):.2f}:1</td></tr>'
+                '<tr><td>eyebrow</td><td>ink on yellow</td>'
+                f'<td class="num">{ratio("ink", "yellow"):.2f}:1</td></tr>'
+                '</tbody></table></div>')
+    body.append('<p class="note">The hero itself is at the top of this page — it is '
+                'not drawn a second time here, because two of them would mean two '
+                'first-level headings on one page. Read the numbers above against '
+                'the real thing.</p>')
+
+    body.append('<div class="card"><h3>Stickers</h3>'
+                '<p>One class, six grounds. Each carries its own background, and the '
+                'gate measures the text on every one of them.</p>'
+                '<p><span class="sticker sticker-free-to-finish">Free to finish</span> '
+                '<span class="sticker sticker-free-to-use">Free to use</span> '
+                '<span class="sticker sticker-limited-access">Limited access</span> '
+                '<span class="sticker sticker-paid">Paid</span> '
+                '<span class="sticker sticker-check-before-committing">Check first</span> '
+                '<span class="sticker sticker-free-to-study-paid-cert">Free to study'
+                '</span></p></div>')
+
+    body.append('<div class="card"><h3>Buttons</h3>'
+                '<p>Every control is at least three rem tall for a thumb.</p>'
+                '<p class="actions">'
+                '<button type="button" class="btn btn-primary">Start with Week 0</button> '
+                '<button type="button" class="btn btn-paper">See the whole plan</button> '
+                '<button type="button" class="btn btn-ink">Reset</button> '
+                '<button type="button" class="btn btn-sm">Copy</button></p></div>')
+
+    body.append('<div class="card"><h3>Hover</h3>'
+                '<p>Hover a card and it rises toward you as its shadow deepens and '
+                'turns pink: three pixels of lift, four of shadow, in just over a '
+                'tenth of a second. Anyone who asks for less motion gets none.</p>'
+                '<div class="grid grid-3">'
+                '<div class="card"><h4>A card at rest</h4>'
+                '<p>Six pixels of hard shadow, square corners.</p></div>'
+                '<div class="card"><h4>Hover this one</h4>'
+                '<p>The lift and the pink shadow are the system\'s signature.</p></div>'
+                '<div class="card"><h4>And this one</h4>'
+                '<p>Both are the same component; nothing is special-cased.</p></div>'
+                '</div></div>')
+
+    body.append('<div class="card"><h3>Progress</h3>'
+                '<p>A two pixel box with a white track and a blue fill. No rounding.</p>'
+                '<div class="meter"><progress value="9" max="25"></progress></div>'
+                '<p class="note">9 of 25 weeks</p></div>')
+
+    body.append('<div class="card"><h3>Status chips</h3>'
+                '<p>Background and ink travel together, so a chip never needs a rule '
+                'about its own text.</p>'
+                f'<p><span class="sticker {bg("status-live-bg")} {fg("status-live-ink")}">'
+                f'live</span> '
+                f'<span class="sticker {bg("status-archive-bg")} {fg("status-archive-ink")}">'
+                f'archive</span> '
+                f'<span class="sticker {bg("status-caveat-bg")} {fg("status-caveat-ink")}">'
+                f'caveat</span></p></div>')
+
+    body.append('<div class="callout"><h3>Callout</h3>'
+                '<p>The soft blue notice tint is one token, shared by callouts, table '
+                'heads, code blocks and the current row. Ink on it measures just under '
+                'fifteen to one.</p></div>')
+
+    body.append('<div class="card table-card"><h3>Table</h3>'
+                '<div class="scroller"><table>'
+                '<caption class="eyebrow">A table with its caption</caption>'
+                '<thead><tr><th scope="col">Week</th><th scope="col">Focus</th>'
+                '<th scope="col" class="num">Hours</th></tr></thead><tbody>'
+                '<tr><td>0</td><td>Set up</td><td class="num">2</td></tr>'
+                '<tr class="is-next"><td>1</td><td>What HR is</td><td class="num">5</td></tr>'
+                '<tr class="is-done"><td>2</td><td>The function</td><td class="num">5</td></tr>'
+                '</tbody></table></div></div>')
+
+    body.append('<div class="card"><h3>Stamp</h3>'
+                '<p>Every content page carries one. It is the family\'s promise that a '
+                'fact has a date on it.</p>'
+                f'<p class="stamp"><span class="stamp-dot" aria-hidden="true"></span>'
+                f'{STAMP}</p></div>')
+
+    body.append('<div class="card"><h3>Motion</h3>'
+                '<p>Motion is confirmation, not decoration: it tells you a card is '
+                'interactive or that a bar moved. Nothing animates on load, and the '
+                'durations come from the tokens rather than from habit.</p>'
+                '<div class="scroller"><table>'
+                '<caption class="eyebrow">Durations and easing</caption>'
+                '<thead><tr><th scope="col">Token</th><th scope="col">Value</th>'
+                '<th scope="col">Used for</th></tr></thead><tbody>'
+                f'<tr><td><code>--fn-duration-quick</code></td>'
+                f'<td class="num">{esc(val("duration-quick"))}</td>'
+                f'<td>transform, box-shadow, background</td></tr>'
+                f'<tr><td><code>--fn-duration-bar</code></td>'
+                f'<td class="num">{esc(val("duration-bar"))}</td>'
+                f'<td>the progress fill</td></tr>'
+                f'<tr><td><code>--fn-ease-out</code></td>'
+                f'<td class="num">{esc(val("ease-out"))}</td><td>everything</td></tr>'
+                '</tbody></table></div></div>')
+
+    body.append('<div class="card"><h3>Focus</h3>'
+                '<p>A three pixel blue ring at two pixels offset, never removed. Tab to '
+                'any control on this page to see it. Controls that already sit on a '
+                'coloured ground take a yellow fill as well, so the ring is never lost '
+                'against what is behind it.</p>'
+                '<p class="actions"><button type="button" class="btn btn-paper">'
+                'Tab to me</button></p></div>')
+
+    # Only now is the class list complete, so only now can it be emitted.
+    seen, sheet = set(), []
+    for rule in rules:
+        if rule not in seen:
+            seen.add(rule)
+            sheet.append(rule)
+    extra_head = "<style>" + "".join(sheet) + "</style>"
+
+    page("style-guide", "Style guide", "\n".join(body),
+         lead="Every colour, size, space and component in the Fieldnotes system, "
+              "read live from the stylesheet this site ships.",
+         extra_head=extra_head)
 
 
 def main(argv):
@@ -1394,6 +1790,7 @@ def main(argv):
     build_templates()
     build_downloads()
     build_check()
+    build_style_guide()
     write_crawl_files()
     precached = write_service_worker(weeks)
     og = write_og_cards()

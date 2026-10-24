@@ -179,7 +179,7 @@ class ServiceWorkerTest(SiteTest):
         for n in [w["n"] for w in S.week_sections()]:
             self.assertIn(f"/2/plan/week/{n}/", urls, f"week {n} is not precached")
         for u in ("/", "/1/start-here/", "/2/plan/", "/4/nigeria/law-card/",
-                  "/wakeout.css", "/static/site.css", "/static/offline.js"):
+                  "/fieldnotes.css", "/static/site.css", "/static/offline.js"):
             self.assertIn(u, urls, u)
 
     def test_every_precached_url_exists(self):
@@ -246,7 +246,7 @@ class ShareCardTest(SiteTest):
             self.assertNotIn("http://", svg.replace("http://www.w3.org", ""), name)
 
     def test_card_colours_come_from_the_design_system(self):
-        tokens = json.loads((ROOT / "design-system/tokens/tokens.json").read_text(encoding="utf-8"))
+        tokens = json.loads((ROOT / "design-system/tokens/fieldnotes.tokens.json").read_text(encoding="utf-8"))
         allowed = {v["value"] for v in tokens["color"]["primitive"].values()
                    if isinstance(v, dict) and str(v.get("value", "")).startswith("#")}
         for name, svg in self.cards().items():

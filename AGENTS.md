@@ -60,7 +60,7 @@ tools/sitegen/      sitegen.py (extract + render every route), audit.py (output 
                     tests/ (unittest + node:test)
 site/static/        site.css (token-only layer), progress.js, copy.js, glossary.js, library.js
                     (all JS squeezed at build)
-design-system/      the owner's checksummed design system; wakeout.css is copied into _site/
+design-system/      the Fieldnotes design system; fieldnotes.css is copied into _site/
 downloads/          the five .docx + the frozen research archive, served as files
 checks/links.json   the last link sweep (absent until linkcheck.py has run)
 _site/              generated output, never edited, never committed
@@ -92,7 +92,7 @@ Product:
   video, dark mode, AI chat.
 
 Technical:
-- The design system owns every visual value: `var(--wk-*)` only, no colour literal (audit fails),
+- The design system owns every visual value: `var(--fn-*)` only, no colour literal (audit fails),
   no blur, no gradients. A value with no token gets a `/* TODO no token: … */` and a question to the owner.
 - No Tailwind build and no Node toolchain for the site; Node is used only for tests.
 - Budgets (R24): ≤120 KB HTML per page, ≤45 KB CSS gzipped, ≤14 KB JS for the whole site (R24 said
@@ -178,7 +178,8 @@ copywriting pack, and `react-state-management` does not apply (there is no React
   Only the owner clears them, by deciding on the sentence; never by editing `content/` yourself.
 - The design system's `tools/build-tokens.mjs` shells out to `/bin/bash -c shasum` and dies on
   Windows. Copy the tree and patch the copy; never patch the checksummed original.
-- Fredoka has no `₦` glyph; `md()` wraps the sign in `.naira` so it renders in the body face.
+- The display face is a system mono stack with no guaranteed `₦` glyph; `md()` wraps the sign
+  in `.naira` so it renders in the reading face.
 - `docx_render.URL_RE` skips a URL written as "(https://…)", so it renders as plain text.
   `link_sources()` still checks it.
 - The site's JS is squeezed at build (`squeeze_js`): comments and spaces go, strings are kept. It has
