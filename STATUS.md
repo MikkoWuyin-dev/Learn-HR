@@ -7,7 +7,8 @@ Updated: 2026-10-23 by Claude (Phase 3 finished: offline + share cards)
 
 ## Now
 - Phases 1-3 are built. `python3 tools/sitegen/check.py` is the gate (Python 3.11+): build · output
-  audit · contrast · html-validate · tests · .docx regression · voice audit · sources untouched.
+  audit · contrast · no-JS crawl · html-validate · tests · .docx regression · voice audit ·
+  sources untouched.
   **html-validate is required** (`npm install`); a missing binary FAILS rather than skips.
 - **All 25 weeks are real pages.** Weeks 22-24 come from doc5 §5.3-§5.8 and tick like any other week.
   Each of their rows names the doc5 section it came from, and a test fails a row that does not — that
@@ -44,6 +45,13 @@ Updated: 2026-10-23 by Claude (Phase 3 finished: offline + share cards)
   failing on cream. Measured: **13.42:1**, which is AAA. Worst text pair anywhere is quiet text at
   5.18:1, still clear of AA's 4.5. `tools/sitegen/contrast.py` now runs in the gate on every build,
   reading colours back out of site.css rather than restating them, so recoloring text fails it.
+- **JS-off crawl: done, and the site holds up.** `tools/sitegen/nojs.py` strips every `<script>` from
+  all 54 built pages and holds what is left against `content/`, not against the build — comparing the
+  build to itself would pass no matter what went missing. Every page keeps its `<h1>`, its prose, its
+  week rows, its terms and its resources. **Nothing ships hidden without a stated reason**: an element
+  carrying `hidden` must be a control (tick, copy, search, filter) or saved-progress state, and the
+  check names the file and refuses a new one until it is classified. That is the part that keeps this
+  true later. Three mutations planted, three caught.
 - **Still to do**: Lighthouse mobile, 3G cold load, Android print, and the post-deploy `curl -I`
   sweep. All four need a browser or a deploy, and there is neither here.
 
@@ -82,9 +90,8 @@ Weeks 22-24 authored from doc5 · doc4 "unlocks" → "gives" · doc5 "Stakeholde
    python-docx and html-validate, and it does not build the site.
 
 ## Next justified step
-Finish Phase 4. A JS-disabled crawl first — prove every page's words are in the HTML and not built
-by script — then a page-weight pass as the honest stand-in for the 3G timing. Lighthouse, the
-Android print and the post-deploy `curl -I` sweep all need a browser or a deploy, so they wait.
+A page-weight pass: what each route actually weighs, as the honest stand-in for the 3G timing that
+cannot be measured here. Then Phase 4 is done bar the four items that need a browser or a deploy.
 
 ## Session traps
 - `python3` on the owner's PC is a Store stub; real one is `.../AppData/Local/Python/bin/python3`.
@@ -100,6 +107,9 @@ Android print and the post-deploy `curl -I` sweep all need a browser or a deploy
   JS test file must be named in `check.py` or it never runs.
 - **Strip CSS comments before parsing a stylesheet.** A comment above a rule is otherwise captured
   as part of its selector, so the rule never matches and the check silently measures a fallback.
+- **Normalise HTML the same way on both sides of a comparison.** Turning tags into "" on one side and
+  " " on the other makes `</strong>:` read as `:` in one and ` :` in the other, so every bold cell in
+  the content looks missing when it is plainly there.
 - **`subprocess.run(..., text=True)` needs `encoding="utf-8"`**; `r"\u00a7"` is six chars, not `§`.
 - **A site copy string can live outside `content/`** — "how long it takes" was in the source and in
   `sitegen.py` at once. Grep both before calling a string removed.
