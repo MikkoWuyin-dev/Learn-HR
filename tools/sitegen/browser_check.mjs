@@ -36,9 +36,14 @@
  *   WCAG 2.2 exempts them; filter with `!e.closest('p, li, td, blockquote')`.
  */
 import puppeteer from 'puppeteer-core';
+import fs from 'fs';
+import path from 'path';
 
 const BASE = process.argv[2] || 'http://localhost:8000';
 const executablePath = process.env.CHROME_PATH;
+// The built site, walked to find every route. Resolved from this file so the
+// sweep works wherever the gate is run from.
+const SITE_DIR = path.resolve(new URL('../../_site', import.meta.url).pathname);
 
 if (!executablePath) {
   console.log('\nSKIP  no CHROME_PATH — set it to a Chromium binary to run the browser checks\n');
@@ -229,6 +234,62 @@ const nudge = await sw.evaluate(() => {
 });
 check('the offline nudge is on screen', nudge?.shown === true, nudge ? nudge.box : 'not present');
 await sw.close();
+
+// ------------------------------------------- contrast on every filled card
+// The static contrast audit reads the stylesheet and the rendered check above
+// samples a fixed list of selectors. Neither sees a paragraph of body copy
+// sitting on a card tint, which is the one place colour-under-text can fail
+// here. This walks every route and measures it. It found a real failure on
+// 2026-10-25: the muted ink used for notes and week numbers fell to 3.86:1 on
+// the coral tint, because coral was the darkest of the eight.
+console.log('\ncontrast on every filled card, all routes');
+{
+  const routes = [];
+  (function walk(dir, prefix) {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (e.isDirectory()) walk(path.join(dir, e.name), `${prefix}${e.name}/`);
+      else if (e.name === 'index.html') routes.push('/' + prefix);
+    }
+  })(SITE_DIR, '');
+
+  const probe = () => {
+    const lum = (c) => {
+      const [r, g, b] = c.match(/\d+/g).slice(0, 3).map((v) => {
+        v = v / 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+      });
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m);
+      return (x + 0.05) / (y + 0.05); };
+    const groundOf = (el) => { let e = el;
+      while (e) { const c = getComputedStyle(e).backgroundColor;
+        if (c && c !== 'rgba(0, 0, 0, 0)' && !/rgba\(.*,\s*0\)$/.test(c)) return c;
+        e = e.parentElement; }
+      return 'rgb(255, 255, 255)'; };
+    let worst = 99, on = '';
+    for (const b of document.querySelectorAll('.block')) {
+      for (const el of b.querySelectorAll('p, li, h3, span, code, a')) {
+        if (!el.textContent.trim() || el.querySelector('svg')) continue;
+        const r = ratio(getComputedStyle(el).color, groundOf(el));
+        if (r < worst) { worst = r; on = (el.className || el.tagName).toString().slice(0, 30); }
+      }
+    }
+    return { worst: +worst.toFixed(2), on, blocks: document.querySelectorAll('.block').length };
+  };
+
+  const p3 = await browser.newPage();
+  await p3.setViewport({ width: 390, height: 900, deviceScaleFactor: 1 });
+  let worst = 99, worstRoute = '', worstOn = '', cards = 0;
+  for (const r of routes) {
+    await p3.goto(`${BASE}${r}`, { waitUntil: 'domcontentloaded' });
+    const m = await p3.evaluate(probe);
+    cards += m.blocks;
+    if (m.blocks && m.worst < worst) { worst = m.worst; worstRoute = r; worstOn = m.on; }
+  }
+  await p3.close();
+  check('every filled card carries its text at AA', worst >= 4.5,
+    `worst ${worst}:1 on ${worstRoute} .${worstOn}, ${cards} cards in ${routes.length} routes`);
+}
 
 // ------------------------------------------------------------------- print
 console.log('\nprint');

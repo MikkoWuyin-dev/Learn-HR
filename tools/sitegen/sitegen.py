@@ -568,7 +568,10 @@ def render_blocks(bs, level=2, caption_from_heading=True, default_caption="",
         elif t == "code":
             pre = "<pre><code>" + html.escape("\n".join(b["lines"])) + "</code></pre>"
             if copyable:
-                pre = (f'<figure class="copyable">{pre}'
+                # A frame, never a fill: a code block is long by nature, and
+                # body copy on a saturated ground is where contrast fails.
+                tint = tint_for("\n".join(b["lines"]))
+                pre = (f'<figure class="copyable block block-{tint} block-frame">{pre}'
                        f'{copy_button(chr(10).join(b["lines"]), "this card")}</figure>')
             out.append(pre)
         elif t == "list":
@@ -769,6 +772,10 @@ HOME_LINKS = [
 # One glyph per document, in document order.
 DOC_ICONS = ("book", "chart", "link", "scale", "case")
 
+# Library sections: the glyph names the kind of resource, so the grid reads by
+# shape and not only by heading.
+SECTION_ICONS = {"3.1": "book", "3.2": "pin", "3.3": "case"}
+
 
 def doc_card(b, i):
     """One of the five documents as a card.
@@ -890,10 +897,16 @@ def build_plan():
                  actions=start_actions().replace(
                      ' <a class="btn btn-paper" href="/2/plan/">See the whole plan</a>', '')),
             NEXT_CARD, PROGRESS_PANEL]
+    # Twenty-five weeks, one card each. The number is content (it is the week
+    # the plan is built around), so it stays a real number rather than becoming
+    # a decorative index.
     rows = "".join(
-        f'<li data-week="{w["n"]}"><a href="/2/plan/week/{w["n"]}/"><span class="week-n">{w["n"]:02d}</span>'
-        f'<span>{md(w["title"])}</span><span class="week-state" data-week-state="{w["n"]}"></span>'
-        f'</a></li>' for w in weeks)
+        f'<li class="block block-{TINTS[i % len(TINTS)]} week-card" data-week="{w["n"]}">'
+        f'<a href="/2/plan/week/{w["n"]}/">{icon("target")}'
+        f'<span class="week-n">{w["n"]:02d}</span>'
+        f'<span class="week-title">{md(w["title"])}</span>'
+        f'<span class="week-state" data-week-state="{w["n"]}"></span>'
+        f'</a></li>' for i, w in enumerate(weeks))
     body.append(f'<section class="card"><h2 id="weeks">The weeks</h2>'
                 f'<p class="note">Each week is a table of blocks. If the week\'s output exists, '
                 f'the week counts as passed.</p><ol class="week-list">{rows}</ol></section>')
@@ -960,9 +973,16 @@ def build_library_index():
             groups[sec["key"]] = (sec, [])
             order.append(sec["key"])
         v = vs.get(c["id"], "")
+        # The glyph says which of the three sections a resource belongs to, so
+        # the grid can be read at a glance. Tint cycles with the card's own
+        # index, so no two neighbours share a ground.
+        n = len(groups[sec["key"]][1])
         groups[sec["key"]][1].append(
-            f'<li class="card res-card" data-section="{sec["key"]}" data-cost="{v}">'
-            f'<a href="/3/library/{c["id"]}/"><h3>{md(c["raw_title"])}</h3></a>{sticker(v)}'
+            f'<li class="card res-card block block-{TINTS[n % len(TINTS)]}"'
+            f' data-section="{sec["key"]}" data-cost="{v}">'
+            f'<a href="/3/library/{c["id"]}/"><h3 class="res-card-title">'
+            f'{icon(SECTION_ICONS.get(sec["key"], "link"))}'
+            f'<span>{md(c["raw_title"])}</span></h3></a>{sticker(v)}'
             f'<p class="note">{md(c["fields"].get("why it matters") or c["fields"].get("why") or "")}</p>'
             f'</li>')
     sections = '<option value="">All sections</option>' + "".join(
@@ -1061,17 +1081,20 @@ def build_templates():
 
 def build_downloads():
     files = sorted((ROOT / "downloads").glob("HR_*"))
-    rows = "".join(
-        f'<tr><td><a href="/files/{f.name}" download>{f.name}</a></td>'
-        f'<td class="num">{f.stat().st_size:,} B</td>'
-        f'<td class="num">{(f.stat().st_size / 1024):.0f} KB</td></tr>' for f in files)
+    # One card per file. The size is on the card because the whole point of this
+    # page is knowing what a download costs before paying for the data.
+    cards = "".join(
+        f'<article class="block block-{TINTS[i % len(TINTS)]} file-card">'
+        f'<h2 class="file-card-title">{icon("down")}'
+        f'<a href="/files/{f.name}" download>{f.name}</a></h2>'
+        f'<p class="file-card-size"><span class="num">{f.stat().st_size:,} B</span>'
+        f'<span aria-hidden="true">≈</span>'
+        f'<span class="num">{(f.stat().st_size / 1024):.0f} KB</span></p>'
+        f'</article>' for i, f in enumerate(files))
     body = [hero("Downloads", "The five documents and the research archive, as files. "
                 "Sizes are here so you can see what you are fetching before you pay for data.",
                 "Free to download")]
-    body.append(f'<div class="card table-card"><div class="scroller"><table>'
-                f'<caption class="eyebrow">Files</caption>'
-                f'<thead><tr><th scope="col">File</th><th scope="col">Bytes</th>'
-                f'<th scope="col">Approx</th></tr></thead><tbody>{rows}</tbody></table></div></div>')
+    body.append(f'<h2 id="files" class="vh">Files</h2>{cards}')
     page("downloads", "Downloads", "\n".join(body),
          lead="The five documents and the research archive, as files, with their sizes.")
 
@@ -1548,6 +1571,9 @@ SG_COLOUR_GROUPS = (
     ("Ground and ink", ("ink", "paper", "cream", "line", "muted", "shade")),
     ("Accent", ("blue", "blue-ink", "cyan", "pink", "yellow", "green", "orange")),
     ("Notice and control", ("well", "white")),
+    # The block cards (2026-10-25). Every one carries ink at 4.5:1 or better,
+    # which is what lets a block be filled and still be read.
+    ("Card tints", ("mint", "sky", "peach", "coral", "aqua", "lime", "sand", "mist")),
 )
 SG_STATUS = ("live", "archive", "caveat")
 SG_TAGS = ("default", "playful", "pixel", "action", "mobile")
@@ -1784,6 +1810,41 @@ def build_style_guide():
                 f'<div class="sg-swatch"><code>--fn-radius-sm</code>'
                 f'<span class="sg-swatch-val">{esc(val("radius-sm"))}</span></div>'
                 '</div></div>')
+
+    # -------------------------------------------------------- block cards
+    # Shown with the classes the pages actually use, not copies of them, so a
+    # change to the component shows here instead of drifting.
+    tints = "".join(
+        f'<div class="block block-{t}"><p class="block-tag">{icon("bulb")}Note</p>'
+        f'<p>A short block on <code>--fn-{esc(t)}</code>, carrying ink at '
+        f'{ratio(t, "ink"):.2f}:1.</p></div>' for t in TINTS)
+    body.append(f'<div class="card"><h3>Block cards, filled</h3>'
+                f'<p>Short blocks take a colour fill. Long prose does not: a '
+                f'paragraph of body copy on a saturated ground is exactly where '
+                f'contrast starts to fail, so a long block keeps the paper ground '
+                f'and takes the colour in its frame instead.</p>'
+                f'<div class="sg-grid">{tints}</div></div>')
+
+    frames = "".join(
+        f'<div class="block block-{t} block-frame"><p class="block-tag">'
+        f'{icon("list")}Framed</p><p>Same tint, used as a frame. The ground stays '
+        f'paper and the colour moves to the shadow, so a long block reads as body '
+        f'text at {ratio("ink", "paper"):.2f}:1 however long it runs.</p></div>'
+        for t in TINTS[:4])
+    body.append(f'<div class="card"><h3>Block cards, framed</h3>{frames}</div>')
+
+    glyphs = "".join(
+        f'<div class="sg-swatch"><span class="sg-glyph">{icon(n, "ico sg-ico")}</span>'
+        f'<code>{esc(n)}</code></div>' for n in sorted(ICONS))
+    body.append('<div class="card"><h3>Icons</h3>'
+                '<p>Drawn in this repository rather than installed: the repo ships '
+                'no icon font and carries a 14 KB JavaScript budget, so a dependency '
+                'is the wrong trade for a handful of glyphs. Each is 24x24, stroked '
+                'in <code>currentColor</code> so it inherits the colour it sits on, '
+                'and square-capped to match the system\'s hard edges. They are '
+                '<code>aria-hidden</code> because each one sits beside a text label '
+                'and never carries meaning alone.</p>'
+                f'<div class="sg-grid sg-glyph-grid">{glyphs}</div></div>')
 
     # ---------------------------------------------------------------- pieces
     body.append("<h2>Components</h2>")
