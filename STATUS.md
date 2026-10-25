@@ -3,7 +3,7 @@
 <!-- Overwrite this file at the end of each task. Don't append to it. Keep it under 160 lines.
      It is the only place that says "where we are". The commit log is the history. -->
 
-Updated: 2026-10-24 by Claude (a browser ran; it found a real bug in the tap targets)
+Updated: 2026-10-24 by Claude (PR #14 merged; budget and deploy settings both acknowledged)
 
 ## Now
 - `python3 tools/sitegen/check.py` is the gate: build · output audit · contrast · no-JS crawl ·
@@ -80,9 +80,9 @@ Updated: 2026-10-24 by Claude (a browser ran; it found a real bug in the tap tar
   2026-10-23). **Raising a budget is mine to decide; reporting it is not optional.**
 - **`sw.js` is not counted as page JS** — it runs after load, so it is not page weight. **Weeks
   22-24 rows are pointers, not prose**: each cites its doc5 section.
-- **Cold-visit budget lowered 100 KB → 40 KB.** Dropping the fonts left the old figure measuring
-  nothing. The fonts alone are 48,628 B, so this budget is what stops them coming back.
-  **Tightened on 2026-10-24 and not yet acknowledged by the owner — mention it again.**
+- **Cold-visit budget lowered 100 KB → 40 KB** (owner acknowledged 2026-10-24). Dropping the fonts
+  left the old figure measuring nothing. The fonts alone are 48,628 B, so this budget is what
+  stops them coming back.
 
 ## Phase 4 (pre-launch checks) — all four done, in a real engine
 - **Contrast: done.** 25/25 clear AA statically, worst 5.36:1; re-measured as composited in
@@ -122,15 +122,16 @@ Updated: 2026-10-24 by Claude (a browser ran; it found a real bug in the tap tar
   load-bearing line: it stops Vercel auto-detecting a Python runtime and hunting for an
   entrypoint, which is how it once found the `Handler` test double in `test_linkcheck.py`.
 - **`HR_SITE_URL` is set** by the owner; canonical URLs, `og:image` and `sitemap.xml` are live.
-  The dashboard's build-command override may still be set — it takes precedence over
-  `vercel.json`, so it should be cleared so the repo is the only source.
+  **The dashboard's build-command override was cleared on 2026-10-24**, so `vercel.json` is now
+  the only source of how the site builds — a dashboard override would have silently outranked it.
 - Do **not** run `check.py` in the deploy: it needs python-docx and html-validate, and it does not
   build the site. `python3 tools/sitegen/sitegen.py` builds; `_site` is the output.
 
 ## Next justified step
-**The owner opening the redesign in a browser** — every rule is satisfied, but nobody has *seen*
-it; screenshots are in `~/shots/`. Then clear the dashboard's build-command override so
-`vercel.json` is the only source of how the site builds.
+**The owner opening the redesign in a browser.** Every rule is satisfied and every Phase 4 check
+has passed in a real engine, but nobody has *seen* the site — this work has been measured, never
+observed. Screenshots of five pages at 390px and 1440px are in `~/shots/`. That is the only thing
+left before this is genuinely ready; the budget and the deploy settings are both settled.
 
 ## Session traps
 - `python3` on the owner's PC is a Store stub; the real one is `.../AppData/Local/Python/bin/python3`.
