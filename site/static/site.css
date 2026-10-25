@@ -106,8 +106,17 @@ small, .note { color: var(--fn-muted); font-size: var(--fn-text-small); }
 .hero.band {
   padding: var(--fn-space-4) 0 var(--fn-space-8);
   margin-bottom: 0;
+  /* Top and bottom only. The band runs edge to edge, so side borders would sit
+     at the very edge of the window where nobody can see them - but they still
+     take up 4px of layout, which pushed the name and the headline 4px clear of
+     every paragraph below them on a narrow screen. The frame reads the same
+     from the two lines that are actually in view. */
+  border-width: var(--fn-border-thick) 0;
 }
-.band .wrap { padding: 0 var(--fn-hero-padding-inline); }
+/* No padding rule of its own: the band's rows take .wrap exactly as the page
+   body does, so the name, the headline and the tabs share one left edge with
+   the paragraphs underneath. Giving the band the wider hero inset instead
+   pushed the wordmark 52px clear of everything below it. */
 .band-top { margin-bottom: var(--fn-space-5); }
 /* The 46 pages with no hero of their own still need the name and the sections,
    so they get the same band with nothing inside it but the wordmark. */
@@ -577,7 +586,7 @@ tr[hidden] { display: none; }
     .hero { padding: 0 0 var(--fn-space-4); border-width: 0 0 var(--fn-border-base) 0; }
     /* .hero.band outspecifies .hero, so the band needs naming here too or it
        keeps its tall screen padding and prints as a mostly-empty blue strip. */
-    .hero.band { padding: 0 0 var(--fn-space-4); }
+    .hero.band { padding: 0 0 var(--fn-space-4); border-width: 0 0 var(--fn-border-base) 0; }
     .hero::after { display: none; }
     .hero h1, .hero-lead, .hero .stamp { color: var(--fn-ink); }
     .hero .stamp-dot { background: var(--fn-white); border-color: var(--fn-ink); }
@@ -596,7 +605,6 @@ tr[hidden] { display: none; }
     /* .hero.band outspecifies .hero, so the band carries its own narrow-screen
        padding or it keeps the wide one and the name sits adrift. */
     .hero.band { padding: var(--fn-space-4) 0 var(--fn-space-7); }
-    .band .wrap { padding: 0 var(--fn-space-5); }
     h1 { font-size: var(--fn-text-headline); }
     .week-list { columns: 1; }
     /* Five tabs cannot fit across a phone, and letting them scroll sideways

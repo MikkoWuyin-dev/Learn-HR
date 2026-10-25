@@ -703,13 +703,16 @@ def page(path, title, body, *, lead="", extra_head="", body_class="", detail=Fal
     # The band is outside <main>, which is what keeps the skip link honest: it
     # still jumps past the name and the sections to the content, which it could
     # not do if they sat inside <main> with the rest of the page.
+    # Every row of the band sits in a .wrap, the same one the page body uses, so
+    # the name, the headline and the tabs line up with the paragraphs below them
+    # instead of drifting to their own margins.
     band = (
         f'<header class="hero band{"" if hero_html else " band-slim"}">'
         f'<div class="wrap band-top">'
         f'<a class="wordmark" href="{root}">{html.escape(WORDMARK)}</a>'
         f'</div>'
-        f'{hero_html}'
-        f'</header>'
+        + (f'<div class="wrap">{hero_html}</div>' if hero_html else "")
+        + f'</header>'
         f'<nav class="hero-nav" aria-label="Sections"><div class="wrap">{tabs}</div></nav>'
     )
 
