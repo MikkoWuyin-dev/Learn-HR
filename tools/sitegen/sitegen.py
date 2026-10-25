@@ -62,6 +62,19 @@ NAV = [
     ("/5/getting-the-job/", "Getting the job"),
 ]
 
+# The name of the thing, as it now appears at the top of every page. It
+# replaces both the old cream navbar's "HR Library" wordmark and the home
+# page's "The compass" kicker, which said two different things in two places.
+# The stylesheet sets it in capitals; it is written here in the case a reader
+# would actually read it in.
+WORDMARK = "Fieldnotes — open learning"
+
+# The hero used to be one card among the page's content, inside <main>. It is
+# now the band at the very top of the page, outside <main>, so these markers
+# let page() lift it out of the body without counting tags.
+HERO_OPEN = "<!--hero-->"
+HERO_CLOSE = "<!--/hero-->"
+
 # A bare URL wrapped in parentheses, e.g. "(https://search.cac.gov.ng/)" in
 # doc5's scam checklist. The shared renderer's URL_RE carries a (?<!\()
 # lookbehind, so these would render as plain, unclickable text. The site
@@ -632,13 +645,20 @@ def page(path, title, body, *, lead="", extra_head="", body_class="", detail=Fal
     # The aria-current attribute is built outside the f-string: an escaped quote
     # inside an f-string expression is a SyntaxError before Python 3.12 (PEP 701),
     # and this build has to run on 3.11.
-    nav = []
-    for href, esc in ((h, html.escape(label)) for h, label in NAV):
+    # The five sections, as numbered folder tabs along the bottom edge of the
+    # band. The site already numbers its sections in their addresses, so the
+    # number is an index rather than a decoration. It is aria-hidden because the
+    # link's name is its label - hearing "link, 3 Library" is worse than hearing
+    # "link, Library" - and the number stays visible for sighted readers.
+    tabs = []
+    for i, (href, label) in enumerate(NAV, 1):
+        esc = html.escape(label)
         here = (' aria-current="page"'
                 if path and href != "/" and path.startswith(href.strip("/"))
                 else "")
-        nav.append(f'<a href="{root}{href.strip("/")}/"{here}>{esc}</a>')
-    nav = "".join(nav)
+        tabs.append(f'<a href="{root}{href.strip("/")}/"{here}>'
+                    f'<span class="tab-n" aria-hidden="true">{i}</span>{esc}</a>')
+    tabs = "".join(tabs)
     stamp = (f'<p class="stamp"><span class="stamp-dot" aria-hidden="true"></span>'
              f'{STAMP} · <a href="{root}check/">see every link checked</a></p>')
     url_path = f"/{path.strip('/')}/" if path else "/"
@@ -669,6 +689,30 @@ def page(path, title, body, *, lead="", extra_head="", body_class="", detail=Fal
         scripts += f'\n<script src="{root}static/library.js" defer></script>'
     if "data-glossary" in body:
         scripts += f'\n<script src="{root}static/glossary.js" defer></script>'
+    # Lift the hero out of the body. Pages without one - the weeks, the resource
+    # detail pages, the law card and the templates - get the same band with no
+    # hero inside it, so the name and the sections are on all 55 pages rather
+    # than only on the nine that happened to have a hero.
+    hero_html, rest = "", body
+    if HERO_OPEN in body:
+        a = body.index(HERO_OPEN) + len(HERO_OPEN)
+        b = body.index(HERO_CLOSE, a)
+        hero_html = body[a:b]
+        rest = (body[:a - len(HERO_OPEN)] + body[b + len(HERO_CLOSE):]).lstrip("\n")
+
+    # The band is outside <main>, which is what keeps the skip link honest: it
+    # still jumps past the name and the sections to the content, which it could
+    # not do if they sat inside <main> with the rest of the page.
+    band = (
+        f'<header class="hero band{"" if hero_html else " band-slim"}">'
+        f'<div class="wrap band-top">'
+        f'<a class="wordmark" href="{root}">{html.escape(WORDMARK)}</a>'
+        f'</div>'
+        f'{hero_html}'
+        f'</header>'
+        f'<nav class="hero-nav" aria-label="Sections"><div class="wrap">{tabs}</div></nav>'
+    )
+
     doc = f"""<!doctype html>
 <html lang="en-GB">
 <head>
@@ -684,14 +728,9 @@ def page(path, title, body, *, lead="", extra_head="", body_class="", detail=Fal
 </head>
 <body class="{body_class}">
 <a class="skip" href="#main">Skip to content</a>
-<header class="site-head">
-  <div class="wrap">
-    <a class="brand" href="{root}"><span class="brand-mark" aria-hidden="true"></span>HR Library</a>
-    <nav class="site-nav" aria-label="Sections">{nav}</nav>
-  </div>
-</header>
+{band}
 <main id="main" class="wrap">
-{body}
+{rest}
 </main>
 <footer class="site-foot">
   <div class="wrap">
@@ -727,12 +766,15 @@ def hero(title, lead, kicker="", actions=""):
     """
     k = f'<p class="hero-eyebrow">{html.escape(kicker)}</p>' if kicker else ""
     meta = "".join(f"<li>{html.escape(m)}</li>" for m in HERO_META)
-    return (f'<section class="hero" aria-labelledby="hero-title">'
-            f'<div class="hero-inner">{k}'
+    # Only the contents, not the box. The box is the band at the top of every
+    # page now, and page() lifts this out of the body to put it there.
+    return (HERO_OPEN
+            + f'<div class="hero-inner">{k}'
             f'<h1 id="hero-title">{title}</h1>'
             f'<p class="hero-lead">{lead}</p>'
             f'<ul class="hero-meta">{meta}</ul>'
-            f'{actions}{hero_stamp()}</div></section>')
+            f'{actions}{hero_stamp()}</div>'
+            + HERO_CLOSE)
 
 
 def hero_stamp():
@@ -837,7 +879,9 @@ def build_home():
     assert counts["doc"] == 5, f"expected 5 document cards, made {counts['doc']}"
     for old, new in HOME_LINKS:
         rendered = rendered.replace(old, new)
-    body = [hero(md("Your HR Library"), md(intro["text"]) if intro else "", "The compass",
+    # No kicker: the band above this already says the name of the thing, and
+    # saying it twice in one screenful is noise.
+    body = [hero(md("Your HR Library"), md(intro["text"]) if intro else "", "",
                  actions=start_actions()),
             NEXT_CARD, rendered]
     page("", "Your HR Library", "\n".join(body),

@@ -152,7 +152,7 @@ def main():
     # so this walks rules rather than matching the declaration everywhere.
     for m in re.finditer(r"([^{}]+)\{([^}]*)\}", css_text):
         selector, body = " ".join(m.group(1).split()), m.group(2)
-        if not re.search(r"\.btn|\.tick|\.site-nav a\b|\binput\b|\bselect\b|\bbutton\b", selector):
+        if not re.search(r"\.btn|\.tick|\.hero-nav a\b|\binput\b|\bselect\b|\bbutton\b", selector):
             continue
         hit = re.search(r"min-height:\s*var\(--fn-space-[0-9-]+\)", body)
         if hit:

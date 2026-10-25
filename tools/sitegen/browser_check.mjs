@@ -124,7 +124,7 @@ const ctl = await home.evaluate(() => {
   const b = document.querySelector('.btn');
   // Standalone targets only. Inline links inside prose are exempt from WCAG
   // 2.2's target-size rule, so measuring them would be false precision.
-  const standalone = [...document.querySelectorAll('a.btn, button, .tick, .site-nav a, select, input')]
+  const standalone = [...document.querySelectorAll('a.btn, button, .tick, .hero-nav a, select, input')]
     .filter((e) => !e.closest('p, li, td, blockquote'))
     .map((e) => ({ sel: e.tagName.toLowerCase() + '.' + ((e.className || '').toString().split(' ')[0] || '-'),
                    h: Math.round(e.getBoundingClientRect().height) }));
@@ -300,7 +300,7 @@ await pr.emulateMediaType('print');
 await new Promise((r) => setTimeout(r, 200));
 const printed = await pr.evaluate(() => {
   const g = (sel) => { const e = document.querySelector(sel); return e ? getComputedStyle(e) : null; };
-  const chrome = ['.site-head', '.site-foot', '.pager', '.skip', '.tick', '.actions'];
+    const chrome = ['.hero-nav', '.site-foot', '.pager', '.skip', '.tick', '.actions'];
   const present = chrome.filter((sel) => document.querySelector(sel));
   return {
     cardShadow: (g('.card') ?? g('body'))?.boxShadow,
