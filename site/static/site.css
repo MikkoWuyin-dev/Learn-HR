@@ -496,13 +496,26 @@ tr[hidden] { display: none; }
   tr.is-next td:first-child::before { content: none; }
   main { padding: 0; max-width: none; }
   main > * { max-width: none; }
-  .hero, .card, .callout, .table-card {
+  /* .block is here because a filled card on paper costs ink and buys nothing:
+     the tints are for the screen. Without this, every note, activity and
+     resource card would print as a coloured panel and the law card - which has
+     to stay on one sheet - would carry fills it never needed. */
+  /* .block-frame is a single class too and is declared later in this file, so
+     without naming it here its cream surface wins over white and every framed
+     block prints as a panel. */
+  .hero, .card, .callout, .table-card, .block, .block-frame {
     box-shadow: none;
     background: var(--fn-white);
     border-color: var(--fn-ink);
     break-inside: avoid;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
+  }
+  /* The chips and glyph badges keep a hairline so they still read as chips
+     when the fill is gone. */
+  .block-tag, .act-time, .doc-card-title .ico, .res-card-title .ico, .file-card-title .ico {
+    background: var(--fn-white);
+    box-shadow: none;
   }
   .hero { padding: 0 0 var(--fn-space-4); border-width: 0 0 var(--fn-border-base) 0; }
   .hero::after { display: none; }
@@ -591,4 +604,200 @@ tr[hidden] { display: none; }
   display: grid; gap: var(--fn-space-2); justify-items: start;
   padding: var(--fn-space-3);
   font-family: var(--fn-font-display); font-size: var(--fn-text-meta);
+}
+
+/* ------------------------------------------------------ block cards (2026-10-25) */
+/* Every independent block of text gets a card of its own. Short blocks (notes,
+   cautions, scripts) take a colour fill; long prose keeps the paper ground and
+   takes a vibrant frame instead, because body copy on a saturated ground is
+   exactly where contrast starts to fail. Every tint below carries ink at 4.5:1
+   or better - verified with tools/sitegen/contrast.py, and re-checked by the
+   gate on every build, so a tint that stops being readable fails the build. */
+
+.block {
+  position: relative;
+  border: var(--fn-border-base) solid var(--fn-line);
+  box-shadow: var(--fn-shadow-sticker);
+  padding: var(--fn-space-5);
+  margin: 0 0 var(--fn-space-6);
+  transition: transform var(--fn-duration-quick) var(--fn-ease-out),
+              box-shadow var(--fn-duration-quick) var(--fn-ease-out);
+}
+.block > :last-child { margin-bottom: 0; }
+.block:hover {
+  transform: translate(var(--fn-lift-x), var(--fn-lift-y));
+  box-shadow: var(--fn-shadow-sticker-hover);
+}
+@media (prefers-reduced-motion: reduce) {
+  .block { transition: none; }
+  .block:hover { transform: none; box-shadow: var(--fn-shadow-sticker); }
+}
+
+/* The fills. All eight are light enough to carry ink at AA. */
+.block-mint  { background: var(--fn-mint); }
+.block-sky   { background: var(--fn-sky); }
+.block-peach { background: var(--fn-peach); }
+.block-coral { background: var(--fn-coral); }
+.block-aqua  { background: var(--fn-aqua); }
+.block-lime  { background: var(--fn-lime); }
+.block-sand  { background: var(--fn-sand); }
+.block-mist  { background: var(--fn-mist); }
+
+/* The tag: icon plus a word, in the chrome face, on a paper chip so it stays
+   legible whatever the block behind it is doing. */
+.block-tag {
+  display: inline-flex; align-items: center; gap: var(--fn-space-2);
+  font-family: var(--fn-font-mono);
+  font-size: var(--fn-text-eyebrow);
+  font-weight: var(--fn-weight-bold);
+  letter-spacing: var(--fn-tracking-wide);
+  text-transform: none;
+  background: var(--fn-surface);
+  border: var(--fn-border-thin) solid var(--fn-line);
+  padding: var(--fn-space-1) var(--fn-space-3);
+  margin: 0 0 var(--fn-space-3);
+  box-shadow: var(--fn-shadow-sticker-sm);
+}
+
+/* Icons. Sized in em so they track the type they sit beside; stroked in
+   currentColor so they inherit rather than restate a colour. */
+.ico {
+  width: 1.05em; height: 1.05em;
+  flex: none;
+  display: block;
+}
+.block-tag .ico { width: 1.15em; height: 1.15em; }
+
+/* Long prose blocks: paper ground, vibrant frame. The colour lives in the
+   border, the shadow and the tag, never under a paragraph of body text. */
+.block-frame { background: var(--fn-surface); }
+.block-frame.block-mint  { border-color: var(--fn-line); box-shadow: 5px 5px 0 var(--fn-mint); }
+.block-frame.block-sky   { border-color: var(--fn-line); box-shadow: 5px 5px 0 var(--fn-sky); }
+.block-frame.block-peach { border-color: var(--fn-line); box-shadow: 5px 5px 0 var(--fn-peach); }
+.block-frame.block-coral { border-color: var(--fn-line); box-shadow: 5px 5px 0 var(--fn-coral); }
+.block-frame.block-aqua  { border-color: var(--fn-line); box-shadow: 5px 5px 0 var(--fn-aqua); }
+.block-frame.block-lime  { border-color: var(--fn-line); box-shadow: 5px 5px 0 var(--fn-lime); }
+.block-frame.block-sand  { border-color: var(--fn-line); box-shadow: 5px 5px 0 var(--fn-sand); }
+.block-frame.block-mist  { border-color: var(--fn-line); box-shadow: 5px 5px 0 var(--fn-mist); }
+.block-frame:hover { box-shadow: var(--fn-shadow-sticker-hover); }
+
+/* Steps: a list gets its own card with a numbered-material icon, and the
+   numbering is the list's own (a real <ol>), never a decorative counter. */
+.block-list { padding-left: var(--fn-space-8); }
+
+/* The five documents, as cards. The glyph sits on a paper chip beside the
+   title so the row reads as one object rather than an icon above a heading. */
+.doc-card-title {
+  display: flex; align-items: center; gap: var(--fn-space-3);
+  font-size: var(--fn-text-body-lg);
+  margin: 0 0 var(--fn-space-3);
+}
+.doc-card-title .ico {
+  width: 1.6rem; height: 1.6rem;
+  padding: var(--fn-space-2);
+  background: var(--fn-surface);
+  border: var(--fn-border-thin) solid var(--fn-line);
+  box-sizing: content-box;
+  box-shadow: var(--fn-shadow-sticker-sm);
+}
+
+/* A week's activities: one card each. The three cells of the old table row are
+   now three zones - the time as a chip, the task as the body, and what you
+   produce with its tick. Same keys, same buttons, no sideways scroll. */
+.act-time {
+  display: inline-flex; align-items: center; gap: var(--fn-space-2);
+  font-family: var(--fn-font-mono);
+  font-size: var(--fn-text-eyebrow);
+  font-weight: var(--fn-weight-bold);
+  letter-spacing: var(--fn-tracking-wide);
+  background: var(--fn-surface);
+  border: var(--fn-border-thin) solid var(--fn-line);
+  padding: var(--fn-space-1) var(--fn-space-3);
+  margin: 0 0 var(--fn-space-3);
+  box-shadow: var(--fn-shadow-sticker-sm);
+}
+.act-do { margin: 0 0 var(--fn-space-4); }
+.act-out { border-top: var(--fn-border-base) solid var(--fn-line); padding-top: var(--fn-space-4); }
+.act-out > p:last-of-type { margin-bottom: var(--fn-space-3); }
+
+/* Resource cards already sit in a grid that supplies its own gap, so the
+   block's bottom margin would double the spacing. */
+.res-card.block { margin: 0; }
+.res-card-title {
+  display: flex; align-items: center; gap: var(--fn-space-3);
+  font-size: var(--fn-text-subhead);
+  margin: 0;
+}
+.res-card-title .ico {
+  width: 1.35rem; height: 1.35rem;
+  padding: var(--fn-space-2);
+  box-sizing: content-box;
+  background: var(--fn-surface);
+  border: var(--fn-border-thin) solid var(--fn-line);
+  box-shadow: var(--fn-shadow-sticker-sm);
+}
+.res-card-title span { min-width: 0; }
+
+/* The week index: twenty-five weeks as cards, still in their two columns.
+   Kept compact - this is a list a reader scans, not a wall of panels - so the
+   block padding is trimmed and the whole card is one link. */
+.week-card {
+  padding: var(--fn-space-3);
+  margin: 0 0 var(--fn-space-3);
+  break-inside: avoid;
+}
+.week-card a { display: flex; align-items: center; gap: var(--fn-space-3); padding: 0; }
+.week-card .ico { width: 1.1rem; height: 1.1rem; }
+.week-card .week-title { flex: 1 1 auto; min-width: 0; }
+.week-card .week-state { flex: none; margin-left: auto; }
+
+/* Downloads: one card per file, with the size on the card - the reason the
+   page exists is knowing what a fetch costs before paying for the data. */
+.file-card { padding: var(--fn-space-5); }
+.file-card-title {
+  display: flex; align-items: center; gap: var(--fn-space-3);
+  font-size: var(--fn-text-body-lg);
+  margin: 0 0 var(--fn-space-2);
+  overflow-wrap: anywhere;
+}
+.file-card-title .ico {
+  width: 1.35rem; height: 1.35rem;
+  padding: var(--fn-space-2);
+  box-sizing: content-box;
+  background: var(--fn-surface);
+  border: var(--fn-border-thin) solid var(--fn-line);
+  box-shadow: var(--fn-shadow-sticker-sm);
+}
+.file-card-size {
+  display: flex; gap: var(--fn-space-3);
+  font-family: var(--fn-font-mono);
+  font-size: var(--fn-text-small);
+  margin: 0;
+}
+
+/* Style-guide furniture for the icon sheet. Only /style-guide/ uses these. */
+.sg-glyph-grid { grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); }
+.sg-glyph { display: block; margin-bottom: var(--fn-space-2); }
+.sg-ico { width: 1.75rem; height: 1.75rem; color: var(--fn-ink); }
+
+/* --------------------------------------------------- print, for the new pieces
+   Declared last on purpose. A media query adds no specificity, so these rules
+   only beat the tint and fill rules above by coming after them - which is why
+   an earlier attempt at this, placed with the other print rules, silently lost
+   to .block-mint and printed every card as a coloured panel. On paper a tint
+   costs ink and buys nothing: the colour is for the screen. */
+@media print {
+  .block, .block-frame, .block-mint, .block-sky, .block-peach, .block-coral,
+  .block-aqua, .block-lime, .block-sand, .block-mist {
+    background: var(--fn-white);
+    box-shadow: none;
+    border-color: var(--fn-ink);
+    break-inside: avoid;
+  }
+  .block-tag, .act-time, .act-out, .doc-card-title .ico,
+  .res-card-title .ico, .file-card-title .ico, .week-card {
+    background: var(--fn-white);
+    box-shadow: none;
+  }
+  .week-card { border: var(--fn-border-thin) solid var(--fn-shade); }
 }

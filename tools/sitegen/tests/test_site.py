@@ -320,7 +320,7 @@ class LibraryTest(SiteTest):
 
     def test_a_card_without_a_verdict_gets_no_sticker_and_no_guess(self):
         html = read(self.site, "/3/library/")
-        li = re.search(r'<li class="card res-card" data-section="3\.3" data-cost="">.*?</li>', html, re.S)
+        li = re.search(r'<li class="card res-card[^"]*" data-section="3\.3" data-cost="">.*?</li>', html, re.S)
         self.assertIsNotNone(li)
         self.assertNotIn("sticker", li.group(0))
 
@@ -333,7 +333,7 @@ class LibraryTest(SiteTest):
         html = read(self.site, "/3/library/")
         for key in ("3.1", "3.2", "3.3"):
             self.assertIn(f'data-lib-section="{key}"', html)
-        self.assertEqual(html.count('class="card res-card"'), len(S.cards()))
+        self.assertEqual(len(re.findall(r'class="card res-card[^"]*"', html)), len(S.cards()))
 
     def test_filter_ships_hidden_and_offers_only_used_labels(self):
         html = read(self.site, "/3/library/")
