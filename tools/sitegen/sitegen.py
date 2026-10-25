@@ -33,6 +33,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+import zlib
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -416,6 +417,38 @@ def render_table(b, caption=None, tick_col=None, tick_label="Done", ns=None):
             f"<thead><tr>{head}</tr></thead><tbody>{''.join(rows)}</tbody></table></div></div>")
 
 
+def render_activity_cards(b, ns=None):
+    """A week's Time / Do this / Output table as one card per activity.
+
+    The row key and the tick button are copied across unchanged from the table
+    form: they are the persistence contract (R9), and progress.js finds rows by
+    `data-k`. Only the wrapper changes. A week is a set of discrete jobs, so
+    each one gets its own card - which is also what stops a three-column table
+    being a scroll box on a phone.
+    """
+    cards = []
+    for i, row in enumerate(b["rows"]):
+        key = b["keys"][i] if i < len(b.get("keys", [])) else ""
+        if key and ns:
+            key = f"{ns}-{key}"
+        when = md(row[0] if len(row) > 0 else "")
+        do = md(row[1] if len(row) > 1 else "")
+        out = md(row[2] if len(row) > 2 else "")
+        context = plain_text(row[2] if len(row) > 2 else (row[1] if len(row) > 1 else key))
+        tint = TINTS[i % len(TINTS)]
+        rid = f' id="{key}"' if key else ""
+        cards.append(
+            f'<article class="block block-{tint} act"{rid} data-k="{key}">'
+            f'<p class="act-time">{icon("clock")}<span>{when}</span></p>'
+            f'<div class="act-do">{do}</div>'
+            f'<div class="act-out">'
+            f'<p class="block-tag">{icon("target")}What you produce</p>'
+            f'<p>{out}</p>'
+            f'{tick_button(key, "Output done", context)}'
+            f'</div></article>')
+    return "\n".join(cards)
+
+
 def copy_button(payload, what):
     """A Copy control for a block the learner reuses. The payload is the source's
     own words as plain text, line breaks kept; copy.js reveals the button."""
@@ -424,9 +457,82 @@ def copy_button(payload, what):
             f'<span class="copy-status" role="status"></span>')
 
 
+# Inline icons, drawn here rather than taken from a library. The repo ships no
+# icon font, no webfont and (R24) has a 14 KB JS budget, so a sprite sheet or
+# an npm dependency is the wrong trade for a handful of glyphs. Each is 24x24,
+# stroked in currentColor, square caps, drawn to match the system's hard edges.
+# `aria-hidden` because every icon here sits beside a text label; none of them
+# is the only thing carrying meaning.
+ICONS = {
+    "bulb":   "<path d='M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.5.4.8 1 .8 1.6V16h5.6v-.6c0-.6.3-1.2.8-1.6A6 6 0 0 0 12 3z'/>",
+    "warn":   "<path d='M12 3 2.5 20h19L12 3zM12 9.5v4.5M12 17.2v.6'/>",
+    "check":  "<path d='M4 12.5 9 17.5 20 6.5'/>",
+    "clock":  "<circle cx='12' cy='12' r='8.5'/><path d='M12 7v5.5l4 2'/>",
+    "book":   "<path d='M4 4.5h6a3 3 0 0 1 3 3V20a2.5 2.5 0 0 0-2.5-2.5H4z'/><path d='M20 4.5h-6a3 3 0 0 0-3 3V20a2.5 2.5 0 0 1 2.5-2.5H20z'/>",
+    "list":   "<path d='M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01'/>",
+    "link":   "<path d='M10 13.5a4 4 0 0 0 5.7 0l2.8-2.8a4 4 0 0 0-5.7-5.7L11.5 6.3'/><path d='M14 10.5a4 4 0 0 0-5.7 0l-2.8 2.8a4 4 0 0 0 5.7 5.7l1.3-1.3'/>",
+    "star":   "<path d='m12 3.5 2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 17.4l-5.4 2.9 1.1-6.1-4.5-4.3 6.1-.8z'/>",
+    "chat":   "<path d='M20.5 12c0 4.1-3.8 7.5-8.5 7.5-1 0-2-.1-2.9-.4L4 21l1.2-3.4A7.1 7.1 0 0 1 3.5 12c0-4.1 3.8-7.5 8.5-7.5s8.5 3.4 8.5 7.5z'/>",
+    "down":   "<path d='M12 3.5v12M7 11l5 5 5-5M4 20.5h16'/>",
+    "search": "<circle cx='10.5' cy='10.5' r='6.5'/><path d='M15.5 15.5 21 21'/>",
+    "arrow":  "<path d='M4 12h15M13.5 6l6 6-6 6'/>",
+    "case":   "<rect x='3' y='7.5' width='18' height='12.5' rx='1'/><path d='M9 7.5V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5v2M3 12.5h18'/>",
+    "users":  "<circle cx='9' cy='8' r='3.5'/><path d='M2.5 20c0-3.6 2.9-5.5 6.5-5.5s6.5 1.9 6.5 5.5'/><path d='M16 5.2a3.5 3.5 0 0 1 0 5.6M17.5 14.8c1.4.6 2.5 1.8 2.5 3.7'/>",
+    "chart":  "<path d='M4 20.5h16M7 20.5V13M12 20.5V4.5M17 20.5v-9'/>",
+    "pin":    "<path d='M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z'/><circle cx='12' cy='10' r='2.5'/>",
+    "scale":  "<path d='M12 3.5v17M7 20.5h10M4.5 8h15M12 5.5 4.5 8l-2 5a3 3 0 0 0 5 0zM12 5.5 19.5 8l2 5a3 3 0 0 1-5 0z'/>",
+    "target": "<circle cx='12' cy='12' r='8.5'/><circle cx='12' cy='12' r='4.5'/><circle cx='12' cy='12' r='1'/>",
+}
+
+# Card tints, cycled so neighbouring blocks never share a ground. Every one
+# carries ink at 4.5:1 or better (checked with tools/sitegen/contrast.py), so a
+# block can be filled and still be readable.
+TINTS = ("mint", "sky", "peach", "coral", "aqua", "lime", "sand", "mist")
+
+
+def icon(name, cls="ico"):
+    """One drawn glyph, sized in CSS. Decorative: it always sits beside text."""
+    body = ICONS.get(name)
+    if not body:
+        return ""
+    return (f'<svg class="{cls}" viewBox="0 0 24 24" aria-hidden="true" focusable="false" '
+            f'fill="none" stroke="currentColor" stroke-width="2" '
+            f'stroke-linecap="square" stroke-linejoin="miter">{body}</svg>')
+
+
+def tint_for(text):
+    """A stable tint per block, so a page looks the same on every rebuild.
+
+    Not hash(): Python salts string hashing per process, so the same content
+    would take a different colour on every run, the built output would never
+    settle, and the service worker's cache name (hashed from everything the
+    build wrote) would change for no reason.
+    """
+    return TINTS[zlib.crc32(text.encode("utf-8")) % len(TINTS)]
+
+
 def render_quote(b, copyable):
+    """A quote is a note, a tip or a caution: the short blocks, so these take a
+    colour fill. Long prose keeps paper and takes a frame instead."""
     if not copyable:
-        return f'<aside class="callout"><p>{md(b["text"])}</p></aside>'
+        text = b["text"]
+        tint = tint_for(text)
+        # Cautions read as cautions: the words decide the glyph, not the order.
+        low = plain_text(text).lower()
+        if any(w in low for w in ("careful", "warn", "avoid", "do not", "don't",
+                                  "risk", "scam", "illegal", "never pay")):
+            glyph, label = "warn", "Careful"
+        else:
+            glyph, label = "bulb", "Note"
+        return (f'<div class="block block-{tint} callout">'
+                f'<p class="block-tag">{icon(glyph)}{label}</p>'
+                f'<p>{md(text)}</p></div>')
+    lines = b.get("lines") or [b["text"]]
+    payload = "\n".join(plain_text(x) for x in lines)
+    return (f'<figure class="copyable block block-{tint_for(b["text"])}">'
+            f'<p class="block-tag">{icon("chat")}Script you can reuse</p>'
+            f'<blockquote><p>{"<br>".join(md(x) for x in lines)}</p>'
+            f'</blockquote>{copy_button(payload, "this text")}</figure>')
     lines = b.get("lines") or [b["text"]]
     payload = "\n".join(plain_text(x) for x in lines)
     return (f'<figure class="copyable"><blockquote><p>{"<br>".join(md(x) for x in lines)}</p>'
@@ -466,14 +572,29 @@ def render_blocks(bs, level=2, caption_from_heading=True, default_caption="",
                        f'{copy_button(chr(10).join(b["lines"]), "this card")}</figure>')
             out.append(pre)
         elif t == "list":
-            tag = "ol" if b["items"][0]["ordered"] else "ul"
+            ordered = b["items"][0]["ordered"]
+            tag = "ol" if ordered else "ul"
             items = "".join(
                 f'<li class="{"sub" if it["ind"] >= 2 else ""}">{md(it["text"])}</li>'
                 for it in b["items"])
-            out.append(f"<{tag}>{items}</{tag}>")
+            # A list is one independent block, so it gets one card. Long lists
+            # keep the paper ground and take a coloured frame; short ones take
+            # the fill, where body text is still comfortably readable.
+            tint = tint_for("".join(it["text"] for it in b["items"]))
+            long = sum(len(it["text"]) for it in b["items"]) > 420
+            cls = f"block block-{tint}" + (" block-frame" if long else "")
+            label = "Steps" if ordered else "Points"
+            out.append(f'<div class="{cls} block-list">'
+                       f'<p class="block-tag">{icon("list")}{label}</p>'
+                       f'<{tag}>{items}</{tag}></div>')
         elif t == "table":
             tick = 2 if ticks and [h.lower() for h in b["head"]] == BLOCK_HEAD else None
             caption = (current if caption_from_heading else default_caption) or None
+            if tick is not None:
+                # A week's activities: one card each, rather than a table that
+                # scrolls sideways on a phone.
+                out.append(render_activity_cards(b, ns=ns))
+                continue
             table = render_table(b, caption=caption, tick_col=tick,
                                  tick_label="Output done", ns=ns)
             if glossary and b["head"][0].strip().lower() == "term":
@@ -645,6 +766,36 @@ HOME_LINKS = [
 ]
 
 
+# One glyph per document, in document order.
+DOC_ICONS = ("book", "chart", "link", "scale", "case")
+
+
+def doc_card(b, i):
+    """One of the five documents as a card.
+
+    The words still come from content/ - this only changes the wrapper. A bold
+    lead-in ('**Document 1 - Start Here.**') is the title; the rest is the body.
+    Returns None if the paragraph isn't shaped like a document, so the caller
+    falls back to ordinary prose rather than risk mangling real copy.
+    """
+    m = re.match(r"\*\*(.+?)\.\*\*\s*(.*)", b["text"], re.S)
+    if not m:
+        return None
+    title, rest = m.group(1), m.group(2)
+    tint = TINTS[i % len(TINTS)]
+    return (f'<article class="block block-{tint} doc-card">'
+            f'<h3 class="doc-card-title">{icon(DOC_ICONS[i % len(DOC_ICONS)])}'
+            f'<span>{md(title)}</span></h3>'
+            f'<p>{md(rest)}</p></article>')
+
+
+def note_card(b, i):
+    """The honest notes are notes: short, self-contained, safe to fill."""
+    return (f'<div class="block block-{TINTS[i % len(TINTS)]}">'
+            f'<p class="block-tag">{icon("bulb")}Worth knowing</p>'
+            f'<p>{md(b["text"])}</p></div>')
+
+
 def build_home():
     src = (CONTENT / "HR_Library_Overview.md").read_text(encoding="utf-8")
     for old, new in HOME_REWRITES:
@@ -653,7 +804,30 @@ def build_home():
     blocks_ = R.parse(src)
     intro = next((b for b in blocks_ if b["t"] == "p"), None)
     rest = [b for b in blocks_ if b is not intro and not (b["t"] == "h" and b["l"] == 1)]
-    rendered = render_blocks(rest, level=2)
+
+    # A whole block of text gets a card of its own, but only where the copy is
+    # actually a discrete block: the five document descriptions and the honest
+    # notes. Running prose is left to run - wrapping every paragraph in a box
+    # turns a page of reading into a wall of boxes.
+    rendered_parts, section, counts = [], None, {"doc": 0, "note": 0}
+    for b in rest:
+        if b["t"] == "h":
+            section = plain_text(b.get("text", "")).strip().lower()
+            rendered_parts.append(render_blocks([b], level=2))
+        elif b["t"] == "p" and section == "the five documents":
+            card = doc_card(b, counts["doc"])
+            if card:
+                counts["doc"] += 1
+                rendered_parts.append(card)
+            else:
+                rendered_parts.append(render_blocks([b], level=2))
+        elif b["t"] == "p" and section == "a few honest notes":
+            rendered_parts.append(note_card(b, counts["note"]))
+            counts["note"] += 1
+        else:
+            rendered_parts.append(render_blocks([b], level=2))
+    rendered = "\n".join(rendered_parts)
+    assert counts["doc"] == 5, f"expected 5 document cards, made {counts['doc']}"
     for old, new in HOME_LINKS:
         rendered = rendered.replace(old, new)
     body = [hero(md("Your HR Library"), md(intro["text"]) if intro else "", "The compass",
