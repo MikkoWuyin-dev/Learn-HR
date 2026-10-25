@@ -3,7 +3,8 @@
 <!-- Overwrite this file at the end of each task. Don't append to it. Keep it under 160 lines.
      It is the only place that says "where we are". The commit log is the history. -->
 
-Updated: 2026-10-24 by Claude (PR #14 merged; budget and deploy settings both acknowledged)
+Updated: 2026-10-25 (PR #17 merged; band on all 55 pages). **Start here:** `HANDOVER.md` —
+sandbox-reset recovery, the owner's standing rules, the skills inventory, the traps.
 
 ## Now
 - `python3 tools/sitegen/check.py` is the gate: build · output audit · contrast · no-JS crawl ·
@@ -100,8 +101,8 @@ Updated: 2026-10-24 by Claude (PR #14 merged; budget and deploy settings both ac
   contentful paint **4.9 s** on `/`, `/2/plan/`, `/3/library/`, `/5/getting-the-job/`; transfers
   28.7 / 46.0 / 16.3 / 35.0 KB. Those are **uncompressed** — `python -m http.server` sends no
   gzip — so they run above the gate's gzipped figures.
-- **Print: done.** Card shadow `6px 6px 0 line` → `none`, hero border `0px`, hero shadow `none`,
-  body type 12.32px, 5/5 present chrome elements hidden, PDF 124 KB.
+- **Print: done.** Card shadow `6px 6px 0 line` → `none`, hero shadow `none`, the band keeps a
+  3px bottom rule only, body type 12.32px, 5/5 present chrome elements hidden, PDF 129 KB.
 
 ## Not verified, and why
 - **Three links stay inconclusive**: OpenLearn (403), labour.gov.ng (503), search.cac.gov.ng

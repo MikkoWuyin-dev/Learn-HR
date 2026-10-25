@@ -2,6 +2,7 @@
 
 Loaded at the start of every session, so it holds only what changes rarely. Anything with a
 number, a date or "currently" belongs in `STATUS.md`.
+**First, read `HANDOVER.md`** — sandbox-reset recovery, the owner's standing rules, skills, traps.
 
 ## What this is
 
