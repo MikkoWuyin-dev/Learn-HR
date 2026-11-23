@@ -1,0 +1,18 @@
+name: asset-pull
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/asset-pull.yml'
+      - '.github/scripts/asset_pull.py'
+permissions:
+  contents: read
+jobs:
+  pull:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/arena/6bb52b11-learn-hr'
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run asset discovery
+        run: python3 .github/scripts/asset_pull.py
