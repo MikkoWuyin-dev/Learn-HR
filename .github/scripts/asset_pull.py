@@ -5,6 +5,7 @@ Outputs a human-readable report, then a base64 payload framed by markers so the
 raw bytes can be reassembled downstream.
 """
 import base64
+import os
 import re
 import ssl
 import struct
@@ -89,6 +90,14 @@ def sniff(b):
     return "OTHER", "", ""
 
 
+OUT = "_assetpull"
+MANIFEST = []
+
+
+def dims_of(b):
+    return sniff(b)[1]
+
+
 def is_asset(kind):
     return kind in {"PNG", "JPEG", "SVG", "ICO", "WEBP", "GIF"}
 
@@ -101,6 +110,16 @@ def add(url, data, kind, note=""):
         return False
     if url not in found:
         found[url] = data
+        ext = {"PNG": "png", "JPEG": "jpg", "SVG": "svg", "ICO": "ico",
+               "WEBP": "webp", "GIF": "gif"}[kind]
+        base = os.path.basename(urllib.parse.urlparse(url).path) or "asset"
+        base = re.sub(r"[^A-Za-z0-9._-]+", "_", base)
+        if not base.lower().endswith("." + ext):
+            base += "." + ext
+        safe = f"{len(found):02d}_{base}"
+        os.makedirs(OUT + "/files", exist_ok=True)
+        open(f"{OUT}/files/{safe}", "wb").write(data)
+        MANIFEST.append((safe, url, kind, dims_of(data), len(data)))
         print(f"  + {kind:4} {len(data):>8}  {url} {note}")
         return True
     return False
@@ -109,11 +128,14 @@ def add(url, data, kind, note=""):
 def main():
     print("###### PAGES ######")
     htmls = {}
+    os.makedirs(OUT + "/html", exist_ok=True)
     for p in PAGES:
         st, ct, body = fetch(BASE + p)
         print(f"{p:24} {st} {len(body)} {ct}")
         if body and "html" in ct:
             htmls[p] = body
+            name = p.strip("/").replace("/", "_") or "home"
+            open(f"{OUT}/html/{name}.html", "wb").write(body)
 
     allhtml = b"\n".join(htmls.values()).decode("utf-8", "replace")
 
@@ -258,6 +280,15 @@ def main():
                 print(blk[i:i + 3000])
         print("===ENDFILE===")
     print(f"###### PAYLOAD TOTAL CHARS: {total} ######")
+
+    os.makedirs(OUT, exist_ok=True)
+    with open(f"{OUT}/manifest.tsv", "w") as fh:
+        fh.write("file\tkind\tdims\tbytes\tsource_url\n")
+        for safe, url, kind, d, ln in MANIFEST:
+            fh.write(f"{safe}\t{kind}\t{d}\t{ln}\t{url}\n")
+    with open(f"{OUT}/candidate_urls.txt", "w") as fh:
+        for u in sorted(urls):
+            fh.write(u + "\n")
     print("###### DONE ######")
 
 
